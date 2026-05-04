@@ -1,87 +1,103 @@
 import { motion } from "framer-motion";
-import { Shield, Headphones, Hotel, Car, BookOpen, Users, Plane, CreditCard, Heart } from "lucide-react";
+import { ShieldCheck, Home, CalendarCheck, Clock, BadgeCheck, Headphones } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
-
-const iconMap: Record<string, any> = { Shield, Headphones, Hotel, Car, BookOpen, Users, Plane, CreditCard, Heart };
-
-const defaultFacilitiesBn = [
-  { icon: "Shield", title: "ভিসা প্রসেসিং", desc: "উমরাহ ভিসা সহ প্রবাসী ভাইদের জিয়ারা ভিসা প্রসেসিং করণে সর্বাত্মক সহায়তা।" },
-  { icon: "Plane", title: "ফ্লাইট বুকিং", desc: "আন্তর্জাতিক ও অভ্যন্তরীণ টিকিট বুকিং ও ইস্যু করণ" },
-  { icon: "Hotel", title: "হোটেল ব্যবস্থা", desc: "পবিত্র হারাম শরীফের সন্নিকটে যে কোনো মানের হোটেল বুকিং সেবা" },
-  { icon: "Car", title: "পরিবহন সেবা", desc: "এয়ারপোর্ট ড্রপ আউট এবং মক্কা মদিনার স্থানীয় পরিবহন সেবা" },
-  { icon: "BookOpen", title: "প্রশিক্ষণ", desc: "হজ্জ ও ওমরাহ প্রশিক্ষণ কার্যক্রম" },
-  { icon: "Users", title: "গাইড সেবা", desc: "অভিজ্ঞ দোভাষী আলেম হজ্ব গাইড" },
-  { icon: "Headphones", title: "২৪/৭ সাপোর্ট", desc: "যেকোনো সময় সহায়তা পাবেন" },
-  { icon: "CreditCard", title: "স্বচ্ছ মূল্য", desc: "কোন লুকানো চার্জ নেই" },
-  { icon: "Heart", title: "কাস্টমাইজড প্যাকেজ", desc: "আপনার চাহিদা অনুযায়ী প্যাকেজ" },
-];
-
-const defaultFacilitiesEn = [
-  { icon: "Shield", title: "Visa Processing", desc: "Complete Saudi Arabia visa processing support" },
-  { icon: "Plane", title: "Flight Booking", desc: "Flight booking on best airlines" },
-  { icon: "Hotel", title: "Hotel Arrangement", desc: "Quality hotels near Haram Sharif" },
-  { icon: "Car", title: "Transport Service", desc: "Airport transfer & local transportation" },
-  { icon: "BookOpen", title: "Training", desc: "Hajj & Umrah training programs" },
-  { icon: "Users", title: "Guide Service", desc: "Experienced Bengali-speaking guides" },
-  { icon: "Headphones", title: "24/7 Support", desc: "Assistance available anytime" },
-  { icon: "CreditCard", title: "Transparent Pricing", desc: "No hidden charges" },
-  { icon: "Heart", title: "Customized Packages", desc: "Packages tailored to your needs" },
-];
 
 const FacilitiesSection = () => {
-  const { t, language } = useLanguage();
-  const { data: content } = useBulkSiteContent("facilities");
+  const { language } = useLanguage();
   const bn = language === "bn";
-  const lc = content?.[language];
 
-  const sectionLabel = lc?.section_label || t("facilities.label");
-  const heading = lc?.heading || t("facilities.heading");
-  const headingHighlight = lc?.heading_highlight || t("facilities.headingHighlight");
-  const description = lc?.description || t("facilities.description");
-  const items = lc?.items || (bn ? defaultFacilitiesBn : defaultFacilitiesEn);
+  const items = [
+    {
+      Icon: ShieldCheck,
+      titleEn: "BMET-Approved Process",
+      titleBn: "BMET অনুমোদিত প্রসেস",
+      descEn: "100% legal recruitment under government-approved licence (RL-1142 partner).",
+      descBn: "সরকার অনুমোদিত লাইসেন্সের অধীনে ১০০% বৈধ প্রসেস (RL-1142 পার্টনার)।",
+    },
+    {
+      Icon: Home,
+      titleEn: "Free Accommodation",
+      titleBn: "ফ্রি আবাসন",
+      descEn: "Company-provided housing in Fiji throughout your contract.",
+      descBn: "কন্ট্রাক্ট চলাকালীন কোম্পানির পক্ষ থেকে আবাসন সম্পূর্ণ ফ্রি।",
+    },
+    {
+      Icon: CalendarCheck,
+      titleEn: "3-Year Renewable Permit",
+      titleBn: "৩ বছরের নবায়নযোগ্য পারমিট",
+      descEn: "Long-term work permit with the option to renew on completion.",
+      descBn: "দীর্ঘমেয়াদী ওয়ার্ক পারমিট, মেয়াদ শেষে নবায়নের সুবিধা।",
+    },
+    {
+      Icon: Clock,
+      titleEn: "Fast Visa Processing",
+      titleBn: "দ্রুত ভিসা প্রসেসিং",
+      descEn: "Visa completed in just 3–4 months with full transparency.",
+      descBn: "মাত্র ৩–৪ মাসে স্বচ্ছ প্রক্রিয়ায় ভিসা সম্পন্ন।",
+    },
+    {
+      Icon: BadgeCheck,
+      titleEn: "8-Hour Duty + Overtime",
+      titleBn: "৮ ঘন্টা ডিউটি + ওভারটাইম",
+      descEn: "Standard 8-hour shifts with attractive overtime earnings.",
+      descBn: "নিয়মিত ৮ ঘন্টা ডিউটি, সাথে আকর্ষণীয় ওভারটাইম আয়।",
+    },
+    {
+      Icon: Headphones,
+      titleEn: "End-to-End Support",
+      titleBn: "সম্পূর্ণ সাপোর্ট",
+      descEn: "From documentation to landing in Fiji — our team is with you.",
+      descBn: "ডকুমেন্টেশন থেকে ফিজিতে অবতরণ পর্যন্ত — আমরা পাশে।",
+    },
+  ];
 
   return (
     <section id="facilities" className="py-24 bg-secondary/30 relative overflow-hidden">
-      <div className="absolute inset-0 islamic-pattern opacity-30" />
-      
+      <div className="absolute inset-0 travel-pattern opacity-30" />
+
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-14"
         >
-          <span className="text-primary text-xs font-semibold tracking-[0.3em] uppercase">{sectionLabel}</span>
+          <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">
+            {bn ? "কেন আমাদের বেছে নেবেন" : "Why choose us"}
+          </span>
           <h2 className="font-heading text-3xl md:text-5xl font-bold mt-3 mb-4">
-            {heading} <span className="text-gradient-gold">{headingHighlight}</span>
+            {bn ? "Hasan Travels এর " : "The Hasan Travels "}
+            <span className="text-gradient-ocean">{bn ? "প্রতিশ্রুতি" : "promise"}</span>
           </h2>
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="h-px w-12 bg-primary/30" />
-            <div className="w-2 h-2 rounded-full bg-primary/50" />
-            <div className="h-px w-12 bg-primary/30" />
-          </div>
-          <p className="text-muted-foreground max-w-2xl mx-auto">{description}</p>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            {bn
+              ? "নিরাপদ, স্বচ্ছ ও সম্পূর্ণ বৈধ — আপনার বিদেশযাত্রা যেন হয় চিন্তামুক্ত।"
+              : "Safe, transparent and fully legal — so your overseas journey is worry-free."}
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
-          {items.map((item: any, i: number) => {
-            const IconComp = iconMap[item.icon] || Shield;
+          {items.map((item, i) => {
+            const Icon = item.Icon;
             return (
               <motion.div
-                key={i}
+                key={item.titleEn}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className="flex items-start gap-4 p-5 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-soft transition-all group"
+                className="flex items-start gap-4 p-5 rounded-2xl bg-card border border-border hover:border-accent/40 hover:shadow-soft transition-all group"
               >
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 group-hover:scale-105 transition-all">
-                  <IconComp className="h-5 w-5 text-primary" />
+                <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 group-hover:scale-105 transition-all">
+                  <Icon className="h-5 w-5 text-accent" />
                 </div>
                 <div>
-                  <h3 className="font-heading font-semibold text-foreground mb-1">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <h3 className="font-heading font-semibold text-foreground mb-1">
+                    {bn ? item.titleBn : item.titleEn}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {bn ? item.descBn : item.descEn}
+                  </p>
                 </div>
               </motion.div>
             );
