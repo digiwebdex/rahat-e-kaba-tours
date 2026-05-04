@@ -1,13 +1,8 @@
 import { motion } from "framer-motion";
-import { MessageCircle, Wrench, HardHat, Factory, Shirt, Briefcase } from "lucide-react";
+import { Send, Wrench, HardHat, Factory, Shirt, Briefcase } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useState } from "react";
-
-const WHATSAPP = "8801322181500";
-const waLink = (positionEn: string) =>
-  `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
-    `Hello Hasan Travels, I'd like to apply for: ${positionEn} (Fiji Work Permit).`
-  )}`;
+import ApplyDialog from "./ApplyDialog";
 
 type Cat = "mechanical" | "construction" | "industrial" | "garments" | "office";
 
