@@ -493,7 +493,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Footer extras
     "footer.companyName": "HASAN TRAVELS",
-    "footer.tagline": "Travel Hub",
+    "footer.tagline": "",
     "footer.description": "Your trusted companion for Hajj & Umrah. Making sacred journeys easy and comfortable.",
     "footer.address": "4th Floor, Jail Road, Munshipara,\nDinajpur Sadar - 5200",
     "footer.quote": "\"Decades ahead and one step further in our journey of Hajj & Umrah service.\"",
@@ -1014,8 +1014,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "common.packagesSuffix": "টি",
 
     // Footer extras
-    "footer.companyName": "মানাসিক",
-    "footer.tagline": "ট্রাভেল হাব",
+    "footer.companyName": "হাসান ট্রাভেলস",
+    "footer.tagline": "",
     "footer.description": "হজ্ব ও উমরাহ সেবায় আপনার বিশ্বস্ত সঙ্গী। পবিত্র যাত্রাকে সহজ ও আরামদায়ক করছি।",
     "footer.address": "৪র্থ তলা, জেল রোড, মুন্সিপাড়া,\nদিনাজপুর সদর - ৫২০০",
     "footer.quote": "\"হজ্ব ও উমরাহ সেবায় আমাদের চলার পথে দের যুগ ছাড়িয়ে এবং এক ধাপ এগিয়ে\"",
