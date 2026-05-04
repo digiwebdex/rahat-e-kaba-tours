@@ -1,13 +1,8 @@
 import { motion } from "framer-motion";
-import { MessageCircle, Wrench, HardHat, Factory, Shirt, Briefcase } from "lucide-react";
+import { Send, Wrench, HardHat, Factory, Shirt, Briefcase } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useState } from "react";
-
-const WHATSAPP = "8801322181500";
-const waLink = (positionEn: string) =>
-  `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
-    `Hello Hasan Travels, I'd like to apply for: ${positionEn} (Fiji Work Permit).`
-  )}`;
+import ApplyDialog from "./ApplyDialog";
 
 type Cat = "mechanical" | "construction" | "industrial" | "garments" | "office";
 
@@ -73,8 +68,11 @@ const OpenPositionsSection = () => {
   const { language } = useLanguage();
   const bn = language === "bn";
   const [active, setActive] = useState<Cat | "all">("all");
+  const [applyOpen, setApplyOpen] = useState(false);
+  const [presetPosition, setPresetPosition] = useState<string>("");
 
   const filtered = active === "all" ? POSITIONS : POSITIONS.filter((p) => p.cat === active);
+  const openApply = (pos: string) => { setPresetPosition(pos); setApplyOpen(true); };
 
   return (
     <section id="positions" className="py-24 bg-secondary/30 relative overflow-hidden">
@@ -151,15 +149,13 @@ const OpenPositionsSection = () => {
                   </div>
                 </div>
               </div>
-              <a
-                href={waLink(p.en)}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => openApply(p.en)}
                 className="mt-3 inline-flex w-full items-center justify-center gap-2 bg-gradient-ocean text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:shadow-ocean transition-all"
               >
-                <MessageCircle className="h-4 w-4" />
-                {bn ? "WhatsApp এ আবেদন" : "Apply on WhatsApp"}
-              </a>
+                <Send className="h-4 w-4" />
+                {bn ? "এখনই আবেদন করুন" : "Apply Now"}
+              </button>
             </motion.div>
           ))}
         </div>
@@ -170,6 +166,8 @@ const OpenPositionsSection = () => {
             : "* Salary in BDT — varies with experience. Bring CV, passport, work video and white-background photo for the interview."}
         </p>
       </div>
+
+      <ApplyDialog open={applyOpen} onOpenChange={setApplyOpen} serviceType="work_permit" preset={presetPosition} />
     </section>
   );
 };

@@ -1,12 +1,9 @@
 import { motion } from "framer-motion";
-import { GraduationCap, BookOpen, FileCheck2, Plane, MessageCircle, ArrowRight } from "lucide-react";
+import { GraduationCap, BookOpen, FileCheck2, Plane, Send, ArrowRight } from "lucide-react";
 import studentImg from "@/assets/student-consultancy.jpg";
 import { useLanguage } from "@/i18n/LanguageContext";
-
-const WHATSAPP = "8801322181500";
-const WA = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
-  "Hello Hasan Travels, I'd like a free student consultancy session."
-)}`;
+import { useState } from "react";
+import ApplyDialog from "./ApplyDialog";
 
 const COUNTRIES = [
   { flag: "🇬🇧", en: "United Kingdom", bn: "যুক্তরাজ্য" },
@@ -20,6 +17,7 @@ const COUNTRIES = [
 const StudentConsultancySection = () => {
   const { language } = useLanguage();
   const bn = language === "bn";
+  const [applyOpen, setApplyOpen] = useState(false);
 
   const services = [
     { Icon: BookOpen, en: "Course & University Selection", bn: "কোর্স ও ইউনিভার্সিটি নির্বাচন" },
@@ -112,19 +110,19 @@ const StudentConsultancySection = () => {
               </div>
             </div>
 
-            <a
-              href={WA}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setApplyOpen(true)}
               className="group inline-flex items-center gap-2 bg-gradient-ocean text-white font-semibold px-6 py-3.5 rounded-full shadow-ocean hover:shadow-glow transition-all hover:scale-105"
             >
-              <MessageCircle className="h-5 w-5" />
-              {bn ? "ফ্রি কনসালটেশন বুক করুন" : "Book a Free Consultation"}
+              <Send className="h-5 w-5" />
+              {bn ? "এখনই আবেদন করুন" : "Apply Now"}
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </a>
+            </button>
           </motion.div>
         </div>
       </div>
+
+      <ApplyDialog open={applyOpen} onOpenChange={setApplyOpen} serviceType="student_consultancy" />
     </section>
   );
 };
