@@ -1,12 +1,9 @@
 import { motion } from "framer-motion";
-import { GraduationCap, BookOpen, FileCheck2, Plane, MessageCircle, ArrowRight } from "lucide-react";
+import { GraduationCap, BookOpen, FileCheck2, Plane, Send, ArrowRight } from "lucide-react";
 import studentImg from "@/assets/student-consultancy.jpg";
 import { useLanguage } from "@/i18n/LanguageContext";
-
-const WHATSAPP = "8801322181500";
-const WA = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
-  "Hello Hasan Travels, I'd like a free student consultancy session."
-)}`;
+import { useState } from "react";
+import ApplyDialog from "./ApplyDialog";
 
 const COUNTRIES = [
   { flag: "🇬🇧", en: "United Kingdom", bn: "যুক্তরাজ্য" },
