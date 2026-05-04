@@ -68,8 +68,11 @@ const OpenPositionsSection = () => {
   const { language } = useLanguage();
   const bn = language === "bn";
   const [active, setActive] = useState<Cat | "all">("all");
+  const [applyOpen, setApplyOpen] = useState(false);
+  const [presetPosition, setPresetPosition] = useState<string>("");
 
   const filtered = active === "all" ? POSITIONS : POSITIONS.filter((p) => p.cat === active);
+  const openApply = (pos: string) => { setPresetPosition(pos); setApplyOpen(true); };
 
   return (
     <section id="positions" className="py-24 bg-secondary/30 relative overflow-hidden">
