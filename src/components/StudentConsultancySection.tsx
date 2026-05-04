@@ -17,6 +17,7 @@ const COUNTRIES = [
 const StudentConsultancySection = () => {
   const { language } = useLanguage();
   const bn = language === "bn";
+  const [applyOpen, setApplyOpen] = useState(false);
 
   const services = [
     { Icon: BookOpen, en: "Course & University Selection", bn: "কোর্স ও ইউনিভার্সিটি নির্বাচন" },
