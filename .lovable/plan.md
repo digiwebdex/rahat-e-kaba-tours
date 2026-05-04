@@ -1,6 +1,6 @@
 ## Goal
 
-Rebrand this remixed project from **TRIP TASTIC** to **Hasan Travels** — name only for now. Once you upload the Facebook logo screenshot, I'll extract a matching color palette and apply it across the public site + admin panel. All old transactional data in the database will be wiped clean.
+Rebrand this remixed project from **Hasan Travels** to **Hasan Travels** — name only for now. Once you upload the Facebook logo screenshot, I'll extract a matching color palette and apply it across the public site + admin panel. All old transactional data in the database will be wiped clean.
 
 ## Waiting on you
 
@@ -10,9 +10,9 @@ Please upload the **Hasan Travels logo screenshot** from the Facebook page in th
 
 ## Scope of changes
 
-### 1. Brand name swap (everywhere "TRIP TASTIC" appears)
+### 1. Brand name swap (everywhere "Hasan Travels" appears)
 
-Replace all visible occurrences of `TRIP TASTIC` / `TRIPTASTIC` / `Trip Tastic` with `Hasan Travels`:
+Replace all visible occurrences of `Hasan Travels` / `HASAN TRAVELS` / `Hasan Travels` with `Hasan Travels`:
 
 - `index.html` — `<title>`, meta description, OG tags, twitter tags, canonical URL placeholder
 - `src/components/Navbar.tsx`, `Footer.tsx`, `HeroSection.tsx`, `AboutSection.tsx`, `ContactSection.tsx`
@@ -20,7 +20,7 @@ Replace all visible occurrences of `TRIP TASTIC` / `TRIPTASTIC` / `Trip Tastic` 
 - `src/lib/pdfCompanyConfig.ts` — `DEFAULT_CONFIG` (company_name, footer text, email)
 - `src/i18n/translations.ts` — both EN + BN strings
 - `public/sitemap.xml`, `public/robots.txt`, `README.md`
-- Any hardcoded `triptastic.com.bd` / `info@triptastic.com.bd` / phone numbers → leave as placeholders (e.g. `info@hasantravels.com`) since you said only name change for now
+- Any hardcoded `hasantravels.com.bd` / `info@hasantravels.com.bd` / phone numbers → leave as placeholders (e.g. `info@hasantravels.com`) since you said only name change for now
 
 I'll grep the full repo to catch every instance.
 

@@ -1,4 +1,4 @@
-# Change History — TRIP TASTIC
+# Change History — Hasan Travels
 
 > Complete log of all major changes, features, and fixes
 > **Last Updated:** April 2026

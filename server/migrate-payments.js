@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * TRIP TASTIC - Payments & Transactions Migration
+ * Hasan Travels - Payments & Transactions Migration
  * Run: cd server && node migrate-payments.js
  * 
  * This migrates payments and transactions from Supabase.

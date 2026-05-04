@@ -1,4 +1,4 @@
-# Security Documentation — TRIP TASTIC
+# Security Documentation — Hasan Travels
 
 > Security measures, authentication, authorization, and best practices
 > **Last Updated:** April 2026
@@ -30,4 +30,4 @@
 ## 5. Incident Response
 - In case of a suspected breach, immediately rotate `JWT_SECRET` and `DATABASE_URL` credentials.
 - Flush all active sessions by clearing the `refresh_tokens` table in the database.
-- Review PM2 logs (`pm2 logs triptastic-api`) for suspicious activity patterns.
+- Review PM2 logs (`pm2 logs hasantravels-api`) for suspicious activity patterns.

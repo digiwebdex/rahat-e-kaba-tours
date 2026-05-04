@@ -16,7 +16,7 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
 
   const phone = content?.phone || "+880 1711-925400";
-  const email = content?.email || "info@triptastic.com.bd";
+  const email = content?.email || "info@hasantravels.com.bd";
   const location = content?.location || (bn ? "৪র্থ তলা, জেল রোড, মুন্সিপাড়া, দিনাজপুর সদর - ৫২০০" : "4th Floor, Jail Road, Munshipara, Dinajpur Sadar - 5200");
   const hours = content?.hours || (bn ? "শনি - বৃহঃ: সকাল ৯টা - রাত ৯টা" : "Sat - Thu: 9AM - 9PM");
 
@@ -59,9 +59,9 @@ const Contact = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Contact Us - যোগাযোগ"
-        description="ট্রিপ টেস্টিক এর সাথে যোগাযোগ করুন। ফোন, ইমেইল বা অফিসে আসুন। Contact TRIP TASTIC."
+        description="ট্রিপ টেস্টিক এর সাথে যোগাযোগ করুন। ফোন, ইমেইল বা অফিসে আসুন। Contact Hasan Travels."
         canonicalUrl="/contact"
-        keywords="যোগাযোগ, contact, TRIP TASTIC contact, phone, email"
+        keywords="যোগাযোগ, contact, Hasan Travels contact, phone, email"
         jsonLd={breadcrumbJsonLd([
           { name: "Home", url: "/" },
           { name: "Contact", url: "/contact" },

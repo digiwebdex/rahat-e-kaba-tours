@@ -1,7 +1,7 @@
 import QRCode from "qrcode";
 import jsPDF from "jspdf";
 
-const TRACKING_BASE_URL = "https://triptastic.com.bd/verify";
+const TRACKING_BASE_URL = "https://hasantravels.com.bd/verify";
 
 /**
  * Generate a QR code data URL for a booking tracking ID.

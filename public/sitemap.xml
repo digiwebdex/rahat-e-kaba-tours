@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://triptastic.com.bd/</loc>
+    <loc>https://hasantravels.com.bd/</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://triptastic.com.bd/packages</loc>
+    <loc>https://hasantravels.com.bd/packages</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://triptastic.com.bd/hotels</loc>
+    <loc>https://hasantravels.com.bd/hotels</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://triptastic.com.bd/about</loc>
+    <loc>https://hasantravels.com.bd/about</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://triptastic.com.bd/contact</loc>
+    <loc>https://hasantravels.com.bd/contact</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://triptastic.com.bd/track</loc>
+    <loc>https://hasantravels.com.bd/track</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

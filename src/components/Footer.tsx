@@ -1,7 +1,7 @@
 import { Phone, Mail, MapPin, Facebook, Youtube, Instagram, Plane } from "lucide-react";
 import AdventureCTA from "@/components/AdventureCTA";
 import sslcommerzPayWith from "@/assets/payment/sslcommerz-pay-with.png";
-import logo from "@/assets/triptastic-logo.png";
+import logo from "@/assets/hasantravels-logo.png";
 import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 import { useLanguage } from "@/i18n/LanguageContext";
 
@@ -14,7 +14,7 @@ const Footer = () => {
   const tagline = lc?.company_tagline || content?.company_tagline || t("footer.tagline");
   const description = lc?.description || content?.description || t("footer.description");
   const phone = content?.phone || "+880 1711-925400";
-  const email = content?.email || "info@triptastic.com.bd";
+  const email = content?.email || "info@hasantravels.com.bd";
   const address = lc?.address || content?.address || t("footer.address");
   const fallbackServices = [
     t("footer.servicesList.0"),

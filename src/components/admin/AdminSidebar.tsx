@@ -4,7 +4,7 @@ import {
   Hotel, Bell, AlertTriangle, BookOpen, DollarSign, RotateCcw, PieChart,
   Plane, FileCheck, Map, Search, Upload, Shield, ShieldCheck,
 } from "lucide-react";
-import logo from "@/assets/triptastic-logo.png";
+import logo from "@/assets/hasantravels-logo.png";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -103,7 +103,7 @@ export function AdminSidebar({ role }: { role: AppRole }) {
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
           <div className="bg-white rounded-md p-1 shadow-sm border border-border">
-            <img src={logo} alt="Trip Tastic Logo" className="h-9 w-9 object-contain" />
+            <img src={logo} alt="Hasan Travels Logo" className="h-9 w-9 object-contain" />
           </div>
           <span className="font-heading text-base font-bold text-primary">Admin</span>
         </div>

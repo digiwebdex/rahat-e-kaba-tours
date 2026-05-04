@@ -12,11 +12,11 @@ interface SEOHeadProps {
   lang?: string;
 }
 
-const SITE_NAME = "TRIP TASTIC";
+const SITE_NAME = "Hasan Travels";
 const DEFAULT_DESCRIPTION =
-  "TRIP TASTIC — Premium Hajj, Umrah, international tours, air tickets, visa processing & air ambulance support. Trusted travel partner from Bangladesh.";
+  "Hasan Travels — Premium Hajj, Umrah, international tours, air tickets, visa processing & air ambulance support. Trusted travel partner from Bangladesh.";
 const DEFAULT_OG_IMAGE = "/og-image.jpg";
-const BASE_URL = "https://triptastic.com.bd";
+const BASE_URL = "https://hasantravels.com.bd";
 
 export default function SEOHead({
   title,
