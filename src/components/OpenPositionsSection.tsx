@@ -149,15 +149,13 @@ const OpenPositionsSection = () => {
                   </div>
                 </div>
               </div>
-              <a
-                href={waLink(p.en)}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => openApply(p.en)}
                 className="mt-3 inline-flex w-full items-center justify-center gap-2 bg-gradient-ocean text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:shadow-ocean transition-all"
               >
-                <MessageCircle className="h-4 w-4" />
-                {bn ? "WhatsApp এ আবেদন" : "Apply on WhatsApp"}
-              </a>
+                <Send className="h-4 w-4" />
+                {bn ? "এখনই আবেদন করুন" : "Apply Now"}
+              </button>
             </motion.div>
           ))}
         </div>
@@ -168,6 +166,8 @@ const OpenPositionsSection = () => {
             : "* Salary in BDT — varies with experience. Bring CV, passport, work video and white-background photo for the interview."}
         </p>
       </div>
+
+      <ApplyDialog open={applyOpen} onOpenChange={setApplyOpen} serviceType="work_permit" preset={presetPosition} />
     </section>
   );
 };
