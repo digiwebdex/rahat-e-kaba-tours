@@ -2,72 +2,44 @@ import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
-import PackagesSection from "@/components/PackagesSection";
+import OpenPositionsSection from "@/components/OpenPositionsSection";
 import FacilitiesSection from "@/components/FacilitiesSection";
-import TypedPackageSection from "@/components/TypedPackageSection";
+import ProcessTimeline from "@/components/ProcessTimeline";
+import StudentConsultancySection from "@/components/StudentConsultancySection";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import BackToTop from "@/components/BackToTop";
-import { useSectionVisibility } from "@/hooks/useSectionVisibility";
 import SEOHead, { organizationJsonLd } from "@/components/SEOHead";
 import { SiteContentProvider } from "@/hooks/useSiteContentProvider";
 
-// Lazy load below-fold sections with retry for stale chunk errors
-const lazyRetry = (importFn: () => Promise<any>) =>
-  lazy(() =>
-    importFn().catch(() => {
-      window.location.reload();
-      return importFn();
-    })
-  );
-
-
-const VideoGuideSection = lazyRetry(() => import("@/components/VideoGuideSection"));
-const GallerySection = lazyRetry(() => import("@/components/GallerySection"));
-const TestimonialsSection = lazyRetry(() => import("@/components/TestimonialsSection"));
-const AboutSection = lazyRetry(() => import("@/components/AboutSection"));
-const ContactSection = lazyRetry(() => import("@/components/ContactSection"));
+const ContactSection = lazy(() => import("@/components/ContactSection"));
+const AboutSection = lazy(() => import("@/components/AboutSection"));
 
 const SectionFallback = () => <div className="py-20" />;
 
 const Index = () => {
-  const { visibility, loading } = useSectionVisibility();
-  const show = (key: string) => loading || visibility[key] !== false;
-
   return (
     <SiteContentProvider>
       <div className="min-h-screen bg-background">
         <SEOHead
           canonicalUrl="/"
-          description="Hasan Travels — Hajj, Umrah, international tours, air tickets, visa processing & air ambulance. Your trusted travel partner."
-          keywords="Hasan Travels, travel agency Bangladesh, Hajj package, Umrah package, tour package, air ticket, tourist visa, business visa, medical visa, work visa, air ambulance"
+          description="Hasan Travels — Fiji Work Permit Visa, Student Consultancy, Air Tickets & Visa Support. BMET-approved legal recruitment from Bangladesh."
+          keywords="Hasan Travels, Fiji work permit, BMET approved, student consultancy Bangladesh, overseas jobs, work visa Fiji, study abroad, Hajj Umrah"
           jsonLd={organizationJsonLd()}
         />
         <Navbar />
-        {show("hero") && <HeroSection />}
-        {show("services") && <ServicesSection />}
-        {show("packages") && <PackagesSection />}
-        {show("facilities") && <FacilitiesSection />}
-        {show("gallery") && (
-          <Suspense fallback={<SectionFallback />}>
-            <GallerySection />
-          </Suspense>
-        )}
-        {show("testimonials") && (
-          <Suspense fallback={<SectionFallback />}>
-            <TestimonialsSection />
-          </Suspense>
-        )}
-        {show("about") && (
-          <Suspense fallback={<SectionFallback />}>
-            <AboutSection />
-          </Suspense>
-        )}
-        {show("contact") && (
-          <Suspense fallback={<SectionFallback />}>
-            <ContactSection />
-          </Suspense>
-        )}
+        <HeroSection />
+        <ServicesSection />
+        <OpenPositionsSection />
+        <FacilitiesSection />
+        <ProcessTimeline />
+        <StudentConsultancySection />
+        <Suspense fallback={<SectionFallback />}>
+          <AboutSection />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <ContactSection />
+        </Suspense>
         <Footer />
         <WhatsAppFloat />
         <BackToTop />
