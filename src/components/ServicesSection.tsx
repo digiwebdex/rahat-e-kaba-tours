@@ -245,6 +245,13 @@ const ServicesSection = () => {
                   className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${s.gradient} opacity-10 group-hover:opacity-25 blur-2xl transition-opacity`}
                 />
 
+                {s.status === "soon" && (
+                  <div className="absolute top-4 -right-10 rotate-45 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-[10px] font-extrabold uppercase tracking-[0.2em] px-12 py-1 shadow-md z-10 animate-pulse">
+                    {bn ? "শীঘ্রই" : "Soon"}
+                  </div>
+                )}
+
+
                 <div className="flex items-start justify-between mb-5 relative">
                   <div
                     className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300`}
@@ -252,8 +259,9 @@ const ServicesSection = () => {
                     <Icon className="h-7 w-7 text-white" />
                   </div>
                   {s.status === "soon" ? (
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
-                      {bn ? "শীঘ্রই" : "Soon"}
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-600 border border-amber-500/30">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                      {bn ? "শীঘ্রই আসছে" : "Coming Soon"}
                     </span>
                   ) : (
                     <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-accent group-hover:text-accent-foreground group-hover:rotate-45 transition-all">
