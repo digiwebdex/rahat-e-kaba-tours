@@ -2,7 +2,7 @@ import {
   LayoutDashboard, FileText, Users, Package, CreditCard,
   Calculator, BarChart3, Pencil, Settings, LogOut, UserCheck, Truck,
   Hotel, Bell, AlertTriangle, BookOpen, DollarSign, RotateCcw, PieChart,
-  Plane, FileCheck, Map, Search, Upload, Shield, ShieldCheck,
+  Plane, FileCheck, Map, Search, Upload, Shield, ShieldCheck, Briefcase, GraduationCap,
 } from "lucide-react";
 import logo from "@/assets/hasantravels-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -28,6 +28,8 @@ const mainMenuItems = [
   { title: "Ticket Refunds",  url: "/admin/ticket-refunds", icon: RotateCcw,       roles: ["admin", "accountant", "viewer"] },
   { title: "Tours",           url: "/admin/packages?type=tour",      icon: Map,     roles: ["admin", "viewer"] },
   { title: "Hotels",          url: "/admin/hotels",         icon: Hotel,           roles: ["admin", "viewer"] },
+  { title: "Work Permit",     url: "/admin/work-permit",    icon: Briefcase,       roles: ["admin", "accountant", "booking", "viewer"] },
+  { title: "Student Consultancy", url: "/admin/student-consultancy", icon: GraduationCap, roles: ["admin", "accountant", "booking", "viewer"] },
 ];
 
 const financeMenuItems = [

@@ -63,6 +63,8 @@ const AdminBulkImportPage = lazy(() => import("./pages/admin/AdminBulkImportPage
 const AdminAuditLogsPage = lazy(() => import("./pages/admin/AdminAuditLogsPage"));
 const AdminSecurityPage = lazy(() => import("./pages/admin/AdminSecurityPage"));
 const AdminGuidePage = lazy(() => import("./pages/admin/AdminGuidePage"));
+const AdminWorkPermitPage = lazy(() => import("./pages/admin/AdminWorkPermitPage"));
+const AdminStudentConsultancyPage = lazy(() => import("./pages/admin/AdminStudentConsultancyPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -144,6 +146,8 @@ const App = () => (
               <Route path="audit-logs" element={<AdminAuditLogsPage />} />
               <Route path="security" element={<AdminSecurityPage />} />
               <Route path="guide" element={<AdminGuidePage />} />
+              <Route path="work-permit" element={<AdminWorkPermitPage />} />
+              <Route path="student-consultancy" element={<AdminStudentConsultancyPage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
             </Route>
 
