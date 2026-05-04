@@ -1,5 +1,8 @@
-import { motion } from "framer-motion";
-import { Send, Wrench, HardHat, Factory, Shirt, Briefcase } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Send, Wrench, HardHat, Factory, Shirt, Briefcase,
+  ChevronDown, Clock, Home, Plane, ShieldCheck, Calendar, Utensils, Stethoscope,
+} from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useState } from "react";
 import ApplyDialog from "./ApplyDialog";
@@ -70,9 +73,21 @@ const OpenPositionsSection = () => {
   const [active, setActive] = useState<Cat | "all">("all");
   const [applyOpen, setApplyOpen] = useState(false);
   const [presetPosition, setPresetPosition] = useState<string>("");
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   const filtered = active === "all" ? POSITIONS : POSITIONS.filter((p) => p.cat === active);
   const openApply = (pos: string) => { setPresetPosition(pos); setApplyOpen(true); };
+
+  const packageDetails = (p: Position) => [
+    { Icon: Calendar, en: "Contract", bn: "চুক্তি", val: bn ? "৩ বছর (নবায়নযোগ্য)" : "3 years (renewable)" },
+    { Icon: Clock, en: "Work hours", bn: "কর্মঘণ্টা", val: bn ? "৮ ঘন্টা + OT" : "8 hours + OT" },
+    { Icon: Home, en: "Accommodation", bn: "আবাসন", val: bn ? "ফ্রি (কোম্পানি)" : "Free (company)" },
+    { Icon: Utensils, en: "Meals", bn: "খাবার", val: bn ? "সরবরাহ" : "Provided" },
+    { Icon: Stethoscope, en: "Insurance", bn: "বীমা", val: bn ? "মেডিকেল কভার" : "Medical cover" },
+    { Icon: Plane, en: "Air Ticket", bn: "এয়ার টিকেট", val: bn ? "কোম্পানি বহন" : "Company-paid" },
+    { Icon: ShieldCheck, en: "Approval", bn: "অনুমোদন", val: bn ? "BMET ক্লিয়ারেন্স" : "BMET clearance" },
+    { Icon: Briefcase, en: "Experience", bn: "অভিজ্ঞতা", val: bn ? "ন্যূনতম ২ বছর" : "Min. 2 years" },
+  ];
 
   return (
     <section id="positions" className="py-24 bg-secondary/30 relative overflow-hidden">
@@ -122,7 +137,9 @@ const OpenPositionsSection = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
-          {filtered.map((p, i) => (
+          {filtered.map((p, i) => {
+            const isOpen = expanded === p.en;
+            return (
             <motion.div
               key={p.en}
               initial={{ opacity: 0, y: 16 }}
@@ -130,34 +147,88 @@ const OpenPositionsSection = () => {
               viewport={{ once: true }}
               transition={{ delay: (i % 9) * 0.04 }}
               whileHover={{ y: -4 }}
-              className="group relative bg-card border border-border rounded-2xl p-5 hover:border-accent/40 hover:shadow-luxury transition-all overflow-hidden"
+              className={`group relative bg-card border rounded-2xl p-5 hover:shadow-luxury transition-all overflow-hidden ${
+                isOpen ? "border-accent/60 shadow-luxury ring-2 ring-accent/20" : "border-border hover:border-accent/40"
+              }`}
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-sunset opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-sunset transition-opacity ${isOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`} />
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div>
                   <h3 className="font-heading font-bold text-foreground leading-snug">
                     {bn ? p.bn : p.en}
                   </h3>
                   {bn && <p className="text-xs text-muted-foreground mt-0.5">{p.en}</p>}
+                  <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    {bn ? "নিয়োগ চলছে" : "Hiring Now"}
+                  </span>
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {bn ? "বেতন" : "Salary"}
+                    {bn ? "বেতন/মাস" : "Salary/mo"}
                   </div>
                   <div className="text-base font-extrabold text-accent tabular-nums">
                     ৳{p.salary}
                   </div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">+ OT</div>
                 </div>
               </div>
-              <button
-                onClick={() => openApply(p.en)}
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 bg-gradient-ocean text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:shadow-ocean transition-all"
-              >
-                <Send className="h-4 w-4" />
-                {bn ? "এখনই আবেদন করুন" : "Apply Now"}
-              </button>
+
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="border-t border-border/60 pt-3 mt-1 mb-3">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-accent mb-2">
+                        {bn ? "প্যাকেজ বিবরণ" : "Package Details"}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {packageDetails(p).map((d) => {
+                          const DI = d.Icon;
+                          return (
+                            <div key={d.en} className="flex items-center gap-2 text-[11px] bg-muted/50 hover:bg-muted border border-border/50 hover:border-accent/30 rounded-lg px-2 py-1.5 transition">
+                              <DI className="h-3.5 w-3.5 text-accent shrink-0" />
+                              <div className="min-w-0">
+                                <div className="text-[9px] uppercase tracking-wide text-muted-foreground leading-none">
+                                  {bn ? d.bn : d.en}
+                                </div>
+                                <div className="font-semibold text-foreground leading-tight truncate">
+                                  {d.val}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => setExpanded(isOpen ? null : p.en)}
+                  className="inline-flex items-center justify-center gap-1.5 bg-muted hover:bg-muted/70 text-foreground text-xs font-semibold px-3 py-2.5 rounded-xl transition-all"
+                  aria-expanded={isOpen}
+                >
+                  {isOpen ? (bn ? "কম দেখান" : "Less") : (bn ? "বিস্তারিত" : "Details")}
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                </button>
+                <button
+                  onClick={() => openApply(p.en)}
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-ocean text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:shadow-ocean hover:scale-[1.02] transition-all"
+                >
+                  <Send className="h-4 w-4" />
+                  {bn ? "আবেদন করুন" : "Apply Now"}
+                </button>
+              </div>
             </motion.div>
-          ))}
+          );})}
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-10">
