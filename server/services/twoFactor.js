@@ -34,7 +34,7 @@ async function sendSmsOtp(userId, phone) {
   const expiresAt = new Date(Date.now() + OTP_TTL_MIN * 60 * 1000).toISOString();
   await query('INSERT INTO admin_2fa_codes (user_id, code, expires_at) VALUES ($1, $2, $3)', [userId, code, expiresAt]);
   const number = toSmsPhone(phone);
-  await sendSms(number, `TRIP TASTIC Admin login code: ${code} (valid for ${OTP_TTL_MIN} min)`);
+  await sendSms(number, `Hasan Travels Admin login code: ${code} (valid for ${OTP_TTL_MIN} min)`);
   return true;
 }
 
@@ -53,8 +53,8 @@ async function verifySmsOtp(userId, code) {
 // === TOTP ===
 async function generateTotpSetup(userId, email) {
   const secret = speakeasy.generateSecret({
-    name: `TRIP TASTIC Admin (${email})`,
-    issuer: 'TRIP TASTIC',
+    name: `Hasan Travels Admin (${email})`,
+    issuer: 'Hasan Travels',
     length: 20,
   });
   // Store as pending — user must verify before enabling

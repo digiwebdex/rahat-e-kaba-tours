@@ -1,4 +1,4 @@
-# Project Architecture — TRIP TASTIC
+# Project Architecture — Hasan Travels
 
 > Visual architecture guide, component relationships, and data flows
 > **Last Updated:** April 2026

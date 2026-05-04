@@ -14,15 +14,15 @@ export interface PdfCompanyConfig {
 }
 
 const DEFAULT_CONFIG: PdfCompanyConfig = {
-  company_name: "TRIP TASTIC",
+  company_name: "Hasan Travels",
   tagline: "Travel & Tour Services",
   phone: "+880 1711-925400",
   phone2: "",
-  email: "info@triptastic.com.bd",
-  address: "Corporate Office: TRIP TASTIC, 4th Floor, Jail Road, Munshipara, Dinajpur Sadar - 5200",
-  website: "https://triptastic.com.bd",
-  footer_text: "Thank you for choosing TRIP TASTIC!",
-  footer_contact: "This is a computer-generated document. For queries: +880 1711-925400 | info@triptastic.com.bd",
+  email: "info@hasantravels.com.bd",
+  address: "Corporate Office: Hasan Travels, 4th Floor, Jail Road, Munshipara, Dinajpur Sadar - 5200",
+  website: "https://hasantravels.com.bd",
+  footer_text: "Thank you for choosing Hasan Travels!",
+  footer_contact: "This is a computer-generated document. For queries: +880 1711-925400 | info@hasantravels.com.bd",
 };
 
 let cachedConfig: PdfCompanyConfig | null = null;

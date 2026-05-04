@@ -1,69 +1,82 @@
-## PDF System Redesign Plan
+## Goal
 
-### Current State (Audit Summary)
-The system already has a solid PDF foundation:
-- **invoiceGenerator.ts** (1270 lines) — Individual + Family invoices with QR, watermark, signature, Bengali support
-- **entityPdfGenerator.ts** (535 lines) — Moallem, Supplier, Customer profile PDFs
-- **reportExport.ts** (405 lines) — Standard + Hajji report PDFs and Excel exports
-- **pdfFontLoader.ts** — Bengali canvas bridge
-- **pdfQrCode.ts** — QR codes, watermarks, verification IDs
-- **pdfSignature.ts** — Dynamic signature/stamp
-- **pdfCompanyConfig.ts** — Centralized branding
+Rebrand this remixed project from **Hasan Travels** to **Hasan Travels** — name only for now. Once you upload the Facebook logo screenshot, I'll extract a matching color palette and apply it across the public site + admin panel. All old transactional data in the database will be wiped clean.
 
-### What Needs Improvement
-1. **Duplicated header/footer logic** across 3 files — needs unified core
-2. **Missing PDF types**: Payment Receipt, Expense Voucher, Statement PDFs, Daily Cashbook, Commission Report
-3. **Report PDFs lack summary cards** at top
-4. **No page numbers** on multi-page reports
-5. **No filter summary** shown on reports
-6. **Table headers don't repeat** on new pages (autoTable handles this but needs `showHead: 'everyPage'`)
+## Waiting on you
 
-### Implementation Plan (3 Phases)
+Please upload the **Hasan Travels logo screenshot** from the Facebook page in the next message. I'll proceed with the name change in parallel and apply colors after the upload.
 
-#### Phase 1: Unified PDF Core (`src/lib/pdfCore.ts`)
-Create a single reusable module with:
-- `addPdfHeader()` — branded header (logo, tagline, contact, gold bar)
-- `addPdfFooter()` — gold bar footer with page numbers
-- `addPdfTitle()` — document title badge + status badge
-- `addSummaryCards()` — executive summary boxes
-- `addFilterSummary()` — report filter display
-- `addSignatureBlock()` — signature section
-- Constants: GOLD, DARK, LIGHT_BG colors
-- Helpers: formatAmount, fmtDate, ensurePageSpace
+---
 
-#### Phase 2: New PDF Document Types
-Create missing document generators:
-- **Payment Receipt PDF** — single payment receipt for customer
-- **Moallem Payment Receipt** — receipt for moallem deposit
-- **Supplier Payment Voucher** — voucher for supplier payment
-- **Expense Voucher** — company expense voucher
-- **Customer Statement** — all transactions for a customer
-- **Moallem Statement** — all transactions for a moallem  
-- **Supplier Statement** — all transactions for a supplier
-- **Daily Cashbook PDF** — daily income/expense log
-- **Commission Report PDF** — moallem commission summary
-- **Income/Expense/Profit Report PDFs** — financial reports with summary cards
+## Scope of changes
 
-#### Phase 3: Enhance Existing PDFs
-- Add page numbers to all multi-page PDFs
-- Add `showHead: 'everyPage'` to all autoTable calls
-- Add summary cards to report PDFs
-- Improve filename generation with dates
-- Add filter summary to reports
-- Ensure BDT formatting consistency
+### 1. Brand name swap (everywhere "Hasan Travels" appears)
 
-### Design System
-- Primary accent: Gold (#C5A55A / RGB 197,165,90)
-- Dark: #232830 (headers, badges)
-- Light BG: #FAF9F7 (alternate rows)
-- Font: Helvetica + NotoSansBengali for Bengali
-- A4 portrait, 14mm margins
-- Gold top bar (3mm) + gold bottom bar (16mm)
+Replace all visible occurrences of `Hasan Travels` / `HASAN TRAVELS` / `Hasan Travels` with `Hasan Travels`:
 
-### Files to Create/Modify
-- **NEW**: `src/lib/pdfCore.ts` — unified PDF components
-- **MODIFY**: `src/lib/invoiceGenerator.ts` — use pdfCore, add receipt
-- **MODIFY**: `src/lib/entityPdfGenerator.ts` — use pdfCore, add statements
-- **MODIFY**: `src/lib/reportExport.ts` — use pdfCore, add summary cards, page numbers
+- `index.html` — `<title>`, meta description, OG tags, twitter tags, canonical URL placeholder
+- `src/components/Navbar.tsx`, `Footer.tsx`, `HeroSection.tsx`, `AboutSection.tsx`, `ContactSection.tsx`
+- `src/pages/About.tsx`, `Contact.tsx`, `Auth.tsx`, `PrivacyPolicy.tsx`, `RefundPolicy.tsx`, `TermsConditions.tsx`, `UmrahGuide.tsx`
+- `src/lib/pdfCompanyConfig.ts` — `DEFAULT_CONFIG` (company_name, footer text, email)
+- `src/i18n/translations.ts` — both EN + BN strings
+- `public/sitemap.xml`, `public/robots.txt`, `README.md`
+- Any hardcoded `hasantravels.com.bd` / `info@hasantravels.com.bd` / phone numbers → leave as placeholders (e.g. `info@hasantravels.com`) since you said only name change for now
 
-Shall I proceed with this plan?
+I'll grep the full repo to catch every instance.
+
+### 2. Logo asset
+
+- Save your uploaded screenshot as `src/assets/hasan-travels-logo.png`
+- Wire it into `Navbar`, `Footer`, `HeroSection`, login page, PDF header (`pdfCore.ts`)
+- Replace `public/og-image.jpg` and `public/placeholder.svg` references where appropriate
+
+### 3. Theme colors (after logo upload)
+
+I'll sample dominant colors from your logo and update the design system in:
+
+- `src/index.css` — HSL CSS variables (`--primary`, `--secondary`, `--accent`, `--background`, etc.)
+- `tailwind.config.ts` — extended palette tokens
+- Ensure all components consume semantic tokens (no hardcoded colors leak)
+
+Will produce a cohesive light + dark theme that visually matches the logo.
+
+### 4. Database wipe (old transactional data)
+
+Hard-delete all rows from operational tables (preserves schema, RLS, admin user, roles):
+
+```text
+bookings, booking_members, booking_documents, payments,
+moallems, moallem_payments, moallem_commission_payments, moallem_items,
+supplier_agents, supplier_agent_payments, supplier_agent_items,
+supplier_contracts, supplier_contract_payments,
+hotel_bookings, hotels, hotel_rooms,
+ticket_bookings (+ related ticket tables), refunds, settlements, settlement_items,
+expenses, daily_cashbook, financial_summary, online_payment_sessions,
+notification_logs, audit_logs, profiles (non-admin only),
+packages, blog_posts, cms_versions, site_content (reset to defaults),
+company_settings (reset PDF config to Hasan Travels)
+```
+
+Preserved: `user_roles` (admin), `accounts` (chart of accounts), schema, triggers, RLS policies.
+
+Order respects FK dependencies. Will run as one migration.
+
+### 5. Admin panel branding
+
+- Sidebar header, login screen, page titles, browser tab favicon
+- Reset `company_settings.pdf_company` row so all generated PDFs/invoices use Hasan Travels
+
+---
+
+## Technical notes
+
+- Project is server-rendered via the custom Node/Express backend (`server/index.js`) deployed on VPS — frontend changes will need a `git pull && npm run build && pm2 reload` on the VPS after merge (per your standard procedure memory).
+- Bilingual (EN/BN) strings both updated.
+- `pdfCompanyConfig` falls back to `DEFAULT_CONFIG` when `company_settings` row is missing — so updating both gives full coverage.
+- Memory entries (`mem://style/brand-identity`, `mem://project/repository-management`) will be updated to reflect Hasan Travels.
+
+---
+
+## Ready when you are
+
+Upload the logo screenshot and approve this plan — I'll then execute name swap + DB wipe immediately, and follow with logo wiring + theme colors.

@@ -39,8 +39,8 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <SEOHead
           canonicalUrl="/"
-          description="TRIP TASTIC — Hajj, Umrah, international tours, air tickets, visa processing & air ambulance. Your trusted travel partner."
-          keywords="TRIP TASTIC, travel agency Bangladesh, Hajj package, Umrah package, tour package, air ticket, tourist visa, business visa, medical visa, work visa, air ambulance"
+          description="Hasan Travels — Hajj, Umrah, international tours, air tickets, visa processing & air ambulance. Your trusted travel partner."
+          keywords="Hasan Travels, travel agency Bangladesh, Hajj package, Umrah package, tour package, air ticket, tourist visa, business visa, medical visa, work visa, air ambulance"
           jsonLd={organizationJsonLd()}
         />
         <Navbar />

@@ -1,4 +1,4 @@
-# Deployment History — TRIP TASTIC
+# Deployment History — Hasan Travels
 
 > Complete deployment timeline, server operations, and infrastructure changes
 > **Last Updated:** April 2026
@@ -8,7 +8,7 @@
 ## Deployment Timeline
 
 ### v3.0.0 - April 2026 (Rebrand & Reset)
-- **Action:** Full system rebrand from "RAHE KABA Tours & Travels" to "TRIP TASTIC".
+- **Action:** Full system rebrand from "RAHE KABA Tours & Travels" to "Hasan Travels".
 - **Changes:**
   - Updated all branding assets, logos, and favicons.
   - Reset database to fresh state (cleared bookings, customers, and legacy records).

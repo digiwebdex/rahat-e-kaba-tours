@@ -1,13 +1,13 @@
 -- =============================================
--- TRIP TASTIC ERP - Complete PostgreSQL Schema
+-- Hasan Travels ERP - Complete PostgreSQL Schema
 -- Run this on your VPS PostgreSQL instance
 -- =============================================
 
 -- Create database (run as superuser)
--- CREATE DATABASE triptastic;
+-- CREATE DATABASE hasantravels;
 
 -- Connect to the database before running the rest
--- \c triptastic
+-- \c hasantravels
 
 -- =============================================
 -- EXTENSIONS

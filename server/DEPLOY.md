@@ -1,4 +1,4 @@
-// VPS Deployment Guide - TRIP TASTIC ERP
+// VPS Deployment Guide - Hasan Travels ERP
 // ======================================
 
 ## Quick Start
@@ -12,19 +12,19 @@ sudo apt install postgresql postgresql-contrib -y
 # Create database and user
 sudo -u postgres psql << 'SQL'
 CREATE USER digiwebdex WITH PASSWORD 'your_strong_password';
-CREATE DATABASE triptastic OWNER digiwebdex;
-GRANT ALL PRIVILEGES ON DATABASE triptastic TO digiwebdex;
+CREATE DATABASE hasantravels OWNER digiwebdex;
+GRANT ALL PRIVILEGES ON DATABASE hasantravels TO digiwebdex;
 SQL
 
 # Run schema
-cd /var/www/trip-tastic/server
-sudo -u postgres psql -d triptastic -f schema.sql
+cd /var/www/hasan-travels/server
+sudo -u postgres psql -d hasantravels -f schema.sql
 ```
 
 ### 2. Setup Node.js Backend
 
 ```bash
-cd /var/www/trip-tastic/server
+cd /var/www/hasan-travels/server
 
 # Create .env from example
 cp .env.example .env
@@ -43,7 +43,7 @@ node index.js
 ### 3. Update Frontend Build
 
 ```bash
-cd /var/www/trip-tastic
+cd /var/www/hasan-travels
 
 # Add API URL to .env
 echo 'VITE_API_URL=/api' >> .env
@@ -55,19 +55,19 @@ npm run build
 ### 4. Update Nginx Config
 
 ```bash
-sudo tee /etc/nginx/sites-available/triptastic << 'NGINX'
+sudo tee /etc/nginx/sites-available/hasantravels << 'NGINX'
 server {
     listen 80;
-    server_name triptastic.com.bd www.triptastic.com.bd;
+    server_name hasantravels.com.bd www.hasantravels.com.bd;
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name triptastic.com.bd www.triptastic.com.bd;
+    server_name hasantravels.com.bd www.hasantravels.com.bd;
 
-    ssl_certificate /etc/letsencrypt/live/triptastic.com.bd/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/triptastic.com.bd/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/hasantravels.com.bd/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/hasantravels.com.bd/privkey.pem;
 
     client_max_body_size 10M;
 
@@ -84,12 +84,12 @@ server {
 
     # Uploaded files
     location /uploads/ {
-        alias /var/www/trip-tastic/server/uploads/;
+        alias /var/www/hasan-travels/server/uploads/;
     }
 
     # Frontend (static files)
     location / {
-        root /var/www/trip-tastic/dist;
+        root /var/www/hasan-travels/dist;
         index index.html;
         try_files $uri $uri/ /index.html;
     }
@@ -104,8 +104,8 @@ sudo nginx -t && sudo systemctl restart nginx
 ```bash
 sudo npm install -g pm2
 
-cd /var/www/trip-tastic/server
-pm2 start index.js --name "triptastic-api"
+cd /var/www/hasan-travels/server
+pm2 start index.js --name "hasantravels-api"
 pm2 save
 pm2 startup  # Follow the instructions to auto-start on reboot
 ```
@@ -117,7 +117,7 @@ Export data from Lovable Cloud and import to your PostgreSQL:
 - Then write import scripts or use pg_dump/pg_restore
 
 ### Default Login
-- Email: admin@triptastic.com.bd
+- Email: admin@hasantravels.com.bd
 - Password: Admin@123456 (CHANGE THIS IMMEDIATELY)
 
 ## Architecture

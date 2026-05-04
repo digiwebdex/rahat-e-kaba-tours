@@ -149,7 +149,7 @@ export default function PdfSettingsManager() {
             className={inputClass}
             value={config.email}
             onChange={(e) => updateField("email", e.target.value)}
-            placeholder="info@triptastic.com.bd"
+            placeholder="info@hasantravels.com.bd"
           />
         </div>
         <div className="sm:col-span-2">
@@ -167,7 +167,7 @@ export default function PdfSettingsManager() {
             className={inputClass}
             value={config.website}
             onChange={(e) => updateField("website", e.target.value)}
-            placeholder="https://triptastic.com.bd"
+            placeholder="https://hasantravels.com.bd"
           />
         </div>
       </div>

@@ -76,13 +76,13 @@ async function runDueReminderJob() {
     const amt = Number(r.amount || 0).toLocaleString('en-IN');
     let message;
     if (bucket === 'upcoming-3d') {
-      message = `TRIP TASTIC: Dear ${name}, your payment of BDT ${amt} for booking ${tk} is due in 3 days. Please pay on time. Call: 09617618686`;
+      message = `Hasan Travels: Dear ${name}, your payment of BDT ${amt} for booking ${tk} is due in 3 days. Please pay on time. Call: 09617618686`;
     } else if (bucket === 'due-today') {
-      message = `TRIP TASTIC: Dear ${name}, your payment of BDT ${amt} for booking ${tk} is due TODAY. Please pay now. Call: 09617618686`;
+      message = `Hasan Travels: Dear ${name}, your payment of BDT ${amt} for booking ${tk} is due TODAY. Please pay now. Call: 09617618686`;
     } else if (bucket === 'overdue-3d') {
-      message = `TRIP TASTIC: Dear ${name}, payment of BDT ${amt} for booking ${tk} is OVERDUE by 3 days. Please pay immediately. Call: 09617618686`;
+      message = `Hasan Travels: Dear ${name}, payment of BDT ${amt} for booking ${tk} is OVERDUE by 3 days. Please pay immediately. Call: 09617618686`;
     } else {
-      message = `TRIP TASTIC: Dear ${name}, payment of BDT ${amt} for booking ${tk} is OVERDUE by 7+ days. Final reminder. Call: 09617618686`;
+      message = `Hasan Travels: Dear ${name}, payment of BDT ${amt} for booking ${tk} is OVERDUE by 7+ days. Final reminder. Call: 09617618686`;
     }
 
     const smsNumber = toSmsPhone(phone);

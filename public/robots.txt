@@ -19,4 +19,4 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-Sitemap: https://triptastic.com.bd/sitemap.xml
+Sitemap: https://hasantravels.com.bd/sitemap.xml

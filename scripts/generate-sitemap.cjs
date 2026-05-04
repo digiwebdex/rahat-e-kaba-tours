@@ -4,7 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const BASE_URL = "https://triptastic.com.bd";
+const BASE_URL = "https://hasantravels.com.bd";
 const TODAY = new Date().toISOString().split("T")[0];
 
 const staticRoutes = [

@@ -1,4 +1,4 @@
-# Analytical History — TRIP TASTIC
+# Analytical History — Hasan Travels
 
 > Complete system analytics, performance metrics, data insights, and feature coverage
 > **Last Updated:** April 2026
