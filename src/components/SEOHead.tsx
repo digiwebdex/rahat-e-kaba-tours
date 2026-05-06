@@ -14,7 +14,7 @@ interface SEOHeadProps {
 
 const SITE_NAME = "Al Rawsha International";
 const DEFAULT_DESCRIPTION =
-  "Al Rawsha International (RL-2902) — BMET-approved recruiting agency in Bangladesh. Work permit visas for Vietnam, Kuwait, Laos, Serbia & Russia.";
+  "BMET-approved (RL-2902) recruiting agency in Bangladesh. Overseas work permits, air tickets & visa support — Vietnam, Kuwait, Laos, Serbia & Russia.";
 const DEFAULT_OG_IMAGE = "/og-image.jpg";
 const BASE_URL = "https://alrawshaint.com";
 
@@ -88,17 +88,17 @@ export function organizationJsonLd() {
     description: DEFAULT_DESCRIPTION,
     address: {
       "@type": "PostalAddress",
-      streetAddress: "4th Floor, Jail Road, Munshipara",
-      addressLocality: "Dinajpur Sadar",
-      postalCode: "5200",
+      streetAddress: "Rupayan FPAB Tower (Lift-7), Box Culvert Road, Purana Paltan",
+      addressLocality: "Dhaka",
+      postalCode: "1000",
       addressCountry: "BD",
     },
-    telephone: ["+8801711925400"],
+    telephone: ["+8801894840375"],
     sameAs: ["https://www.facebook.com/profile.php?id=61585173125908"],
     contactPoint: [
       {
         "@type": "ContactPoint",
-        telephone: "+8801711925400",
+        telephone: "+8801894840375",
         contactType: "customer service",
         availableLanguage: ["Bengali", "English"],
       },
