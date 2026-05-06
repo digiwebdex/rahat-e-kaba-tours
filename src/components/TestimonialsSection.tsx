@@ -8,23 +8,23 @@ const defaultTestimonials = [
   {
     name: "Rashed Ahmed",
     location: "Dhaka",
-    text: "Hasan Travels made our family vacation to the Maldives absolutely seamless. From flights to the overwater villa, every detail was handled perfectly. Highly recommended!",
+    text: "Al Rawsha International handled my Vietnam work permit end-to-end. Visa processed in 4 months, transparent costs, and a smooth landing — couldn't ask for more.",
     rating: 5,
-    trip: "Maldives Tour 2025",
+    trip: "Vietnam Work Permit 2025",
   },
   {
     name: "Sanjida Rahman",
     location: "Chattogram",
-    text: "Got my Schengen tourist visa approved with zero hassle. Their team guided me through every document. Truly professional service from start to finish.",
+    text: "Got my tourist visa approved with zero hassle. Their team guided me through every document. Truly professional service from start to finish.",
     rating: 5,
     trip: "Tourist Visa 2025",
   },
   {
     name: "Mohammad Hasan",
     location: "Sylhet",
-    text: "Booked our Umrah package with Hasan Travels and the experience was outstanding. Hotels near Haram, smooth transport, and dedicated support throughout the journey.",
+    text: "Travelled to Kuwait as a delivery rider through Al Rawsha. Interview, training, accommodation — all arranged smoothly. Highly recommend RL-2902.",
     rating: 5,
-    trip: "Umrah 2025",
+    trip: "Kuwait Delivery Visa 2025",
   },
 ];
 
@@ -35,9 +35,9 @@ const TestimonialsSection = forwardRef<HTMLElement>(function TestimonialsSection
   const lc = content?.[language];
 
   const sectionLabel = lc?.section_label || (bn ? "প্রশংসাপত্র" : "Testimonials");
-  const heading = lc?.heading || (bn ? "আমাদের হাজীদের " : "What Our ");
-  const headingHighlight = lc?.heading_highlight || (bn ? "মতামত" : "Pilgrims Say");
-  const description = lc?.description || (bn ? "আমাদের সন্তুষ্ট গ্রাহকদের মতামত যারা তাদের পবিত্র যাত্রায় আমাদের বিশ্বাস করেছেন" : "Hear from our satisfied customers who trusted us with their sacred journey");
+  const heading = lc?.heading || (bn ? "আমাদের ক্লায়েন্টদের " : "What Our ");
+  const headingHighlight = lc?.heading_highlight || (bn ? "মতামত" : "Clients Say");
+  const description = lc?.description || (bn ? "যারা বিদেশ যাত্রায় আমাদের উপর বিশ্বাস রেখেছেন তাদের অভিজ্ঞতা" : "Real stories from clients who trusted us with their journey abroad");
 
   const testimonials = content?.items || defaultTestimonials;
 

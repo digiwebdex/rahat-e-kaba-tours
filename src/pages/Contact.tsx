@@ -153,11 +153,10 @@ const Contact = () => {
                 className={inputClass}
               >
                 <option value="">{t("contact.selectService")}</option>
-                <option>{t("contact.hajjPackage")}</option>
-                <option>{t("contact.umrahPackage")}</option>
+                <option>{t("contact.workPermit")}</option>
                 <option>{t("contact.visaProcessing")}</option>
                 <option>{t("contact.airTicketService")}</option>
-                <option>{t("contact.hotelBooking")}</option>
+                <option>{t("contact.documentSupport")}</option>
                 <option>{t("contact.other")}</option>
               </select>
               <textarea
