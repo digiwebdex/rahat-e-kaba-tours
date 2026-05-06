@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Plane, Sparkles, MessageCircle, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
-import heroFiji from "@/assets/hero-fiji-work.jpg";
-import heroFijiWorkers from "@/assets/hero-fiji-workers.jpg";
-import heroFijiVisa from "@/assets/hero-fiji-visa.jpg";
+import heroMain from "@/assets/alrawsha-hero-1.jpg";
+import heroLaos from "@/assets/alrawsha-laos.jpg";
+import heroKuwait from "@/assets/alrawsha-kuwait.jpg";
+import heroSerbia from "@/assets/alrawsha-serbia.jpg";
+import heroRussia from "@/assets/alrawsha-russia.jpg";
+import heroVietnam from "@/assets/alrawsha-vietnam.jpg";
 import { useLanguage } from "@/i18n/LanguageContext";
 
-const WHATSAPP = "8801322181500";
+const WHATSAPP = "8801894840375";
 const WA_LINK = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
-  "Hello Hasan Travels, I'm interested in the Fiji Work Permit programme."
+  "Hello Al Rawsha International, I'm interested in your overseas work permit programmes."
 )}`;
 
 const HeroSection = () => {
@@ -17,43 +20,82 @@ const HeroSection = () => {
 
   const slides = [
     {
-      img: heroFiji,
-      alt: "Fiji work permit opportunity — tropical island and skilled worker",
-      badge: bn ? "🇫🇯 ফিজি ওয়ার্ক পারমিট ভিসা" : "🇫🇯 Fiji Work Permit Visa Programme",
+      img: heroMain,
+      alt: "Al Rawsha International — skilled Bangladeshi workforce abroad",
+      badge: bn ? "🇧🇩 সরকার অনুমোদিত (আর.এল-২৯০২)" : "🇧🇩 Govt. Approved Recruiting Agency (RL-2902)",
       title: bn ? (
-        <>ফিজিতে কাজ করুন,{" "}<span className="text-gradient-sunset">উপার্জন করুন</span></>
+        <>আপনার <span className="text-gradient-sunset">প্রবাস যাত্রার</span> বিশ্বস্ত সঙ্গী</>
       ) : (
-        <>Work in Fiji.{" "}<span className="text-gradient-sunset">Earn. Explore.</span></>
+        <>Your Trusted Partner for a <span className="text-gradient-sunset">Better Future Abroad</span></>
       ),
       desc: bn
-        ? "BMET অনুমোদিত বৈধ প্রসেস। ৩ বছরের ওয়ার্ক পারমিট, কোম্পানি প্রদত্ত আবাসন, মাসিক বেতন ৬০,০০০ – ১,২০,০০০ টাকা + ওভারটাইম। মাত্র ৩–৪ মাসে ভিসা প্রসেসিং।"
-        : "BMET-approved legal recruitment. 3-year renewable work permit, company-provided accommodation, monthly salary BDT 60,000 – 1,20,000 + overtime. Visa processing in just 3–4 months.",
+        ? "ভিয়েতনাম, কুয়েত, লাওস, সার্বিয়া ও রাশিয়াতে বৈধ ওয়ার্ক পারমিট ভিসা। দীর্ঘ অভিজ্ঞতা, স্বচ্ছ প্রসেস এবং নিশ্চিন্ত প্রবাস যাত্রা।"
+        : "Legal work permit visas to Vietnam, Kuwait, Laos, Serbia and Russia. Years of experience, transparent processing and a worry-free journey abroad.",
     },
     {
-      img: heroFijiWorkers,
-      alt: "Bangladeshi skilled workers at Fiji construction site",
-      badge: bn ? "👷 দক্ষ জনশক্তি নিয়োগ" : "👷 Skilled Workforce Recruitment",
+      img: heroVietnam,
+      alt: "Vietnam factory worker recruitment",
+      badge: bn ? "🇻🇳 ভিয়েতনাম জরুরি নিয়োগ" : "🇻🇳 Urgent Recruitment in Vietnam",
       title: bn ? (
-        <>আপনার দক্ষতা,{" "}<span className="text-gradient-sunset">বৈশ্বিক সুযোগ</span></>
+        <>ভিয়েতনামে <span className="text-gradient-sunset">$৩৫০–৫০০</span> বেতনে কাজ</>
       ) : (
-        <>Your Skills,{" "}<span className="text-gradient-sunset">Global Opportunity</span></>
+        <>Work in Vietnam — <span className="text-gradient-sunset">$350–500/month</span></>
       ),
       desc: bn
-        ? "কনস্ট্রাকশন, মেকানিক্যাল, ইলেকট্রিক্যাল, প্লাম্বিং সহ ৩০+ ক্যাটাগরিতে নিয়োগ। নিরাপদ কর্মপরিবেশ, ফ্রি আবাসন ও খাবার, বীমা সুবিধা।"
-        : "30+ job categories — construction, mechanical, electrical, plumbing & more. Safe workplace, free accommodation & meals, insurance coverage included.",
+        ? "হোয়াং সিএমএস কোম্পানি — ইটের কারখানা, প্লাইউড, সিরামিক ও হাইটেক পিগ ফার্ম। ৮ ঘন্টা + ওভারটাইম, কোম্পানি প্রদত্ত খাবার।"
+        : "Hoang CMS Company — brick, plywood, ceramic & hi-tech pig farm jobs. 8 hours + overtime, company-provided meals.",
     },
     {
-      img: heroFijiVisa,
-      alt: "Happy worker holding Fiji work permit visa and passport",
-      badge: bn ? "✈️ ৩–৪ মাসে ভিসা প্রসেসিং" : "✈️ Visa Processed in 3–4 Months",
+      img: heroKuwait,
+      alt: "Kuwait bike delivery man recruitment",
+      badge: bn ? "🇰🇼 কুয়েতে বাইক ডেলিভারি ম্যান" : "🇰🇼 Kuwait — Bike Delivery Man",
       title: bn ? (
-        <>পাসপোর্ট থেকে{" "}<span className="text-gradient-sunset">ফ্লাইট পর্যন্ত</span></>
+        <>কুয়েতে <span className="text-gradient-sunset">১০০–১২০ দিনার</span> + টিপস</>
       ) : (
-        <>From Passport to{" "}<span className="text-gradient-sunset">Boarding Pass</span></>
+        <>Kuwait — <span className="text-gradient-sunset">100–120 KWD</span> + Tips</>
       ),
       desc: bn
-        ? "এন্ড-টু-এন্ড ভিসা সাপোর্ট — ডকুমেন্টেশন, মেডিকেল, BMET ক্লিয়ারেন্স, ফ্লাইট বুকিং। আমরা আপনাকে নিরাপদে গন্তব্যে পৌঁছে দেব।"
-        : "End-to-end visa support — documentation, medical, BMET clearance, flight booking. We get you safely to your destination.",
+        ? "ডেলিগেট কর্তৃক ইন্টারভিউ। ১২ ঘন্টা ডিউটি, কোম্পানি থেকে থাকা ও খাওয়া। ড্রাইভিং লাইসেন্স থাকতে হবে।"
+        : "Interview by delegate. 12-hour shift, accommodation and meals provided by company. Driving licence required.",
+    },
+    {
+      img: heroLaos,
+      alt: "Laos construction work permit",
+      badge: bn ? "🇱🇦 লাওসে কনস্ট্রাকশন কাজ" : "🇱🇦 Laos — Construction Work Permit",
+      title: bn ? (
+        <>লাওসে <span className="text-gradient-sunset">১৫ দিনে</span> ভিসা</>
+      ) : (
+        <>Laos — Visa in <span className="text-gradient-sunset">15 Days</span></>
+      ),
+      desc: bn
+        ? "হেল্পার, মেশন, স্টিল ফিক্সার পদে। বেতন $৪০০–৫০০, ৮ ঘন্টা + ওভারটাইম, কোম্পানি বহন করবে বাসস্থান।"
+        : "Helper, Mason and Steel Fixer roles. Salary $400–500, 8h + overtime, company-provided accommodation.",
+    },
+    {
+      img: heroSerbia,
+      alt: "Serbia agriculture work permit",
+      badge: bn ? "🇷🇸 সার্বিয়া ওয়ার্ক পারমিট" : "🇷🇸 Serbia Work Permit Visa",
+      title: bn ? (
+        <>সার্বিয়াতে <span className="text-gradient-sunset">এগ্রিকালচার</span> জব</>
+      ) : (
+        <>Agriculture Jobs in <span className="text-gradient-sunset">Serbia</span></>
+      ),
+      desc: bn
+        ? "প্রসেসিং সময় মাত্র ৩–৪ মাস। নিরাপদ ইউরোপীয় কর্মপরিবেশ ও প্রতিযোগিতামূলক বেতন।"
+        : "Processing time only 3–4 months. Safe European workplace with competitive salary.",
+    },
+    {
+      img: heroRussia,
+      alt: "Russia RTL & LZL work visa",
+      badge: bn ? "🇷🇺 রাশিয়া RTL ও LZL কোম্পানি" : "🇷🇺 Russia — RTL & LZL Companies",
+      title: bn ? (
+        <>রাশিয়ায় <span className="text-gradient-sunset">৭০–৮০ হাজার</span> টাকা বেতন</>
+      ) : (
+        <>Russia — <span className="text-gradient-sunset">BDT 70–80K</span> Monthly</>
+      ),
+      desc: bn
+        ? "ফ্যাক্টরি ওয়ার্কার পদে নিয়োগ। বয়স ২৫–৪০, ১০ ঘন্টা ডিউটি, থাকা ও খাওয়া কোম্পানির। পাসপোর্ট জমা চলছে।"
+        : "Factory worker recruitment. Age 25–40, 10-hour shift, accommodation & meals by company. Passport submission ongoing.",
     },
   ];
 
@@ -89,7 +131,7 @@ const HeroSection = () => {
       </AnimatePresence>
 
       <div className="absolute inset-0 bg-gradient-hero-overlay" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[hsl(222_60%_8%/0.85)] via-[hsl(222_60%_8%/0.55)] to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[hsl(178_60%_8%/0.85)] via-[hsl(178_60%_8%/0.55)] to-transparent" />
 
       <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-accent/30 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-primary/40 blur-3xl pointer-events-none" />
@@ -124,9 +166,9 @@ const HeroSection = () => {
           <div className="flex flex-wrap gap-2 mb-8">
             {[
               bn ? "BMET অনুমোদিত" : "BMET Approved",
-              bn ? "৩ বছরের পারমিট" : "3-Year Permit",
-              bn ? "ফ্রি আবাসন" : "Free Accommodation",
-              bn ? "৮ ঘন্টা + OT" : "8h + Overtime",
+              bn ? "RL-২৯০২" : "License RL-2902",
+              bn ? "বৈধ প্রসেস" : "Legal Processing",
+              bn ? "অভিজ্ঞ টিম" : "Experienced Team",
             ].map((p) => (
               <span
                 key={p}
@@ -154,14 +196,14 @@ const HeroSection = () => {
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/30 text-white font-semibold px-7 py-4 rounded-full hover:bg-white/20 transition-all"
             >
               <Plane className="h-4 w-4" />
-              {bn ? "ওপেন পজিশন দেখুন" : "View Open Positions"}
+              {bn ? "সব পজিশন দেখুন" : "View Open Positions"}
             </button>
           </div>
 
           <div className="mt-12 grid grid-cols-3 gap-6 sm:gap-10 max-w-xl">
             {[
-              { n: "60K–1.2L", l: bn ? "মাসিক বেতন (৳)" : "Monthly Salary (BDT)" },
-              { n: "3 yr", l: bn ? "ওয়ার্ক পারমিট" : "Work Permit" },
+              { n: "5+", l: bn ? "গন্তব্য দেশ" : "Destination Countries" },
+              { n: "RL-2902", l: bn ? "সরকার অনুমোদিত" : "Govt. License" },
               { n: "3–4 mo", l: bn ? "ভিসা প্রসেসিং" : "Visa Processing" },
             ].map((s) => (
               <div key={s.l}>
@@ -173,7 +215,6 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Carousel controls */}
       <button
         onClick={prev}
         aria-label="Previous slide"
