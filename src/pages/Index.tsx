@@ -33,7 +33,7 @@ const Index = () => {
         <OpenPositionsSection />
         <FacilitiesSection />
         <ProcessTimeline />
-        <StudentConsultancySection />
+        {/* <StudentConsultancySection /> — disabled */}
         <Suspense fallback={<SectionFallback />}>
           <AboutSection />
         </Suspense>
