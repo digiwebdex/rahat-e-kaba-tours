@@ -6,111 +6,111 @@
 
 @layer base {
   :root {
-    /* Hasan Travels — Brand palette: Royal Blue + Vibrant Red (from logo) */
+    /* Al Rawsha International — Brand palette: Deep Teal + Warm Orange (from logo) */
     --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --foreground: 178 35% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 178 35% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 178 35% 12%;
 
-    /* Primary = Royal Blue (HASAN wordmark) */
-    --primary: 222 72% 38%;
+    /* Primary = Deep Teal (Al Rawsha calligraphy) */
+    --primary: 178 65% 28%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 222 80% 52%;
+    --primary-glow: 178 70% 38%;
 
-    /* Secondary = Soft cool surface */
-    --secondary: 220 25% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --secondary-glow: 222 60% 45%;
+    /* Secondary = Soft warm surface */
+    --secondary: 30 35% 96%;
+    --secondary-foreground: 178 35% 12%;
+    --secondary-glow: 178 60% 38%;
 
-    --muted: 220 20% 95%;
-    --muted-foreground: 220 12% 42%;
+    --muted: 30 25% 95%;
+    --muted-foreground: 178 10% 38%;
 
-    /* Accent = Vibrant Red (plane + triangle accents) */
-    --accent: 354 78% 50%;
+    /* Accent = Warm Orange (palm tree, callouts) */
+    --accent: 22 95% 54%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 78% 50%;
+    --destructive: 0 78% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 89%;
-    --input: 220 15% 89%;
-    --ring: 222 72% 38%;
+    --border: 30 20% 88%;
+    --input: 30 20% 88%;
+    --ring: 178 65% 28%;
 
     --radius: 0.875rem;
 
-    /* Brand-specific tokens — mapped to red/blue palette */
-    --gold: 354 78% 50%;          /* legacy alias → red */
-    --gold-light: 354 88% 62%;
-    --gold-dark: 354 72% 42%;
-    --charcoal: 222 47% 11%;
-    --charcoal-light: 222 40% 18%;
-    --emerald: 222 72% 38%;
-    --teal: 222 72% 38%;          /* legacy alias → blue */
-    --teal-light: 222 80% 52%;
-    --teal-dark: 222 78% 22%;
-    --ocean: 222 72% 38%;
-    --ocean-light: 222 80% 52%;
-    --sky: 222 65% 60%;
-    --brand-blue: 222 72% 38%;
-    --brand-blue-dark: 222 78% 22%;
-    --brand-red: 354 78% 50%;
-    --brand-red-dark: 354 72% 42%;
+    /* Brand-specific tokens — teal + orange palette */
+    --gold: 22 95% 54%;          /* legacy alias → orange */
+    --gold-light: 30 100% 64%;
+    --gold-dark: 18 90% 46%;
+    --charcoal: 178 40% 10%;
+    --charcoal-light: 178 30% 18%;
+    --emerald: 178 65% 28%;
+    --teal: 178 65% 28%;
+    --teal-light: 178 70% 38%;
+    --teal-dark: 178 75% 18%;
+    --ocean: 178 65% 28%;
+    --ocean-light: 178 70% 38%;
+    --sky: 188 70% 50%;
+    --brand-blue: 178 65% 28%;
+    --brand-blue-dark: 178 75% 18%;
+    --brand-red: 22 95% 54%;
+    --brand-red-dark: 18 90% 46%;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 222 72% 38%;
+    --sidebar-foreground: 178 35% 12%;
+    --sidebar-primary: 178 65% 28%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 25% 96%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 220 15% 89%;
-    --sidebar-ring: 222 72% 38%;
+    --sidebar-accent: 30 35% 96%;
+    --sidebar-accent-foreground: 178 35% 12%;
+    --sidebar-border: 30 20% 88%;
+    --sidebar-ring: 178 65% 28%;
 
     --font-heading: 'Plus Jakarta Sans', 'Noto Sans Bengali', sans-serif;
     --font-body: 'Manrope', 'Noto Sans Bengali', sans-serif;
     --font-arabic: 'Noto Naskh Arabic', serif;
 
-    /* Brand gradients — Royal Blue ↔ Vibrant Red */
-    --gradient-brand: linear-gradient(135deg, hsl(222 78% 22%) 0%, hsl(222 72% 38%) 55%, hsl(354 78% 50%) 100%);
-    --gradient-sunset: linear-gradient(135deg, hsl(354 88% 62%), hsl(354 78% 50%), hsl(354 72% 42%));
-    --gradient-ocean: linear-gradient(135deg, hsl(222 78% 22%), hsl(222 72% 38%), hsl(222 65% 60%));
-    --gradient-gold: linear-gradient(135deg, hsl(354 88% 62%), hsl(354 78% 50%), hsl(354 72% 42%));
-    --gradient-teal: linear-gradient(135deg, hsl(222 78% 22%), hsl(222 72% 38%), hsl(222 80% 52%));
-    --gradient-mix: linear-gradient(135deg, hsl(222 72% 38%) 0%, hsl(280 60% 42%) 50%, hsl(354 78% 50%) 100%);
-    --gradient-warm: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 25% 96%));
-    --gradient-dark: linear-gradient(135deg, hsl(222 47% 11%), hsl(222 40% 18%));
-    --gradient-hero-overlay: linear-gradient(180deg, hsl(222 47% 8% / 0.30) 0%, hsl(222 50% 12% / 0.55) 60%, hsl(222 60% 6% / 0.85) 100%);
+    /* Brand gradients — Teal ↔ Orange */
+    --gradient-brand: linear-gradient(135deg, hsl(178 75% 18%) 0%, hsl(178 65% 28%) 55%, hsl(22 95% 54%) 100%);
+    --gradient-sunset: linear-gradient(135deg, hsl(30 100% 64%), hsl(22 95% 54%), hsl(18 90% 46%));
+    --gradient-ocean: linear-gradient(135deg, hsl(178 75% 18%), hsl(178 65% 28%), hsl(188 70% 50%));
+    --gradient-gold: linear-gradient(135deg, hsl(30 100% 64%), hsl(22 95% 54%), hsl(18 90% 46%));
+    --gradient-teal: linear-gradient(135deg, hsl(178 75% 18%), hsl(178 65% 28%), hsl(178 70% 38%));
+    --gradient-mix: linear-gradient(135deg, hsl(178 65% 28%) 0%, hsl(160 55% 38%) 45%, hsl(22 95% 54%) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(0 0% 100%), hsl(30 35% 96%));
+    --gradient-dark: linear-gradient(135deg, hsl(178 40% 10%), hsl(178 30% 18%));
+    --gradient-hero-overlay: linear-gradient(180deg, hsl(178 40% 8% / 0.35) 0%, hsl(178 45% 12% / 0.55) 60%, hsl(178 50% 6% / 0.85) 100%);
 
-    --shadow-gold: 0 6px 22px hsl(354 78% 50% / 0.28);
-    --shadow-ocean: 0 6px 22px hsl(222 72% 38% / 0.22);
-    --shadow-teal: 0 6px 22px hsl(222 72% 38% / 0.22);
-    --shadow-soft: 0 2px 12px hsl(222 47% 11% / 0.06);
-    --shadow-luxury: 0 12px 40px hsl(222 47% 11% / 0.12);
-    --shadow-elevated: 0 20px 56px hsl(222 47% 11% / 0.16);
-    --shadow-glow: 0 0 48px hsl(354 78% 50% / 0.32);
+    --shadow-gold: 0 6px 22px hsl(22 95% 54% / 0.30);
+    --shadow-ocean: 0 6px 22px hsl(178 65% 28% / 0.25);
+    --shadow-teal: 0 6px 22px hsl(178 65% 28% / 0.25);
+    --shadow-soft: 0 2px 12px hsl(178 40% 10% / 0.06);
+    --shadow-luxury: 0 12px 40px hsl(178 40% 10% / 0.14);
+    --shadow-elevated: 0 20px 56px hsl(178 40% 10% / 0.18);
+    --shadow-glow: 0 0 48px hsl(22 95% 54% / 0.36);
   }
 
   .dark {
-    --background: 222 47% 8%;
+    --background: 178 40% 8%;
     --foreground: 0 0% 98%;
-    --card: 222 40% 12%;
+    --card: 178 35% 12%;
     --card-foreground: 0 0% 98%;
-    --popover: 222 40% 12%;
+    --popover: 178 35% 12%;
     --popover-foreground: 0 0% 98%;
-    --primary: 222 80% 60%;
-    --primary-foreground: 222 47% 8%;
-    --secondary: 222 30% 18%;
+    --primary: 178 70% 48%;
+    --primary-foreground: 178 40% 8%;
+    --secondary: 178 25% 18%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 222 30% 18%;
-    --muted-foreground: 220 15% 65%;
-    --accent: 354 88% 62%;
+    --muted: 178 25% 18%;
+    --muted-foreground: 30 10% 65%;
+    --accent: 22 95% 60%;
     --accent-foreground: 0 0% 100%;
-    --border: 222 28% 22%;
-    --input: 222 28% 22%;
-    --ring: 222 80% 60%;
+    --border: 178 22% 22%;
+    --input: 178 22% 22%;
+    --ring: 178 70% 48%;
   }
 }
 
