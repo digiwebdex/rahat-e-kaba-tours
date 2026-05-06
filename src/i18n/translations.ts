@@ -530,7 +530,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "hero.headingLine1": "আপনার পবিত্র",
     "hero.headingLine2": "যাত্রা",
     "hero.headingHighlight": "শুরু হোক এখানে",
-    "hero.subheading": "وَأَتِمُّوا الْحَجَّ وَالْعُمْرَةَ لِلَّهِ\n\"আর তোমরা আল্লাহর সন্তুষ্টির জন্য হজ্জ ও ওমরাহ পূর্ণ কর।\"\n— (সূরা আল-বাকারা: ১৯৬)",
+    "hero.subheading": "দক্ষ বাংলাদেশি জনশক্তি বিদেশে প্রেরণে বিশ্বস্ত পার্টনার — দায়িত্ব ও সততার সাথে।",
     "hero.ctaPrimary": "প্যাকেজ দেখুন",
     "hero.ctaSecondary": "যোগাযোগ করুন",
     "hero.stat.years": "বছরের অভিজ্ঞতা",
