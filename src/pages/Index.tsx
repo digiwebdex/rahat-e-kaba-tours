@@ -23,8 +23,9 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <SEOHead
           canonicalUrl="/"
-          description="Al Rawsha International — Fiji Work Permit Visa, Student Consultancy, Air Tickets & Visa Support. BMET-approved legal recruitment from Bangladesh."
-          keywords="Al Rawsha International, Fiji work permit, BMET approved, student consultancy Bangladesh, overseas jobs, work visa Fiji, study abroad, Hajj Umrah"
+          title="Overseas Work Permit, Air Tickets & Visa"
+          description="BMET-approved (RL-2902) recruiting agency. Legal overseas work permits, air tickets & visa support — Vietnam, Kuwait, Laos, Serbia, Russia."
+          keywords="Al Rawsha International, RL-2902, overseas work permit, BMET approved, work visa Vietnam, Kuwait delivery man, Laos construction, Serbia agriculture, Russia work visa, air tickets Bangladesh, visa support"
           jsonLd={organizationJsonLd()}
         />
         <Navbar />
