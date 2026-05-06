@@ -90,10 +90,9 @@ const services: Service[] = [
     titleBn: "স্টুডেন্ট কনসালটেন্সি",
     descEn: "End-to-end overseas study guidance — admission, SOP, visa filing, accommodation and pre-departure briefing.",
     descBn: "বিদেশে পড়াশোনার সম্পূর্ণ গাইডেন্স — অ্যাডমিশন, SOP, ভিসা ফাইলিং, আবাসন ও প্রি-ডিপারচার।",
-    status: "active",
-    href: "#student-consultancy",
-    ctaEn: "Explore Programs",
-    ctaBn: "প্রোগ্রাম দেখুন",
+    status: "soon",
+    ctaEn: "Notify Me",
+    ctaBn: "আমাকে জানান",
     highlightsEn: [
       "UK, Canada, Australia, USA",
       "Free profile evaluation",
@@ -113,7 +112,7 @@ const services: Service[] = [
     stats: [
       { Icon: MapPin, labelEn: "Countries", labelBn: "দেশ", valueEn: "10+", valueBn: "১০+" },
       { Icon: GraduationCap, labelEn: "Universities", labelBn: "বিশ্ববিদ্যালয়", valueEn: "200+", valueBn: "২০০+" },
-      { Icon: ShieldCheck, labelEn: "Success", labelBn: "সফলতা", valueEn: "95%", valueBn: "৯৫%" },
+      { Icon: ShieldCheck, labelEn: "Status", labelBn: "অবস্থা", valueEn: "Soon", valueBn: "শীঘ্রই" },
     ],
   },
   {
