@@ -94,11 +94,10 @@ const ContactSection = forwardRef<HTMLElement>(function ContactSection(_, ref) {
             <select value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} className={`w-full ${inputClass} text-muted-foreground`}>
               <option value="">{t("contact.selectService")}</option>
               {(lc?.form_services || content?.form_services || [
-                t("contact.hajjPackage"),
-                t("contact.umrahPackage"),
-                t("contact.visaProcessing"),
+                t("contact.workPermit"),
                 t("contact.airTicketService"),
-                t("contact.hotelBooking"),
+                t("contact.visaProcessing"),
+                t("contact.documentSupport"),
                 t("contact.other"),
               ]).map((svc: string) => (
                 <option key={svc}>{svc}</option>
