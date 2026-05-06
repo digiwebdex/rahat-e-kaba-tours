@@ -11,29 +11,29 @@ const FacilitiesSection = () => {
       Icon: ShieldCheck,
       titleEn: "BMET-Approved Process",
       titleBn: "BMET অনুমোদিত প্রসেস",
-      descEn: "100% legal recruitment under government-approved licence (RL-1142 partner).",
-      descBn: "সরকার অনুমোদিত লাইসেন্সের অধীনে ১০০% বৈধ প্রসেস (RL-1142 পার্টনার)।",
+      descEn: "100% legal recruitment under government-approved licence (RL-2902).",
+      descBn: "সরকার অনুমোদিত লাইসেন্সের (RL-2902) অধীনে ১০০% বৈধ প্রসেস।",
     },
     {
       Icon: Home,
       titleEn: "Free Accommodation",
       titleBn: "ফ্রি আবাসন",
-      descEn: "Company-provided housing in Fiji throughout your contract.",
-      descBn: "কন্ট্রাক্ট চলাকালীন কোম্পানির পক্ষ থেকে আবাসন সম্পূর্ণ ফ্রি।",
+      descEn: "Company-provided housing across all destinations throughout your contract.",
+      descBn: "সব দেশেই কন্ট্রাক্ট চলাকালীন কোম্পানির পক্ষ থেকে আবাসন সম্পূর্ণ ফ্রি।",
     },
     {
       Icon: CalendarCheck,
-      titleEn: "3-Year Renewable Permit",
-      titleBn: "৩ বছরের নবায়নযোগ্য পারমিট",
-      descEn: "Long-term work permit with the option to renew on completion.",
-      descBn: "দীর্ঘমেয়াদী ওয়ার্ক পারমিট, মেয়াদ শেষে নবায়নের সুবিধা।",
+      titleEn: "Renewable Work Permit",
+      titleBn: "নবায়নযোগ্য ওয়ার্ক পারমিট",
+      descEn: "Long-term 1–3 year work permits with the option to renew on completion.",
+      descBn: "১–৩ বছরের ওয়ার্ক পারমিট, মেয়াদ শেষে নবায়নের সুবিধা।",
     },
     {
       Icon: Clock,
       titleEn: "Fast Visa Processing",
       titleBn: "দ্রুত ভিসা প্রসেসিং",
-      descEn: "Visa completed in just 3–4 months with full transparency.",
-      descBn: "মাত্র ৩–৪ মাসে স্বচ্ছ প্রক্রিয়ায় ভিসা সম্পন্ন।",
+      descEn: "Work permit visas processed within 15 days – 4 months with full transparency.",
+      descBn: "১৫ দিন থেকে ৪ মাসের মধ্যে স্বচ্ছ প্রক্রিয়ায় ভিসা সম্পন্ন।",
     },
     {
       Icon: BadgeCheck,
@@ -46,8 +46,8 @@ const FacilitiesSection = () => {
       Icon: Headphones,
       titleEn: "End-to-End Support",
       titleBn: "সম্পূর্ণ সাপোর্ট",
-      descEn: "From documentation to landing in Fiji — our team is with you.",
-      descBn: "ডকুমেন্টেশন থেকে ফিজিতে অবতরণ পর্যন্ত — আমরা পাশে।",
+      descEn: "From documentation to landing abroad — our team is with you all the way.",
+      descBn: "ডকুমেন্টেশন থেকে বিদেশে অবতরণ পর্যন্ত — আমরা পাশে।",
     },
   ];
 
@@ -66,7 +66,7 @@ const FacilitiesSection = () => {
             {bn ? "কেন আমাদের বেছে নেবেন" : "Why choose us"}
           </span>
           <h2 className="font-heading text-3xl md:text-5xl font-bold mt-3 mb-4">
-            {bn ? "Hasan Travels এর " : "The Hasan Travels "}
+            {bn ? "Al Rawsha International এর " : "The Al Rawsha International "}
             <span className="text-gradient-ocean">{bn ? "প্রতিশ্রুতি" : "promise"}</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
