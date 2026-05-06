@@ -22,12 +22,12 @@ export default function InvoicePage() {
   const printRef = useRef<HTMLDivElement>(null);
 
   const company: CompanyInfo = {
-    name: "Hasan Travels",
-    phone: "+880 1711-925400",
-    email: "info@hasantravels.com.bd",
-    address: "Corporate Office: Hasan Travels, 4th Floor, Jail Road, Munshipara, Dinajpur Sadar - 5200",
+    name: "Al Rawsha International",
+    phone: "+880 1894-840375",
+    email: "info@alrawshaint.com",
+    address: "Corporate Office: Al Rawsha International, 4th Floor, Jail Road, Munshipara, Dinajpur Sadar - 5200",
   };
-  const companyAddressBn = "কর্পোরেট অফিস: ট্রিপ টেস্টিক, ৪র্থ তলা, জেল রোড, মুন্সিপাড়া, দিনাজপুর সদর - ৫২০০";
+  const companyAddressBn = "কর্পোরেট অফিস: আল রওশা ইন্টারন্যাশনাল, রূপায়ণ এফপিএবি টাওয়ার (লিফট-৭), বক্স কালভার্ট রোড, পুরানা পল্টন, ঢাকা-১০০০";
 
   const search = async () => {
     if (!trackingId.trim()) return;
@@ -196,7 +196,7 @@ export default function InvoicePage() {
                 <div className="border border-gray-700 rounded p-1.5 mt-1 flex flex-col items-center">
                   <p className="text-[7px] font-bold text-green-700 mb-0.5">{t("invoice.verifiedBooking")}</p>
                   <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`https://hasantravels.com.bd/verify/${generateVerificationId(booking.tracking_id)}`)}`}
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`https://alrawshaint.com/verify/${generateVerificationId(booking.tracking_id)}`)}`}
                     alt="QR Code"
                     className="w-[72px] h-[72px]"
                     style={{ imageRendering: "pixelated" }}

@@ -3,7 +3,7 @@ import { Menu, X, Phone, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "@/assets/hasantravels-logo.png";
+import logo from "@/assets/al-rawsha-logo.png";
 import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useMenuVisibility } from "@/components/admin/MenuVisibilityManager";

@@ -12,11 +12,11 @@ interface SEOHeadProps {
   lang?: string;
 }
 
-const SITE_NAME = "Hasan Travels";
+const SITE_NAME = "Al Rawsha International";
 const DEFAULT_DESCRIPTION =
-  "Hasan Travels — Premium Hajj, Umrah, international tours, air tickets, visa processing & air ambulance support. Trusted travel partner from Bangladesh.";
+  "Al Rawsha International (RL-2902) — BMET-approved recruiting agency in Bangladesh. Work permit visas for Vietnam, Kuwait, Laos, Serbia & Russia.";
 const DEFAULT_OG_IMAGE = "/og-image.jpg";
-const BASE_URL = "https://hasantravels.com.bd";
+const BASE_URL = "https://alrawshaint.com";
 
 export default function SEOHead({
   title,

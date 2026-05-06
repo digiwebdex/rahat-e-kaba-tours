@@ -74,11 +74,11 @@ const DEFAULT_FB_CONFIG: FBPixelConfig = {
 };
 
 const DEFAULT_SEO: SeoSettings = {
-  site_title: "Hasan Travels",
-  site_description: "ট্রিপ টেস্টিক - হজ্জ, উমরাহ ও ভিসা সেবায় বাংলাদেশের বিশ্বস্ত প্রতিষ্ঠান।",
-  site_keywords: "হজ্জ, উমরাহ, ভিসা, ট্যুর, বাংলাদেশ, ট্রিপ টেস্টিক, hajj, umrah, visa, tour, tangail",
+  site_title: "Al Rawsha International",
+  site_description: "আল রওশা ইন্টারন্যাশনাল - হজ্জ, উমরাহ ও ভিসা সেবায় বাংলাদেশের বিশ্বস্ত প্রতিষ্ঠান।",
+  site_keywords: "হজ্জ, উমরাহ, ভিসা, ট্যুর, বাংলাদেশ, আল রওশা ইন্টারন্যাশনাল, hajj, umrah, visa, tour, tangail",
   og_image: "/assets/logo.png",
-  base_url: "https://hasantravels.com.bd",
+  base_url: "https://alrawshaint.com",
   google_analytics_id: "",
   google_search_console: "",
   facebook_pixel_id: "",

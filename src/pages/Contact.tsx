@@ -15,8 +15,8 @@ const Contact = () => {
   const [form, setForm] = useState({ name: "", phone: "", email: "", service: "", message: "" });
   const [loading, setLoading] = useState(false);
 
-  const phone = content?.phone || "+880 1711-925400";
-  const email = content?.email || "info@hasantravels.com.bd";
+  const phone = content?.phone || "+880 1894-840375";
+  const email = content?.email || "info@alrawshaint.com";
   const location = content?.location || (bn ? "৪র্থ তলা, জেল রোড, মুন্সিপাড়া, দিনাজপুর সদর - ৫২০০" : "4th Floor, Jail Road, Munshipara, Dinajpur Sadar - 5200");
   const hours = content?.hours || (bn ? "শনি - বৃহঃ: সকাল ৯টা - রাত ৯টা" : "Sat - Thu: 9AM - 9PM");
 
@@ -59,9 +59,9 @@ const Contact = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Contact Us - যোগাযোগ"
-        description="ট্রিপ টেস্টিক এর সাথে যোগাযোগ করুন। ফোন, ইমেইল বা অফিসে আসুন। Contact Hasan Travels."
+        description="আল রওশা ইন্টারন্যাশনাল এর সাথে যোগাযোগ করুন। ফোন, ইমেইল বা অফিসে আসুন। Contact Al Rawsha International."
         canonicalUrl="/contact"
-        keywords="যোগাযোগ, contact, Hasan Travels contact, phone, email"
+        keywords="যোগাযোগ, contact, Al Rawsha International contact, phone, email"
         jsonLd={breadcrumbJsonLd([
           { name: "Home", url: "/" },
           { name: "Contact", url: "/contact" },

@@ -4,7 +4,7 @@ import {
   Hotel, Bell, AlertTriangle, BookOpen, DollarSign, RotateCcw, PieChart,
   Plane, FileCheck, Map, Search, Upload, Shield, ShieldCheck, Briefcase, GraduationCap,
 } from "lucide-react";
-import logo from "@/assets/hasantravels-logo.png";
+import logo from "@/assets/al-rawsha-logo.png";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
