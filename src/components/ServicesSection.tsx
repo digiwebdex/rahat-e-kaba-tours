@@ -3,8 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpRight,
   HardHat,
-  GraduationCap,
-  Moon,
   Plane,
   Check,
   ChevronDown,
@@ -189,7 +187,7 @@ const ServicesSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 max-w-6xl mx-auto">
           {services.map((s, i) => {
             const Icon = s.Icon;
             const isOpen = expanded === s.titleEn;
