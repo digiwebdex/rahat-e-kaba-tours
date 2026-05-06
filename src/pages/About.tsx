@@ -35,9 +35,9 @@ const About = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="About Us - আমাদের সম্পর্কে"
-        description="ট্রিপ টেস্টিক - বাংলাদেশের বিশ্বস্ত হজ্জ ও উমরাহ সেবা প্রদানকারী প্রতিষ্ঠান।"
+        description="আল রওশা ইন্টারন্যাশনাল - বাংলাদেশের বিশ্বস্ত হজ্জ ও উমরাহ সেবা প্রদানকারী প্রতিষ্ঠান।"
         canonicalUrl="/about"
-        keywords="ট্রিপ টেস্টিক, Hasan Travels, about, আমাদের সম্পর্কে, হজ্জ সেবা"
+        keywords="আল রওশা ইন্টারন্যাশনাল, Al Rawsha International, about, আমাদের সম্পর্কে, হজ্জ সেবা"
         jsonLd={breadcrumbJsonLd([
           { name: "Home", url: "/" },
           { name: "About", url: "/about" },

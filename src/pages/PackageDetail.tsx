@@ -53,7 +53,7 @@ const PackageDetail = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title={pkg.name}
-        description={pkg.description || `${pkg.name} - Hasan Travels package`}
+        description={pkg.description || `${pkg.name} - Al Rawsha International package`}
         canonicalUrl={`/packages/${pkg.id}`}
         ogImage={pkg.image_url || undefined}
         ogType="product"

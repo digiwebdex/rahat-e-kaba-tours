@@ -23,8 +23,8 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <SEOHead
           canonicalUrl="/"
-          description="Hasan Travels — Fiji Work Permit Visa, Student Consultancy, Air Tickets & Visa Support. BMET-approved legal recruitment from Bangladesh."
-          keywords="Hasan Travels, Fiji work permit, BMET approved, student consultancy Bangladesh, overseas jobs, work visa Fiji, study abroad, Hajj Umrah"
+          description="Al Rawsha International — Fiji Work Permit Visa, Student Consultancy, Air Tickets & Visa Support. BMET-approved legal recruitment from Bangladesh."
+          keywords="Al Rawsha International, Fiji work permit, BMET approved, student consultancy Bangladesh, overseas jobs, work visa Fiji, study abroad, Hajj Umrah"
           jsonLd={organizationJsonLd()}
         />
         <Navbar />
