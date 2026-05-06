@@ -17,12 +17,12 @@ const Footer = () => {
   const email = content?.email || "info@alrawshaint.com";
   const address = lc?.address || content?.address || t("footer.address");
   const fallbackServices = [
-    t("footer.servicesList.0"),
-    t("footer.servicesList.1"),
-    t("footer.servicesList.2"),
-    t("footer.servicesList.3"),
-    t("footer.servicesList.4"),
-    t("footer.servicesList.5"),
+    language === "bn" ? "ওভারসিজ ওয়ার্ক পারমিট" : "Overseas Work Permit",
+    language === "bn" ? "এয়ার টিকেট" : "Air Tickets",
+    language === "bn" ? "ভিসা সাপোর্ট" : "Visa Support",
+    language === "bn" ? "ডকুমেন্ট অ্যাটেস্টেশন" : "Document Attestation",
+    language === "bn" ? "BMET ক্লিয়ারেন্স" : "BMET Clearance",
+    language === "bn" ? "প্রি-ডিপারচার সাপোর্ট" : "Pre-Departure Support",
   ];
   const servicesList = lc?.services_list || content?.services_list || fallbackServices;
   const devName = content?.developer_name || "DigiWebDex";
@@ -30,9 +30,10 @@ const Footer = () => {
 
   const quickLinks = [
     { label: t("nav.home"), href: "/" },
-    { label: t("nav.packages"), href: "/packages" },
-    { label: t("nav.hotels"), href: "/hotels" },
-    { label: language === "bn" ? "উমরাহ গাইডলাইন" : "Umrah Guideline", href: "/umrah-guide" },
+    { label: language === "bn" ? "ওভারসিজ ওয়ার্ক পারমিট" : "Overseas Work Permit", href: "/#services" },
+    { label: language === "bn" ? "এয়ার টিকেট" : "Air Tickets", href: "/#services" },
+    { label: language === "bn" ? "ভিসা সাপোর্ট" : "Visa Support", href: "/#services" },
+    { label: language === "bn" ? "ওপেন পজিশন" : "Open Positions", href: "/#positions" },
     { label: t("nav.about"), href: "/about" },
     { label: t("nav.contact"), href: "/contact" },
     { label: t("nav.track"), href: "/track" },
