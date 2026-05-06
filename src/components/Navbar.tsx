@@ -23,9 +23,7 @@ const Navbar = () => {
   const allNavLinks = [
     { key: "home", label: t("nav.home"), href: "#hero" },
     { key: "services", label: t("nav.services"), href: "#services" },
-    { key: "packages", label: t("nav.packages"), href: "#packages" },
-    { key: "hotels", label: t("nav.hotels"), href: "/hotels" },
-    { key: "gallery", label: t("nav.gallery"), href: "#gallery" },
+    { key: "positions", label: language === "bn" ? "ওপেন পজিশন" : "Open Positions", href: "#positions" },
     { key: "about", label: t("nav.about"), href: "#about" },
     { key: "contact", label: t("nav.contact"), href: "#contact" },
     { key: "track", label: t("nav.track"), href: "/track" },
