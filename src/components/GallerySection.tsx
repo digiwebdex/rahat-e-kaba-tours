@@ -1,10 +1,10 @@
 import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, X, ChevronLeft, ChevronRight, Image as ImageIcon, Video, Plane, FileCheck, Users, Building2 } from "lucide-react";
+import { Play, X, ChevronLeft, ChevronRight, Image as ImageIcon, Video, Plane, FileCheck, Users } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
-type Category = "departure" | "visa" | "manpower" | "office";
+type Category = "departure" | "visa" | "manpower";
 
 type GalleryItem = {
   type: "image" | "video";
@@ -18,7 +18,6 @@ const defaultItems: GalleryItem[] = [
   ...Array.from({ length: 12 }, (_, i) => ({ type: "image" as const, src: `/gallery/departure/departure-${i + 1}.jpg`, category: "departure" as Category })),
   ...Array.from({ length: 12 }, (_, i) => ({ type: "image" as const, src: `/gallery/visa/visa-${i + 1}.jpg`, category: "visa" as Category })),
   ...Array.from({ length: 5 }, (_, i) => ({ type: "image" as const, src: `/gallery/manpower/manpower-${i + 1}.jpg`, category: "manpower" as Category })),
-  ...Array.from({ length: 3 }, (_, i) => ({ type: "image" as const, src: `/gallery/office/office-${i + 1}.jpg`, category: "office" as Category })),
 ];
 
 const tabs: { key: TabType; labelBn: string; labelEn: string; icon: typeof ImageIcon }[] = [
@@ -26,7 +25,6 @@ const tabs: { key: TabType; labelBn: string; labelEn: string; icon: typeof Image
   { key: "departure", labelBn: "বিদেশ যাত্রা", labelEn: "Departures", icon: Plane },
   { key: "visa", labelBn: "ভিসা", labelEn: "Visa", icon: FileCheck },
   { key: "manpower", labelBn: "জনশক্তি", labelEn: "Manpower", icon: Users },
-  { key: "office", labelBn: "অফিস", labelEn: "Office", icon: Building2 },
   { key: "videos", labelBn: "ভিডিও", labelEn: "Videos", icon: Video },
 ];
 
