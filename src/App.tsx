@@ -118,38 +118,32 @@ const App = () => (
 
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboardPage />} />
-              <Route path="bookings" element={<AdminBookingsPage />} />
-              <Route path="bookings/create" element={<AdminCreateBookingPage />} />
               <Route path="customers" element={<AdminCustomersPage />} />
-              <Route path="packages" element={<AdminPackagesPage />} />
-              <Route path="payments" element={<AdminPaymentsPage />} />
-              <Route path="accounting" element={<AdminAccountingPage />} />
-              <Route path="reports" element={<AdminReportsPage />} />
               <Route path="moallems" element={<AdminMoallemsPage />} />
               <Route path="moallems/:id" element={<AdminMoallemProfilePage />} />
               <Route path="supplier-agents" element={<AdminSupplierAgentsPage />} />
               <Route path="supplier-agents/:id" element={<AdminSupplierAgentProfilePage />} />
-              <Route path="calculator" element={<AdminCalculatorPage />} />
-              <Route path="hotels" element={<AdminHotelsPage />} />
-              <Route path="notifications" element={<AdminNotificationsPage />} />
-              <Route path="due-alerts" element={<AdminDueAlertsPage />} />
-              <Route path="chart-of-accounts" element={<AdminChartOfAccountsPage />} />
+              <Route path="work-permit" element={<AdminWorkPermitPage />} />
+              <Route path="tickets" element={<AdminTicketsPage />} />
+              <Route path="visa" element={<AdminVisaPage />} />
+              <Route path="payments" element={<AdminPaymentsPage />} />
+              <Route path="settlements" element={<AdminSettlementsPage />} />
+              <Route path="accounting" element={<AdminAccountingPage />} />
               <Route path="receivables" element={<AdminReceivablesPage />} />
+              <Route path="due-alerts" element={<AdminDueAlertsPage />} />
               <Route path="refunds" element={<AdminRefundsPage />} />
+              <Route path="reports" element={<AdminReportsPage />} />
               <Route path="analytics" element={<AdminAnalyticsPage />} />
+              <Route path="calculator" element={<AdminCalculatorPage />} />
+              <Route path="notifications" element={<AdminNotificationsPage />} />
+              <Route path="chart-of-accounts" element={<AdminChartOfAccountsPage />} />
               <Route path="cms" element={<AdminCmsPage />} />
               <Route path="seo" element={<AdminSeoPage />} />
               <Route path="payment-methods" element={<AdminPaymentMethodsPage />} />
-              <Route path="tickets" element={<AdminTicketsPage />} />
-              <Route path="visa" element={<AdminVisaPage />} />
-              <Route path="ticket-refunds" element={<AdminTicketRefundsPage />} />
-              <Route path="settlements" element={<AdminSettlementsPage />} />
               <Route path="bulk-import" element={<AdminBulkImportPage />} />
               <Route path="audit-logs" element={<AdminAuditLogsPage />} />
               <Route path="security" element={<AdminSecurityPage />} />
               <Route path="guide" element={<AdminGuidePage />} />
-              <Route path="work-permit" element={<AdminWorkPermitPage />} />
-              <Route path="student-consultancy" element={<AdminStudentConsultancyPage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
             </Route>
 

@@ -15,21 +15,15 @@ import { supabase } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 import type { AppRole } from "@/hooks/useUserRole";
 
-// Role access matrix
+// Role access matrix — Al Rawsha International (Work Permit, Air Tickets, Visa Services)
 const mainMenuItems = [
-  { title: "Dashboard",       url: "/admin",                icon: LayoutDashboard, roles: ["admin", "accountant", "viewer"] },
-  { title: "Bookings",        url: "/admin/bookings",       icon: FileText,        roles: ["admin", "accountant", "booking", "viewer"] },
-  { title: "Customers",       url: "/admin/customers",      icon: Users,           roles: ["admin", "accountant", "booking", "viewer"] },
-  { title: "Moallems",        url: "/admin/moallems",       icon: UserCheck,       roles: ["admin", "accountant", "booking", "viewer"] },
-  { title: "Supplier Agents", url: "/admin/supplier-agents", icon: Truck,          roles: ["admin", "accountant", "viewer"] },
-  { title: "Packages",        url: "/admin/packages",       icon: Package,         roles: ["admin", "viewer"] },
-  { title: "Air Tickets",     url: "/admin/tickets",        icon: Plane,           roles: ["admin", "accountant", "booking", "viewer"] },
-  { title: "Visa Services",   url: "/admin/visa",           icon: FileCheck,       roles: ["admin", "accountant", "booking", "viewer"] },
-  { title: "Ticket Refunds",  url: "/admin/ticket-refunds", icon: RotateCcw,       roles: ["admin", "accountant", "viewer"] },
-  { title: "Tours",           url: "/admin/packages?type=tour",      icon: Map,     roles: ["admin", "viewer"] },
-  { title: "Hotels",          url: "/admin/hotels",         icon: Hotel,           roles: ["admin", "viewer"] },
-  { title: "Work Permit",     url: "/admin/work-permit",    icon: Briefcase,       roles: ["admin", "accountant", "booking", "viewer"] },
-  { title: "Student Consultancy", url: "/admin/student-consultancy", icon: GraduationCap, roles: ["admin", "accountant", "booking", "viewer"] },
+  { title: "Dashboard",            url: "/admin",                 icon: LayoutDashboard, roles: ["admin", "accountant", "viewer"] },
+  { title: "Customers",            url: "/admin/customers",       icon: Users,           roles: ["admin", "accountant", "booking", "viewer"] },
+  { title: "Middlemen",            url: "/admin/moallems",        icon: UserCheck,       roles: ["admin", "accountant", "booking", "viewer"] },
+  { title: "Supplier Agents",      url: "/admin/supplier-agents", icon: Truck,           roles: ["admin", "accountant", "viewer"] },
+  { title: "Overseas Work Permit", url: "/admin/work-permit",     icon: Briefcase,       roles: ["admin", "accountant", "booking", "viewer"] },
+  { title: "Air Tickets",          url: "/admin/tickets",         icon: Plane,           roles: ["admin", "accountant", "booking", "viewer"] },
+  { title: "Visa Services",        url: "/admin/visa",            icon: FileCheck,       roles: ["admin", "accountant", "booking", "viewer"] },
 ];
 
 const financeMenuItems = [
