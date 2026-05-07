@@ -95,8 +95,16 @@ const AdminDashboardCharts = ({
 
     // Status breakdown
     const pendingCount = activeBookings.filter(b => b.status === "pending").length;
-    const confirmedCount = activeBookings.filter(b => b.status === "confirmed").length;
+    const completedCount = activeBookings.filter(b => b.status === "completed" || b.status === "confirmed").length;
     const cancelledCount = bookings.filter(b => b.status === "cancelled").length;
+
+    // Service-type breakdown
+    const workPermitCount = activeBookings.filter(b => b.service_type === "work_permit").length;
+    const visaCount = activeBookings.filter(b => b.service_type === "visa").length;
+    const ticketCount = activeBookings.filter(b => b.service_type === "air_ticket").length;
+    const totalCustomers = new Set(
+      activeBookings.map(b => b.guest_phone || b.user_id || b.guest_name).filter(Boolean)
+    ).size;
 
     return {
       totalSales, totalHajji, totalIncomeReceived, netProfit,
@@ -104,7 +112,8 @@ const AdminDashboardCharts = ({
       moallemDue, customerDue, totalReceivable,
       supplierDue, commissionDue, totalPayable,
       todayBookings, todayPayments,
-      pendingCount, confirmedCount, cancelledCount,
+      pendingCount, completedCount, cancelledCount,
+      workPermitCount, visaCount, ticketCount, totalCustomers,
     };
   }, [bookings, payments, expenses, accounts, moallemPayments, supplierPayments, commissionPayments, supplierContractPayments, supplierContracts, moallems, dailyCashbook]);
 
@@ -144,8 +153,8 @@ const AdminDashboardCharts = ({
           icon={DollarSign}
           iconBg="bg-primary/10"
           iconColor="text-primary"
-          sub={`${bookings.filter(b => b.status !== "cancelled").length} bookings`}
-          onClick={() => navigate("/admin/bookings")}
+          sub={`${bookings.filter(b => b.status !== "cancelled").length} applications`}
+          onClick={() => navigate("/admin/work-permit")}
         />
         <KpiCard
           label="Income Received"
@@ -228,11 +237,14 @@ const AdminDashboardCharts = ({
             <Activity className="h-4 w-4 text-primary" /> Quick Stats
           </h3>
           <div className="space-y-3">
-            <QuickStat label="Total Hajji" value={financials.totalHajji} color="text-primary" onClick={() => navigate("/admin/customers")} />
-            <QuickStat label="Today's Bookings" value={financials.todayBookings} color="text-emerald-500" onClick={() => navigate("/admin/bookings")} />
-            <QuickStat label="Pending" value={financials.pendingCount} color="text-yellow-600" onClick={() => navigate("/admin/bookings")} />
-            <QuickStat label="Confirmed" value={financials.confirmedCount} color="text-emerald-500" onClick={() => navigate("/admin/bookings")} />
-            <QuickStat label="Cancelled" value={financials.cancelledCount} color="text-destructive" onClick={() => navigate("/admin/bookings")} />
+            <QuickStat label="Total Customers" value={financials.totalCustomers} color="text-primary" onClick={() => navigate("/admin/customers")} />
+            <QuickStat label="Today's Applications" value={financials.todayBookings} color="text-emerald-500" onClick={() => navigate("/admin/work-permit")} />
+            <QuickStat label="Work Permit Applications" value={financials.workPermitCount} color="text-primary" onClick={() => navigate("/admin/work-permit")} />
+            <QuickStat label="Visa Applications" value={financials.visaCount} color="text-primary" onClick={() => navigate("/admin/visa")} />
+            <QuickStat label="Air Ticket Sales" value={financials.ticketCount} color="text-primary" onClick={() => navigate("/admin/tickets")} />
+            <QuickStat label="Pending Applications" value={financials.pendingCount} color="text-yellow-600" />
+            <QuickStat label="Completed Applications" value={financials.completedCount} color="text-emerald-500" />
+            <QuickStat label="Cancelled Applications" value={financials.cancelledCount} color="text-destructive" />
           </div>
         </div>
       </div>
@@ -243,9 +255,9 @@ const AdminDashboardCharts = ({
         <div className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-primary" /> Recent Bookings
+              <CalendarDays className="h-4 w-4 text-primary" /> Recent Applications
             </h3>
-            <span className="text-xs text-primary cursor-pointer hover:underline font-medium" onClick={() => navigate("/admin/bookings")}>View All →</span>
+            <span className="text-xs text-primary cursor-pointer hover:underline font-medium" onClick={() => navigate("/admin/work-permit")}>View All →</span>
           </div>
           {recentBookings.length > 0 ? (
             <div className="space-y-1">
@@ -253,7 +265,12 @@ const AdminDashboardCharts = ({
                 <div
                   key={b.id}
                   className="flex items-center justify-between py-2.5 border-b border-border/50 last:border-0 cursor-pointer hover:bg-secondary/20 rounded-lg px-2 -mx-2 transition-colors"
-                  onClick={() => navigate("/admin/bookings")}
+                  onClick={() => {
+                    const r = b.service_type === "visa" ? "/admin/visa"
+                      : b.service_type === "air_ticket" ? "/admin/tickets"
+                      : "/admin/work-permit";
+                    navigate(r);
+                  }}
                 >
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold truncate">{b.guest_name || "N/A"}</p>
@@ -271,7 +288,7 @@ const AdminDashboardCharts = ({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">No bookings yet</p>
+            <p className="text-sm text-muted-foreground text-center py-8">No applications yet</p>
           )}
         </div>
 
