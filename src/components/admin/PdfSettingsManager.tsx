@@ -131,7 +131,7 @@ export default function PdfSettingsManager() {
             className={inputClass}
             value={config.phone}
             onChange={(e) => updateField("phone", e.target.value)}
-            placeholder="+880 1711-925400"
+            placeholder="+880 1886-999465"
           />
         </div>
         <div>
@@ -149,7 +149,7 @@ export default function PdfSettingsManager() {
             className={inputClass}
             value={config.email}
             onChange={(e) => updateField("email", e.target.value)}
-            placeholder="info@hasantravels.com.bd"
+            placeholder="alrawshainternational@gmail.com"
           />
         </div>
         <div className="sm:col-span-2">
@@ -167,7 +167,7 @@ export default function PdfSettingsManager() {
             className={inputClass}
             value={config.website}
             onChange={(e) => updateField("website", e.target.value)}
-            placeholder="https://hasantravels.com.bd"
+            placeholder="https://alrawshaint.com"
           />
         </div>
       </div>

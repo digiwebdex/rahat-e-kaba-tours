@@ -34,7 +34,7 @@ export default function PrivacyPolicy() {
     },
     {
       heading: "যোগাযোগ",
-      body: "গোপনীয়তা নীতি সম্পর্কে কোনো প্রশ্ন থাকলে আমাদের সাথে যোগাযোগ করুন: ফোন: +৮৮০ ১৮৯৪-৮৪০৩৭৫, ইমেইল: info@alrawshaint.com"
+      body: "গোপনীয়তা নীতি সম্পর্কে কোনো প্রশ্ন থাকলে আমাদের সাথে যোগাযোগ করুন: ফোন: +৮৮০ ১৮৮৬-৯৯৯৪৬৫, ইমেইল: alrawshainternational@gmail.com"
     }
   ];
 

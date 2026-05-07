@@ -93,12 +93,12 @@ export function organizationJsonLd() {
       postalCode: "1000",
       addressCountry: "BD",
     },
-    telephone: ["+8801894840375"],
+    telephone: ["+8801886999465", "+8801709294065"],
     sameAs: ["https://www.facebook.com/profile.php?id=61585173125908"],
     contactPoint: [
       {
         "@type": "ContactPoint",
-        telephone: "+8801894840375",
+        telephone: "+8801886999465",
         contactType: "customer service",
         availableLanguage: ["Bengali", "English"],
       },

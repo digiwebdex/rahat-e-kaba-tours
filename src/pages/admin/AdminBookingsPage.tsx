@@ -673,7 +673,7 @@ export default function AdminBookingsPage() {
         };
         const newLabel = statusLabels[statusChangeVal] || statusChangeVal;
         const pkgName = booking.packages?.name || "your package";
-        const smsMsg = `Al Rawsha International: Dear ${booking.guest_name || "Customer"}, your booking (${booking.tracking_id}) status has been updated to "${newLabel}". Package: ${pkgName}. For queries: 01894-840375`;
+        const smsMsg = `Al Rawsha International: Dear ${booking.guest_name || "Customer"}, your booking (${booking.tracking_id}) status has been updated to "${newLabel}". Package: ${pkgName}. For queries: 01886-999465`;
         const emailSubject = `Booking Status Updated — ${booking.tracking_id}`;
         const emailHtml = `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
@@ -689,7 +689,7 @@ export default function AdminBookingsPage() {
                 <tr><td style="padding:8px;border:1px solid #eee;font-weight:bold;">Previous Status</td><td style="padding:8px;border:1px solid #eee;">${statusLabels[oldStatus] || oldStatus}</td></tr>
                 <tr><td style="padding:8px;border:1px solid #eee;font-weight:bold;">New Status</td><td style="padding:8px;border:1px solid #eee;color:#C5A55A;font-weight:bold;">${newLabel}</td></tr>
               </table>
-              <p>For any queries, contact us at <strong>01894-840375</strong></p>
+              <p>For any queries, contact us at <strong>01886-999465</strong></p>
               <p style="color:#888;font-size:12px;margin-top:20px;">Thank you for choosing Al Rawsha International.</p>
             </div>
           </div>`;

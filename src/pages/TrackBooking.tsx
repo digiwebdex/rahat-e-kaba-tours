@@ -390,7 +390,7 @@ const TrackBooking = () => {
               )}
 
               <p className="text-center text-xs text-muted-foreground">
-                {t("track.contactUs")} <a href="/#contact" className="text-primary hover:underline">{t("track.contactLink")}</a> {t("track.orCall")} +880 1711-925400
+                {t("track.contactUs")} <a href="/#contact" className="text-primary hover:underline">{t("track.contactLink")}</a> {t("track.orCall")} +880 1886-999465
               </p>
             </motion.div>
           )}
