@@ -131,7 +131,15 @@ const VisaServicesSection = () => {
               className="group bg-card border border-border rounded-xl px-4 py-3 flex items-center justify-between hover:border-primary/50 hover:shadow-md transition-all"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <span className="text-2xl shrink-0" aria-hidden>{c.flag}</span>
+                <img
+                  src={`https://flagcdn.com/w80/${c.code}.png`}
+                  srcSet={`https://flagcdn.com/w160/${c.code}.png 2x`}
+                  width={32}
+                  height={24}
+                  alt={`${c.name} flag`}
+                  loading="lazy"
+                  className="w-8 h-6 object-cover rounded-sm shrink-0 ring-1 ring-border"
+                />
                 <div className="min-w-0">
                   <div className="font-semibold text-foreground text-sm truncate">
                     {bn ? c.nameBn : c.name}
