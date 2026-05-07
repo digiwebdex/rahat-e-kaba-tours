@@ -1,6 +1,9 @@
 import { motion } from "framer-motion";
 import { Clock, Search, FileText, Send, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
+
+const ICON_MAP: Record<string, any> = { Search, FileText, Send, CheckCircle2 };
 
 type Country = {
   name: string;
@@ -35,8 +38,10 @@ const COUNTRIES: Country[] = [
 const VisaServicesSection = () => {
   const { language } = useLanguage();
   const bn = language === "bn";
+  const { data: content } = useBulkSiteContent("visa_services");
+  const lc = content?.[language];
 
-  const steps = [
+  const defaultSteps = [
     {
       icon: Search,
       title: bn ? "পরামর্শ" : "Consultation",
@@ -67,6 +72,19 @@ const VisaServicesSection = () => {
     },
   ];
 
+  const steps = (lc?.steps && Array.isArray(lc.steps) && lc.steps.length > 0)
+    ? lc.steps.map((s: any) => ({ icon: ICON_MAP[s.icon] || Search, title: s.title, desc: s.desc }))
+    : defaultSteps;
+
+  const countries = (lc?.countries && Array.isArray(lc.countries) && lc.countries.length > 0)
+    ? lc.countries.map((c: any) => ({ name: c.name, code: c.code, duration: c.duration, price: c.price }))
+    : COUNTRIES.map((c) => ({ name: bn ? c.nameBn : c.name, code: c.code, duration: bn ? c.durationBn : c.duration, price: c.price }));
+
+  const sectionLabel = lc?.section_label || (bn ? "ভিসা সেবা" : "Visa Services");
+  const heading = lc?.heading || (bn ? "ভিসা সেবা" : "Visa Services");
+  const description = lc?.description || (bn ? "১৮+ দেশের জন্য উচ্চ অনুমোদনের হারসহ বিশেষজ্ঞ ভিসা প্রসেসিং" : "Expert visa processing for 18+ countries with high approval rates");
+  const footerNote = lc?.footer_note || (bn ? "* মূল্য শুরুর ফি এবং পরিবর্তনশীল। সঠিক মূল্যের জন্য যোগাযোগ করুন।" : "* Prices are starting fees and may vary. Contact us for exact pricing.");
+
   return (
     <section id="visa" className="py-20 md:py-28 bg-secondary/40">
       <div className="container mx-auto px-4">
@@ -77,15 +95,13 @@ const VisaServicesSection = () => {
           className="text-center max-w-2xl mx-auto mb-14"
         >
           <span className="inline-block bg-primary/10 text-primary text-xs font-bold tracking-[0.25em] uppercase px-4 py-1.5 rounded-full mb-4">
-            {bn ? "ভিসা সেবা" : "Visa Services"}
+            {sectionLabel}
           </span>
           <h2 className="font-heading text-3xl md:text-5xl font-extrabold text-foreground">
-            {bn ? "ভিসা সেবা" : "Visa Services"}
+            {heading}
           </h2>
           <p className="text-muted-foreground mt-4 text-base md:text-lg">
-            {bn
-              ? "১৮+ দেশের জন্য উচ্চ অনুমোদনের হারসহ বিশেষজ্ঞ ভিসা প্রসেসিং"
-              : "Expert visa processing for 18+ countries with high approval rates"}
+            {description}
           </p>
           <div className="h-1 w-16 bg-gradient-to-r from-primary to-accent mx-auto mt-5 rounded-full" />
         </motion.div>
@@ -120,7 +136,7 @@ const VisaServicesSection = () => {
 
         {/* Country grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 max-w-6xl mx-auto">
-          {COUNTRIES.map((c, i) => (
+          {countries.map((c: any, i: number) => (
             <motion.a
               key={c.name}
               href="#contact"
@@ -142,11 +158,11 @@ const VisaServicesSection = () => {
                 />
                 <div className="min-w-0">
                   <div className="font-semibold text-foreground text-sm truncate">
-                    {bn ? c.nameBn : c.name}
+                    {c.name}
                   </div>
                   <div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                     <Clock className="w-3 h-3" />
-                    {bn ? c.durationBn : c.duration}
+                    {c.duration}
                   </div>
                 </div>
               </div>
@@ -161,9 +177,7 @@ const VisaServicesSection = () => {
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-8">
-          {bn
-            ? "* মূল্য শুরুর ফি এবং পরিবর্তনশীল। সঠিক মূল্যের জন্য যোগাযোগ করুন।"
-            : "* Prices are starting fees and may vary. Contact us for exact pricing."}
+          {footerNote}
         </p>
       </div>
     </section>
