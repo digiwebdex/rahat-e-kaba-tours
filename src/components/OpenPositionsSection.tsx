@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Send, Briefcase, ChevronDown, Clock, Home, Plane, ShieldCheck,
-  Calendar, Utensils, MapPin, DollarSign, Users,
+  Send, Briefcase, Clock, Home, Plane, ShieldCheck,
+  Calendar, Utensils, Users, Sparkles, Globe2, ArrowRight,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useState } from "react";
@@ -30,7 +30,8 @@ interface Position {
 
 interface Country {
   key: CountryKey;
-  flag: string;
+  flag: string;       // emoji fallback
+  iso: string;        // 2-letter ISO for flag image
   enName: string;
   bnName: string;
   image: string;
@@ -44,6 +45,7 @@ const COUNTRIES: Country[] = [
   {
     key: "vietnam",
     flag: "🇻🇳",
+    iso: "vn",
     enName: "Vietnam",
     bnName: "ভিয়েতনাম",
     image: imgVietnam,
@@ -60,6 +62,7 @@ const COUNTRIES: Country[] = [
   {
     key: "kuwait",
     flag: "🇰🇼",
+    iso: "kw",
     enName: "Kuwait",
     bnName: "কুয়েত",
     image: imgKuwait,
@@ -73,6 +76,7 @@ const COUNTRIES: Country[] = [
   {
     key: "laos",
     flag: "🇱🇦",
+    iso: "la",
     enName: "Laos",
     bnName: "লাওস",
     image: imgLaos,
@@ -88,6 +92,7 @@ const COUNTRIES: Country[] = [
   {
     key: "serbia",
     flag: "🇷🇸",
+    iso: "rs",
     enName: "Serbia",
     bnName: "সার্বিয়া",
     image: imgSerbia,
@@ -101,6 +106,7 @@ const COUNTRIES: Country[] = [
   {
     key: "russia",
     flag: "🇷🇺",
+    iso: "ru",
     enName: "Russia",
     bnName: "রাশিয়া",
     image: imgRussia,
