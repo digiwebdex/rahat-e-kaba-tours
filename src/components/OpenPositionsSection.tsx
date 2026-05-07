@@ -265,10 +265,10 @@ const OpenPositionsSection = () => {
 
   const sectionLabel = lc?.section_label || (bn ? "চলমান নিয়োগ" : "Now Hiring");
   const headingPart1 = lc?.heading || (bn ? "আমাদের " : "Open positions in ");
-  const headingHighlight = lc?.heading_highlight || (bn ? "চলমান পজিশনসমূহ" : "5 Countries");
+  const headingHighlight = lc?.heading_highlight || (bn ? "চলমান পজিশনসমূহ" : `${COUNTRIES.length}+ Countries`);
   const description = lc?.description || (bn
-    ? "ভিয়েতনাম, কুয়েত, লাওস, সার্বিয়া ও রাশিয়াতে বৈধ ওয়ার্ক পারমিট ভিসায় নিয়োগ চলছে। বিস্তারিত জানতে কোম্পানির কার্ডে ক্লিক করুন।"
-    : "Hiring across Vietnam, Kuwait, Laos, Serbia and Russia. Click any country card to see role-by-role details.");
+    ? "বিশ্বের বিভিন্ন দেশে বৈধ ওয়ার্ক পারমিট ভিসায় নিয়োগ চলছে। বিস্তারিত জানতে যেকোনো দেশের কার্ডে ক্লিক করুন।"
+    : "Hiring across multiple countries on valid work permit visas. Click any country card to see role-by-role details.");
   const applyText = lc?.apply_button_text || (bn ? "আবেদন করুন" : "Apply Now");
 
   const visible = active === "all" ? COUNTRIES : COUNTRIES.filter((c) => c.key === active);
