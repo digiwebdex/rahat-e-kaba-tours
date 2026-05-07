@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Calendar } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 type Post = {
   category: string;
@@ -53,6 +54,15 @@ const POSTS: Post[] = [
 const TravelBlogSection = () => {
   const { language } = useLanguage();
   const bn = language === "bn";
+  const { data: content } = useBulkSiteContent("travel_blog");
+  const lc = content?.[language];
+
+  const heading = lc?.heading || (bn ? "ট্রাভেল ব্লগ" : "Travel Blog");
+  const description = lc?.description || (bn ? "আপনার পরবর্তী যাত্রার জন্য টিপস, গাইড ও অনুপ্রেরণা" : "Tips, guides, and inspiration for your next adventure");
+  const readMoreText = lc?.read_more_text || (bn ? "আরও পড়ুন" : "Read more");
+  const posts = (lc?.posts && Array.isArray(lc.posts) && lc.posts.length > 0)
+    ? lc.posts.map((p: any) => ({ category: p.category, title: p.title, excerpt: p.excerpt, date: p.date, image: p.image, href: p.href || "#contact" }))
+    : POSTS.map((p) => ({ category: bn ? p.categoryBn : p.category, title: bn ? p.titleBn : p.titleEn, excerpt: bn ? p.excerptBn : p.excerptEn, date: p.date, image: p.image, href: p.href }));
 
   return (
     <section id="blog" className="py-20 md:py-24 bg-background">
@@ -63,21 +73,15 @@ const TravelBlogSection = () => {
           viewport={{ once: true }}
           className="text-center max-w-2xl mx-auto mb-12"
         >
-          <h2 className="font-heading text-3xl md:text-5xl font-extrabold text-foreground">
-            {bn ? "ট্রাভেল ব্লগ" : "Travel Blog"}
-          </h2>
-          <p className="text-muted-foreground mt-3 text-base md:text-lg">
-            {bn
-              ? "আপনার পরবর্তী যাত্রার জন্য টিপস, গাইড ও অনুপ্রেরণা"
-              : "Tips, guides, and inspiration for your next adventure"}
-          </p>
+          <h2 className="font-heading text-3xl md:text-5xl font-extrabold text-foreground">{heading}</h2>
+          <p className="text-muted-foreground mt-3 text-base md:text-lg">{description}</p>
           <div className="h-1 w-16 bg-gradient-to-r from-primary to-accent mx-auto mt-5 rounded-full" />
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {POSTS.map((p, i) => (
+          {posts.map((p: any, i: number) => (
             <motion.a
-              key={p.titleEn}
+              key={p.title + i}
               href={p.href}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -88,12 +92,12 @@ const TravelBlogSection = () => {
               <div className="relative aspect-[16/10] overflow-hidden">
                 <img
                   src={p.image}
-                  alt={bn ? p.titleBn : p.titleEn}
+                  alt={p.title}
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full">
-                  {bn ? p.categoryBn : p.category}
+                  {p.category}
                 </span>
               </div>
               <div className="p-5 flex flex-col flex-1">
@@ -102,13 +106,13 @@ const TravelBlogSection = () => {
                   {p.date}
                 </div>
                 <h3 className="font-heading font-bold text-foreground text-lg leading-snug mb-2 group-hover:text-primary transition-colors">
-                  {bn ? p.titleBn : p.titleEn}
+                  {p.title}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">
-                  {bn ? p.excerptBn : p.excerptEn}
+                  {p.excerpt}
                 </p>
                 <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                  {bn ? "আরও পড়ুন" : "Read more"}
+                  {readMoreText}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </span>
               </div>
