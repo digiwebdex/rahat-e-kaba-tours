@@ -261,7 +261,7 @@ export default function AdminPaymentsPage() {
           receipt_file_path: receiptPath,
         });
         if (error) throw error;
-        toast.success("Moallem payment added successfully");
+        toast.success("Middleman payment added successfully");
         setShowAddModal(false);
         resetAddForm();
         fetchPayments();
@@ -323,7 +323,7 @@ export default function AdminPaymentsPage() {
         notes: combinedNotes, date: editForm.date || undefined,
       }).eq("id", editingId);
       if (error) { toast.error(error.message); return; }
-      toast.success("Moallem payment updated"); setEditingId(null); setShowEditModal(false); fetchPayments();
+      toast.success("Middleman payment updated"); setEditingId(null); setShowEditModal(false); fetchPayments();
     } else if (editType === "supplier") {
       const { error } = await supabase.from("supplier_agent_payments").update({
         amount: parseFloat(editForm.amount), payment_method: editForm.payment_method,
@@ -416,7 +416,7 @@ export default function AdminPaymentsPage() {
   }, [payments, moallemPayments, supplierPayments, searchQuery, viewTab]);
 
   const getTypeBadge = (type: PaymentType) => {
-    if (type === "moallem") return { label: "Moallem", cls: "bg-accent/20 text-accent-foreground" };
+    if (type === "moallem") return { label: "Middleman", cls: "bg-accent/20 text-accent-foreground" };
     if (type === "supplier") return { label: "Supplier", cls: "bg-destructive/10 text-destructive" };
     return { label: "Customer", cls: "bg-primary/10 text-primary" };
   };
@@ -494,7 +494,7 @@ export default function AdminPaymentsPage() {
         {[
           { key: "all" as const, label: `All (${payments.length + moallemPayments.length + supplierPayments.length})` },
           { key: "customer" as const, label: `Customer (${payments.length})` },
-          { key: "moallem" as const, label: `Moallem (${moallemPayments.length})` },
+          { key: "moallem" as const, label: `Middleman (${moallemPayments.length})` },
           { key: "supplier" as const, label: `Supplier (${supplierPayments.length})` },
         ].map(t => (
           <button key={t.key} onClick={() => setViewTab(t.key)}
@@ -507,7 +507,7 @@ export default function AdminPaymentsPage() {
       {/* Grouped Moallem View */}
       {viewTab === "moallem" && (
         <div className="space-y-2">
-          {Object.entries(groupedMoallems).length === 0 && <p className="text-center text-muted-foreground py-12">No moallem payments found.</p>}
+          {Object.entries(groupedMoallems).length === 0 && <p className="text-center text-muted-foreground py-12">No middleman payments found.</p>}
           {Object.entries(groupedMoallems).map(([mid, group]) => (
             <div key={mid} className="bg-card border border-border rounded-xl overflow-hidden">
               {/* Moallem Header Row */}
@@ -526,7 +526,7 @@ export default function AdminPaymentsPage() {
                 <div className="flex items-center gap-4">
                   <span className="font-heading font-bold text-primary">{formatBDT(group.totalPaid)}</span>
                   <button
-                    onClick={(e) => { e.stopPropagation(); exportPDF({ title: `Moallem Payment History - ${group.name}`, columns: ["#", "Booking", "Amount", "Method", "Date", "Notes"], rows: group.payments.map((p: any, i: number) => [i + 1, formatTrackingId(p.bookings?.tracking_id) || "—", Number(p.amount), p.payment_method || "—", p.date ? new Date(p.date).toLocaleDateString() : "—", p.notes || "—"]), summary: [`Total Paid: BDT ${group.totalPaid.toLocaleString("en-IN")}`] }); }}
+                    onClick={(e) => { e.stopPropagation(); exportPDF({ title: `Middleman Payment History - ${group.name}`, columns: ["#", "Booking", "Amount", "Method", "Date", "Notes"], rows: group.payments.map((p: any, i: number) => [i + 1, formatTrackingId(p.bookings?.tracking_id) || "—", Number(p.amount), p.payment_method || "—", p.date ? new Date(p.date).toLocaleDateString() : "—", p.notes || "—"]), summary: [`Total Paid: BDT ${group.totalPaid.toLocaleString("en-IN")}`] }); }}
                     className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-md hover:bg-primary/20 transition-colors"
                   >
                     <FileDown className="h-3.5 w-3.5" /> PDF
@@ -787,7 +787,7 @@ export default function AdminPaymentsPage() {
               <div className="flex gap-2">
                 {([
                   { key: "customer" as PaymentType, label: "Customer" },
-                  { key: "moallem" as PaymentType, label: "Moallem" },
+                  { key: "moallem" as PaymentType, label: "Middleman" },
                   { key: "supplier" as PaymentType, label: "Supplier" },
                 ] as const).map(t => (
                   <button key={t.key}
@@ -817,9 +817,9 @@ export default function AdminPaymentsPage() {
             {/* Moallem selection */}
             {paymentType === "moallem" && (
               <div>
-                <label className="text-xs text-muted-foreground block mb-1">Select Moallem *</label>
+                <label className="text-xs text-muted-foreground block mb-1">Select Middleman *</label>
                 <select className={inputClass} value={addForm.moallem_id} onChange={(e) => handleMoallemChange(e.target.value)}>
-                  <option value="">-- Select Moallem --</option>
+                  <option value="">-- Select Middleman --</option>
                   {moallems.map((m) => (
                     <option key={m.id} value={m.id}>{m.name}{m.phone ? ` (${m.phone})` : ""} — Due: {formatBDT(Number(m.total_due || 0))}</option>
                   ))}
@@ -858,7 +858,7 @@ export default function AdminPaymentsPage() {
                 <option value="">-- Select Booking ({filteredBookings.length}) --</option>
                 {filteredBookings.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {formatTrackingId(b.tracking_id)} — {b.guest_name || "N/A"} ({paymentType === "supplier" ? `Supplier Due: ${formatBDT(Number(b.supplier_due || 0))}` : paymentType === "moallem" ? `Moallem Due: ${formatBDT(Number(b.moallem_due || 0))}` : `Due: ${formatBDT(Number(b.due_amount || 0))}`})
+                    {formatTrackingId(b.tracking_id)} — {b.guest_name || "N/A"} ({paymentType === "supplier" ? `Supplier Due: ${formatBDT(Number(b.supplier_due || 0))}` : paymentType === "moallem" ? `Middleman Due: ${formatBDT(Number(b.moallem_due || 0))}` : `Due: ${formatBDT(Number(b.due_amount || 0))}`})
                   </option>
                 ))}
               </select>
@@ -878,8 +878,8 @@ export default function AdminPaymentsPage() {
                 ) : paymentType === "moallem" ? (
                   <>
                     <div><span className="text-muted-foreground block">Total</span><span className="font-bold">{formatBDT(Number(selectedBookingInfo.total_amount))}</span></div>
-                    <div><span className="text-muted-foreground block">Moallem Paid</span><span className="font-bold text-emerald">{formatBDT(Number(selectedBookingInfo.paid_by_moallem || 0))}</span></div>
-                    <div><span className="text-muted-foreground block">Moallem Due</span><span className="font-bold text-destructive">{formatBDT(Number(selectedBookingInfo.moallem_due || 0))}</span></div>
+                    <div><span className="text-muted-foreground block">Middleman Paid</span><span className="font-bold text-emerald">{formatBDT(Number(selectedBookingInfo.paid_by_moallem || 0))}</span></div>
+                    <div><span className="text-muted-foreground block">Middleman Due</span><span className="font-bold text-destructive">{formatBDT(Number(selectedBookingInfo.moallem_due || 0))}</span></div>
                   </>
                 ) : (
                   <>
@@ -986,7 +986,7 @@ export default function AdminPaymentsPage() {
             <div className="space-y-4 text-sm">
               <div className="mb-2">
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${vBadge.cls}`}>
-                  {viewPayment._type === "moallem" ? "Moallem Payment" : viewPayment._type === "supplier" ? "Supplier Payment" : "Customer Payment"}
+                  {viewPayment._type === "moallem" ? "Middleman Payment" : viewPayment._type === "supplier" ? "Supplier Payment" : "Customer Payment"}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -1030,8 +1030,8 @@ export default function AdminPaymentsPage() {
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Booking Info</h4>
                   <div className="grid grid-cols-3 gap-3 bg-secondary/50 rounded-lg p-3">
                     <div><span className="text-muted-foreground text-xs block">Total</span><span className="font-bold">{formatBDT(Number(viewPayment.bookings.total_amount))}</span></div>
-                    <div><span className="text-muted-foreground text-xs block">Moallem Paid</span><span className="font-bold text-emerald">{formatBDT(Number(viewPayment.bookings.paid_by_moallem || 0))}</span></div>
-                    <div><span className="text-muted-foreground text-xs block">Moallem Due</span><span className="font-bold text-destructive">{formatBDT(Number(viewPayment.bookings.moallem_due || 0))}</span></div>
+                    <div><span className="text-muted-foreground text-xs block">Middleman Paid</span><span className="font-bold text-emerald">{formatBDT(Number(viewPayment.bookings.paid_by_moallem || 0))}</span></div>
+                    <div><span className="text-muted-foreground text-xs block">Middleman Due</span><span className="font-bold text-destructive">{formatBDT(Number(viewPayment.bookings.moallem_due || 0))}</span></div>
                   </div>
                 </div>
               )}
@@ -1087,7 +1087,7 @@ export default function AdminPaymentsPage() {
       <Dialog open={showEditModal} onOpenChange={(o) => { if (!o) { setShowEditModal(false); setEditingId(null); } }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-heading">{editType === "moallem" ? "Edit Moallem Payment" : "Edit Supplier Payment"}</DialogTitle>
+            <DialogTitle className="font-heading">{editType === "moallem" ? "Edit Middleman Payment" : "Edit Supplier Payment"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div>
