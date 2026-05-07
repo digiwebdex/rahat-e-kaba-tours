@@ -8,6 +8,9 @@ import ProcessTimeline from "@/components/ProcessTimeline";
 import VisaServicesSection from "@/components/VisaServicesSection";
 import StudentConsultancySection from "@/components/StudentConsultancySection";
 import GallerySection from "@/components/GallerySection";
+import YoutubeVideosSection from "@/components/YoutubeVideosSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import TravelBlogSection from "@/components/TravelBlogSection";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import BackToTop from "@/components/BackToTop";
@@ -38,6 +41,9 @@ const Index = () => {
         <FacilitiesSection />
         <ProcessTimeline />
         <GallerySection />
+        <YoutubeVideosSection />
+        <TestimonialsSection />
+        <TravelBlogSection />
         {/* <StudentConsultancySection /> — disabled */}
         <Suspense fallback={<SectionFallback />}>
           <AboutSection />
