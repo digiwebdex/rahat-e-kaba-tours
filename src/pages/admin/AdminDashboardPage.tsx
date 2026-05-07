@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/api";
 import AdminDashboardCharts from "@/components/AdminDashboardCharts";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AdminDashboardPage() {
   const [bookings, setBookings] = useState<any[]>([]);
@@ -16,11 +19,14 @@ export default function AdminDashboardPage() {
   const [supplierContracts, setSupplierContracts] = useState<any[]>([]);
   const [supplierContractPayments, setSupplierContractPaymentsState] = useState<any[]>([]);
   const [dailyCashbook, setDailyCashbook] = useState<any[]>([]);
+  const [liveKpis, setLiveKpis] = useState<any>(null);
+  const [walletBalances, setWalletBalances] = useState<any[]>([]);
+  const [recalculating, setRecalculating] = useState(false);
 
   useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
-    const [bk, py, ex, ac, fs, mp, sp, cp, ml, sa, sc, scp, dcb] = await Promise.all([
+    const [bk, py, ex, ac, fs, mp, sp, cp, ml, sa, sc, scp, dcb, kp, wb] = await Promise.all([
       supabase.from("bookings").select("*, packages(name, type)").order("created_at", { ascending: false }),
       supabase.from("payments").select("*, bookings(tracking_id)").order("created_at", { ascending: false }),
       supabase.from("expenses").select("*").order("date", { ascending: false }),
@@ -34,6 +40,8 @@ export default function AdminDashboardPage() {
       supabase.from("supplier_contracts").select("*"),
       supabase.from("supplier_contract_payments").select("*").order("created_at", { ascending: false }),
       supabase.from("daily_cashbook").select("*").order("date", { ascending: false }),
+      supabase.from("dashboard_kpis" as any).select("*").maybeSingle(),
+      supabase.from("wallet_balances" as any).select("*"),
     ]);
     setBookings(bk.data || []);
     setPayments(py.data || []);
@@ -48,6 +56,8 @@ export default function AdminDashboardPage() {
     setSupplierContracts(sc.data || []);
     setSupplierContractPaymentsState(scp.data || []);
     setDailyCashbook(dcb.data || []);
+    setLiveKpis((kp as any)?.data || null);
+    setWalletBalances(((wb as any)?.data as any[]) || []);
   };
 
   const markPaymentCompleted = async (paymentId: string) => {
@@ -56,8 +66,31 @@ export default function AdminDashboardPage() {
     fetchData();
   };
 
+  const handleRecalculate = async () => {
+    setRecalculating(true);
+    try {
+      const { data, error } = await (supabase as any).rpc("recalculate_all_financials");
+      if (error) throw error;
+      toast.success("Financial data recalculated", {
+        description: `Net profit: ${data?.net_profit ?? 0} • Customer due: ${data?.customer_due ?? 0}`,
+      });
+      await fetchData();
+    } catch (e: any) {
+      toast.error("Recalculation failed", { description: e?.message });
+    } finally {
+      setRecalculating(false);
+    }
+  };
+
   return (
-    <AdminDashboardCharts
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button onClick={handleRecalculate} disabled={recalculating} variant="outline" size="sm">
+          <RefreshCw className={`h-4 w-4 mr-2 ${recalculating ? "animate-spin" : ""}`} />
+          {recalculating ? "Recalculating..." : "Recalculate Financial Data"}
+        </Button>
+      </div>
+      <AdminDashboardCharts
       bookings={bookings}
       payments={payments}
       expenses={expenses}
@@ -71,7 +104,10 @@ export default function AdminDashboardPage() {
       supplierContracts={supplierContracts}
       supplierContractPayments={supplierContractPayments}
       dailyCashbook={dailyCashbook}
+      liveKpis={liveKpis}
+      walletBalances={walletBalances}
       onMarkPaid={markPaymentCompleted}
-    />
+      />
+    </div>
   );
 }

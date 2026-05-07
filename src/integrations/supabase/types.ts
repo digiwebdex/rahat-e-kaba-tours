@@ -604,6 +604,13 @@ export type Database = {
             referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "daily_cashbook_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_balances"
+            referencedColumns: ["account_id"]
+          },
         ]
       }
       expenses: {
@@ -684,6 +691,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_balances"
+            referencedColumns: ["account_id"]
           },
         ]
       }
@@ -959,6 +973,13 @@ export type Database = {
             referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "moallem_commission_payments_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_balances"
+            referencedColumns: ["account_id"]
+          },
         ]
       }
       moallem_items: {
@@ -1067,6 +1088,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moallem_payments_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_balances"
+            referencedColumns: ["account_id"]
           },
         ]
       }
@@ -1464,6 +1492,13 @@ export type Database = {
             referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payments_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_balances"
+            referencedColumns: ["account_id"]
+          },
         ]
       }
       profiles: {
@@ -1595,6 +1630,13 @@ export type Database = {
             referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "refunds_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_balances"
+            referencedColumns: ["account_id"]
+          },
         ]
       }
       settlement_items: {
@@ -1688,6 +1730,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "settlements_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_balances"
+            referencedColumns: ["account_id"]
           },
         ]
       }
@@ -1822,6 +1871,13 @@ export type Database = {
             referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "supplier_agent_payments_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_balances"
+            referencedColumns: ["account_id"]
+          },
         ]
       }
       supplier_agents: {
@@ -1933,6 +1989,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_contract_payments_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_balances"
+            referencedColumns: ["account_id"]
           },
         ]
       }
@@ -2188,6 +2251,13 @@ export type Database = {
             referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ticket_refunds_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_balances"
+            referencedColumns: ["account_id"]
+          },
         ]
       }
       transactions: {
@@ -2380,6 +2450,29 @@ export type Database = {
       }
     }
     Views: {
+      dashboard_kpis: {
+        Row: {
+          cancelled: number | null
+          commission_due: number | null
+          commission_total: number | null
+          completed: number | null
+          customer_due: number | null
+          expenses: number | null
+          income_received: number | null
+          net_profit: number | null
+          pending: number | null
+          refunds: number | null
+          supplier_cost: number | null
+          supplier_due: number | null
+          ticket_count: number | null
+          total_apps: number | null
+          total_customers: number | null
+          total_sales: number | null
+          visa_count: number | null
+          work_permit_count: number | null
+        }
+        Relationships: []
+      }
       v_booking_profit: {
         Row: {
           booking_id: string | null
@@ -2459,6 +2552,16 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_balances: {
+        Row: {
+          account_id: string | null
+          balance: number | null
+          name: string | null
+          total_in: number | null
+          total_out: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       deactivate_expired_packages: { Args: never; Returns: undefined }
@@ -2486,6 +2589,7 @@ export type Database = {
         Args: { p_source_id: string; p_source_type: string }
         Returns: undefined
       }
+      recalculate_all_financials: { Args: never; Returns: Json }
       recalculate_wallet_balances: {
         Args: never
         Returns: {

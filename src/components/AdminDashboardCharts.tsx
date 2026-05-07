@@ -26,6 +26,8 @@ interface Props {
   supplierContracts?: any[];
   supplierContractPayments?: any[];
   dailyCashbook?: any[];
+  liveKpis?: any;
+  walletBalances?: any[];
   onMarkPaid: (id: string) => void;
 }
 
@@ -33,7 +35,7 @@ const AdminDashboardCharts = ({
   bookings, payments, expenses = [], accounts = [],
   moallemPayments = [], supplierPayments = [], commissionPayments = [],
   moallems = [], supplierContracts = [], supplierContractPayments = [],
-  dailyCashbook = [],
+  dailyCashbook = [], liveKpis, walletBalances = [],
 }: Props) => {
   const navigate = useNavigate();
   const canSeeProfit = useCanSeeProfit();
@@ -69,6 +71,8 @@ const AdminDashboardCharts = ({
     const netProfit = bookingProfit - generalExpenses - cashbookExpense;
 
     const getWalletBalance = (name: string) => {
+      const wb = walletBalances.find((w: any) => String(w.name || "").trim().toLowerCase() === name.toLowerCase());
+      if (wb) return Number(wb.balance || 0);
       const acc = accounts.find(a => a.type === "asset" && String(a.name || "").trim().toLowerCase() === name.toLowerCase());
       return Number(acc?.balance || 0);
     };
@@ -106,16 +110,27 @@ const AdminDashboardCharts = ({
       activeBookings.map(b => b.guest_phone || b.user_id || b.guest_name).filter(Boolean)
     ).size;
 
+    // Prefer DB-calculated KPIs when available (single source of truth)
     return {
-      totalSales, totalHajji, totalIncomeReceived, netProfit,
+      totalSales: liveKpis ? Number(liveKpis.total_sales || 0) : totalSales,
+      totalHajji,
+      totalIncomeReceived: liveKpis ? Number(liveKpis.income_received || 0) : totalIncomeReceived,
+      netProfit: liveKpis ? Number(liveKpis.net_profit || 0) : netProfit,
       cashBalance, bankBalance, bkashBalance, nagadBalance,
-      moallemDue, customerDue, totalReceivable,
-      supplierDue, commissionDue, totalPayable,
+      moallemDue,
+      customerDue: liveKpis ? Number(liveKpis.customer_due || 0) : customerDue,
+      totalReceivable,
+      supplierDue: liveKpis ? Number(liveKpis.supplier_due || 0) : supplierDue,
+      commissionDue: liveKpis ? Number(liveKpis.commission_due || 0) : commissionDue,
+      totalPayable,
       todayBookings, todayPayments,
       pendingCount, completedCount, cancelledCount,
-      workPermitCount, visaCount, ticketCount, totalCustomers,
+      workPermitCount: liveKpis ? Number(liveKpis.work_permit_count || 0) : workPermitCount,
+      visaCount: liveKpis ? Number(liveKpis.visa_count || 0) : visaCount,
+      ticketCount: liveKpis ? Number(liveKpis.ticket_count || 0) : ticketCount,
+      totalCustomers: liveKpis ? Number(liveKpis.total_customers || 0) : totalCustomers,
     };
-  }, [bookings, payments, expenses, accounts, moallemPayments, supplierPayments, commissionPayments, supplierContractPayments, supplierContracts, moallems, dailyCashbook]);
+  }, [bookings, payments, expenses, accounts, moallemPayments, supplierPayments, commissionPayments, supplierContractPayments, supplierContracts, moallems, dailyCashbook, liveKpis, walletBalances]);
 
   const dueCustomers = useMemo(() => {
     const map: Record<string, { name: string; phone: string; totalDue: number; totalAmount: number; bookingCount: number; bookings: any[] }> = {};
