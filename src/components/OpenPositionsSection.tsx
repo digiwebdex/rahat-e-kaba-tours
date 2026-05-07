@@ -13,6 +13,19 @@ import imgKuwait from "@/assets/alrawsha-kuwait.jpg";
 import imgLaos from "@/assets/alrawsha-laos.jpg";
 import imgSerbia from "@/assets/alrawsha-serbia.jpg";
 import imgRussia from "@/assets/alrawsha-russia.jpg";
+import imgMalaysia from "@/assets/alrawsha-malaysia.jpg";
+import imgKyrgyzstan from "@/assets/alrawsha-kyrgyzstan.jpg";
+import imgQatar from "@/assets/alrawsha-qatar.jpg";
+import imgDubai from "@/assets/alrawsha-dubai.jpg";
+import imgIraq from "@/assets/alrawsha-iraq.jpg";
+import imgSaudi from "@/assets/alrawsha-saudi.jpg";
+import imgBelarus from "@/assets/alrawsha-belarus.jpg";
+import imgUzbekistan from "@/assets/alrawsha-uzbekistan.jpg";
+import imgMoldova from "@/assets/alrawsha-moldova.jpg";
+import imgRomania from "@/assets/alrawsha-romania.jpg";
+import imgGreeceCyprus from "@/assets/alrawsha-greece-cyprus.jpg";
+import imgPoland from "@/assets/alrawsha-poland.jpg";
+import imgSingapore from "@/assets/alrawsha-singapore.jpg";
 
 type CountryKey =
   | "vietnam" | "kuwait" | "laos" | "serbia" | "russia"
@@ -124,7 +137,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "malaysia", flag: "🇲🇾", iso: "my",
-    enName: "Malaysia", bnName: "মালয়েশিয়া", image: imgVietnam,
+    enName: "Malaysia", bnName: "মালয়েশিয়া", image: imgMalaysia,
     enTagline: "Work Permit Visa — Multiple Sectors",
     bnTagline: "ওয়ার্ক পারমিট ভিসা — বিভিন্ন সেক্টর",
     processing: "45–60 days",
@@ -134,7 +147,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "kyrgyzstan", flag: "🇰🇬", iso: "kg",
-    enName: "Kyrgyzstan", bnName: "কিরগিজস্তান", image: imgSerbia,
+    enName: "Kyrgyzstan", bnName: "কিরগিজস্তান", image: imgKyrgyzstan,
     enTagline: "Work Permit Visa — Construction & Factory",
     bnTagline: "ওয়ার্ক পারমিট ভিসা — কনস্ট্রাকশন ও ফ্যাক্টরি",
     processing: "30–45 days",
@@ -144,7 +157,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "qatar", flag: "🇶🇦", iso: "qa",
-    enName: "Qatar", bnName: "কাতার", image: imgKuwait,
+    enName: "Qatar", bnName: "কাতার", image: imgQatar,
     enTagline: "Work Visa — Service & Construction",
     bnTagline: "ওয়ার্ক ভিসা — সার্ভিস ও কনস্ট্রাকশন",
     processing: "30–45 days",
@@ -154,7 +167,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "dubai", flag: "🇦🇪", iso: "ae",
-    enName: "Dubai (UAE)", bnName: "দুবাই (ইউএই)", image: imgKuwait,
+    enName: "Dubai (UAE)", bnName: "দুবাই (ইউএই)", image: imgDubai,
     enTagline: "Employment Visa — Multiple Categories",
     bnTagline: "এমপ্লয়মেন্ট ভিসা — বিভিন্ন ক্যাটাগরি",
     processing: "20–30 days",
@@ -164,7 +177,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "iraq", flag: "🇮🇶", iso: "iq",
-    enName: "Iraq", bnName: "ইরাক", image: imgKuwait,
+    enName: "Iraq", bnName: "ইরাক", image: imgIraq,
     enTagline: "Work Visa — Oil Field & Construction",
     bnTagline: "ওয়ার্ক ভিসা — অয়েল ফিল্ড ও কনস্ট্রাকশন",
     processing: "45–60 days",
@@ -174,7 +187,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "saudi", flag: "🇸🇦", iso: "sa",
-    enName: "Saudi Arabia", bnName: "সৌদি আরব", image: imgKuwait,
+    enName: "Saudi Arabia", bnName: "সৌদি আরব", image: imgSaudi,
     enTagline: "Work Visa — All Sectors",
     bnTagline: "ওয়ার্ক ভিসা — সকল সেক্টর",
     processing: "30–45 days",
@@ -184,7 +197,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "belarus", flag: "🇧🇾", iso: "by",
-    enName: "Belarus", bnName: "বেলারুশ", image: imgSerbia,
+    enName: "Belarus", bnName: "বেলারুশ", image: imgBelarus,
     enTagline: "Work Permit Visa — Factory & Agriculture",
     bnTagline: "ওয়ার্ক পারমিট ভিসা — ফ্যাক্টরি ও এগ্রিকালচার",
     processing: "60–90 days",
@@ -194,7 +207,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "uzbekistan", flag: "🇺🇿", iso: "uz",
-    enName: "Uzbekistan", bnName: "উজবেকিস্তান", image: imgSerbia,
+    enName: "Uzbekistan", bnName: "উজবেকিস্তান", image: imgUzbekistan,
     enTagline: "Work Permit Visa — Construction & Industry",
     bnTagline: "ওয়ার্ক পারমিট ভিসা — কনস্ট্রাকশন ও ইন্ডাস্ট্রি",
     processing: "30–45 days",
@@ -204,7 +217,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "moldova", flag: "🇲🇩", iso: "md",
-    enName: "Moldova", bnName: "মলদোভা", image: imgSerbia,
+    enName: "Moldova", bnName: "মলদোভা", image: imgMoldova,
     enTagline: "Work Permit Visa — EU Pathway",
     bnTagline: "ওয়ার্ক পারমিট ভিসা — ইইউ পথ",
     processing: "60–90 days",
@@ -214,7 +227,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "romania", flag: "🇷🇴", iso: "ro",
-    enName: "Romania", bnName: "রোমানিয়া", image: imgSerbia,
+    enName: "Romania", bnName: "রোমানিয়া", image: imgRomania,
     enTagline: "EU Work Permit — Construction & Factory",
     bnTagline: "ইইউ ওয়ার্ক পারমিট — কনস্ট্রাকশন ও ফ্যাক্টরি",
     processing: "3–4 months",
@@ -224,7 +237,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "greece_cyprus", flag: "🇬🇷", iso: "gr",
-    enName: "Greece & Cyprus", bnName: "গ্রিস ও সাইপ্রাস", image: imgSerbia,
+    enName: "Greece & Cyprus", bnName: "গ্রিস ও সাইপ্রাস", image: imgGreeceCyprus,
     enTagline: "EU Work Visa — Agriculture & Hospitality",
     bnTagline: "ইইউ ওয়ার্ক ভিসা — এগ্রিকালচার ও হসপিটালিটি",
     processing: "3–5 months",
@@ -234,7 +247,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "poland", flag: "🇵🇱", iso: "pl",
-    enName: "Poland", bnName: "পোল্যান্ড", image: imgSerbia,
+    enName: "Poland", bnName: "পোল্যান্ড", image: imgPoland,
     enTagline: "EU Work Permit — Multiple Sectors",
     bnTagline: "ইইউ ওয়ার্ক পারমিট — বিভিন্ন সেক্টর",
     processing: "3–4 months",
@@ -244,7 +257,7 @@ const COUNTRIES: Country[] = [
   },
   {
     key: "singapore", flag: "🇸🇬", iso: "sg",
-    enName: "Singapore", bnName: "সিঙ্গাপুর", image: imgKuwait,
+    enName: "Singapore", bnName: "সিঙ্গাপুর", image: imgSingapore,
     enTagline: "Work Permit Visa — Construction, Marine & Services",
     bnTagline: "ওয়ার্ক পারমিট ভিসা — কনস্ট্রাকশন, মেরিন ও সার্ভিস",
     processing: "45–60 days",
