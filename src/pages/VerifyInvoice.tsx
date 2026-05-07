@@ -164,7 +164,7 @@ export default function VerifyInvoice() {
             <div className="bg-gray-50 border-t border-gray-100 px-6 py-4 text-center">
               <p className="text-xs text-gray-400">{t("verify.companyFooter")}</p>
               <p className="text-xs text-gray-400 mt-1">
-                +880 1711-925400 | info@hasantravels.com.bd
+                +880 1886-999465 | alrawshainternational@gmail.com
               </p>
             </div>
           </div>

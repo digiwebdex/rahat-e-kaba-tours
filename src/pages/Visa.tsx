@@ -106,7 +106,7 @@ const Visa = () => {
                   <a href="#contact-cta">{bn ? "এখনই আবেদন করুন" : "Apply Now"}</a>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="w-full">
-                  <a href="tel:+8801711925400"><Phone className="w-4 h-4 mr-1.5" />{bn ? "কল করুন" : "Call Us"}</a>
+                  <a href="tel:+8801886999465"><Phone className="w-4 h-4 mr-1.5" />{bn ? "কল করুন" : "Call Us"}</a>
                 </Button>
               </div>
             </div>
@@ -203,7 +203,7 @@ const Visa = () => {
                     <Link to="/contact">{bn ? "আবেদন শুরু করুন" : "Start Application"}</Link>
                   </Button>
                   <Button asChild size="lg" variant="outline" className="w-full bg-transparent border-white/40 text-primary-foreground hover:bg-white/10 hover:text-primary-foreground">
-                    <a href="https://wa.me/8801711925400" target="_blank" rel="noreferrer">
+                    <a href="https://wa.me/8801886999465" target="_blank" rel="noreferrer">
                       <MessageCircle className="w-4 h-4 mr-1.5" />WhatsApp
                     </a>
                   </Button>

@@ -9,7 +9,7 @@ import heroRussia from "@/assets/alrawsha-russia.jpg";
 import heroVietnam from "@/assets/alrawsha-vietnam.jpg";
 import { useLanguage } from "@/i18n/LanguageContext";
 
-const WHATSAPP = "8801894840375";
+const WHATSAPP = "8801886999465";
 const WA_LINK = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
   "Hello Al Rawsha International, I'm interested in your overseas work permit programmes."
 )}`;

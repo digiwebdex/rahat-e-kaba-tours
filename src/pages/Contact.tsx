@@ -15,8 +15,8 @@ const Contact = () => {
   const [form, setForm] = useState({ name: "", phone: "", email: "", service: "", message: "" });
   const [loading, setLoading] = useState(false);
 
-  const phone = content?.phone || "+880 1894-840375";
-  const email = content?.email || "info@alrawshaint.com";
+  const phone = content?.phone || "+880 1886-999465";
+  const email = content?.email || "alrawshainternational@gmail.com";
   const location = content?.location || (bn ? "৪র্থ তলা, জেল রোড, মুন্সিপাড়া, দিনাজপুর সদর - ৫২০০" : "4th Floor, Jail Road, Munshipara, Dinajpur Sadar - 5200");
   const hours = content?.hours || (bn ? "শনি - বৃহঃ: সকাল ৯টা - রাত ৯টা" : "Sat - Thu: 9AM - 9PM");
 
@@ -103,7 +103,7 @@ const Contact = () => {
 
               {/* WhatsApp CTA */}
               <a
-                href="https://wa.me/8801711925400"
+                href="https://wa.me/8801886999465"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 bg-emerald-600 text-white font-semibold py-3.5 rounded-xl text-sm hover:bg-emerald-700 transition-colors w-full mt-4"

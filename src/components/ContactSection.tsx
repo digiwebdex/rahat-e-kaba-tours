@@ -13,8 +13,8 @@ const ContactSection = forwardRef<HTMLElement>(function ContactSection(_, ref) {
   const [loading, setLoading] = useState(false);
 
   const lc = content?.[language];
-  const phone = content?.phone || "+880 1711-925400";
-  const email = lc?.email || content?.email || "info@hasantravels.com.bd";
+  const phone = content?.phone || "+880 1886-999465";
+  const email = lc?.email || content?.email || "alrawshainternational@gmail.com";
   const location = lc?.location || content?.location || t("contact.location.default");
   const hours = lc?.hours || content?.hours || t("contact.hours.default");
 

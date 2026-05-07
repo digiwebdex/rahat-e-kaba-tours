@@ -23,8 +23,8 @@ export default function InvoicePage() {
 
   const company: CompanyInfo = {
     name: "Al Rawsha International",
-    phone: "+880 1894-840375",
-    email: "info@alrawshaint.com",
+    phone: "+880 1886-999465",
+    email: "alrawshainternational@gmail.com",
     address: "Corporate Office: Al Rawsha International, 4th Floor, Jail Road, Munshipara, Dinajpur Sadar - 5200",
   };
   const companyAddressBn = "কর্পোরেট অফিস: আল রওশা ইন্টারন্যাশনাল, রূপায়ণ এফপিএবি টাওয়ার (লিফট-৭), বক্স কালভার্ট রোড, পুরানা পল্টন, ঢাকা-১০০০";

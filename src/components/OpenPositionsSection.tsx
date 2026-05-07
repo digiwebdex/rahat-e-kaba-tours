@@ -420,8 +420,8 @@ const OpenPositionsSection = () => {
 
         <p className="text-center text-xs text-muted-foreground mt-12 max-w-3xl mx-auto">
           {bn
-            ? "* শর্তাবলি কোম্পানি ও দেশভেদে পরিবর্তনযোগ্য। প্রয়োজনীয় কাগজপত্র: পুলিশ ক্লিয়ারেন্স, ছবি, পাসপোর্ট। বিস্তারিত জানতে যোগাযোগ করুন: 01894-840375 / 01894-840371।"
-            : "* Terms vary by employer and country. Required documents: police clearance, photo, passport. For details call 01894-840375 / 01894-840371."}
+            ? "* শর্তাবলি কোম্পানি ও দেশভেদে পরিবর্তনযোগ্য। প্রয়োজনীয় কাগজপত্র: পুলিশ ক্লিয়ারেন্স, ছবি, পাসপোর্ট। বিস্তারিত জানতে যোগাযোগ করুন: 01886-999465 / 01709-294065।"
+            : "* Terms vary by employer and country. Required documents: police clearance, photo, passport. For details call 01886-999465 / 01709-294065."}
         </p>
       </div>
 

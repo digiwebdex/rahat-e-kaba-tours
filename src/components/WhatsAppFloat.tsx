@@ -7,7 +7,7 @@ const WhatsAppFloat = () => {
   const { t, language } = useLanguage();
   const lc = content?.[language];
 
-  const phone = content?.phone || "8801894840375";
+  const phone = content?.phone || "8801886999465";
   const message = encodeURIComponent(lc?.message || t("whatsapp.message"));
   const buttonText = lc?.button_text || t("whatsapp.button");
 
