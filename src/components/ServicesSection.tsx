@@ -179,8 +179,8 @@ const ServicesSection = () => {
           </h2>
           <p className="text-muted-foreground text-base md:text-lg">
             {bn
-              ? "ওয়ার্ক পারমিট, স্টুডেন্ট কনসালটেন্সি ও ভ্রমণ — এক জায়গায়।"
-              : "Work permits, student consultancy and travel — all under one roof."}
+              ? "ওয়ার্ক পারমিট, এয়ার টিকেট ও ভিসা — এক জায়গায়।"
+              : "Work permits, air tickets and visa — all under one roof."}
           </p>
           <p className="text-xs text-muted-foreground/70 mt-3">
             {bn ? "↓ বিস্তারিত দেখতে কার্ডে ক্লিক করুন" : "↓ Tap any card to see full details"}
