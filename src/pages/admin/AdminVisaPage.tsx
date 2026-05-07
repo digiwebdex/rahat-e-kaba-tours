@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ServicePaymentDialog } from "@/components/admin/ServicePaymentDialog";
 
 const emptyForm: any = {
   applicant_name: "", passport_number: "", country_name: "", vendor_name: "", vendor_id: null,
@@ -29,6 +30,8 @@ export default function AdminVisaPage() {
   const [form, setForm] = useState<any>(emptyForm);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [payOpen, setPayOpen] = useState(false);
+  const [payTarget, setPayTarget] = useState<any>(null);
 
   const load = async () => {
     const { data } = await supabase.from("visa_applications").select("*").eq("status", "active").order("created_at", { ascending: false });
@@ -203,6 +206,11 @@ export default function AdminVisaPage() {
                   <TableCell>{visaBadge(it.visa_status)}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
+                      {Number(it.customer_due) > 0 && (
+                        <Button size="icon" variant="ghost" title="Receive payment" onClick={() => { setPayTarget(it); setPayOpen(true); }}>
+                          <CreditCard className="h-3 w-3" />
+                        </Button>
+                      )}
                       <Button size="icon" variant="ghost" onClick={() => { setEditing(it); setForm(it); setOpen(true); }}><Pencil className="h-3 w-3" /></Button>
                       <Button size="icon" variant="ghost" onClick={() => remove(it.id)}><Trash2 className="h-3 w-3" /></Button>
                     </div>
@@ -214,6 +222,16 @@ export default function AdminVisaPage() {
           </Table>
         </CardContent>
       </Card>
+      {payTarget && (
+        <ServicePaymentDialog
+          open={payOpen}
+          onOpenChange={setPayOpen}
+          serviceType="visa"
+          serviceId={payTarget.id}
+          remainingDue={Number(payTarget.customer_due) || 0}
+          onSuccess={load}
+        />
+      )}
     </div>
   );
 }
