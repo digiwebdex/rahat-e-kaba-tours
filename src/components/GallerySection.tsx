@@ -1,34 +1,32 @@
 import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, X, ChevronLeft, ChevronRight, Image as ImageIcon, Video } from "lucide-react";
+import { Play, X, ChevronLeft, ChevronRight, Image as ImageIcon, Video, Plane, FileCheck, Users, Building2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
+
+type Category = "departure" | "visa" | "manpower" | "office";
 
 type GalleryItem = {
   type: "image" | "video";
   src: string;
+  category?: Category;
 };
 
-type TabType = "all" | "images" | "videos";
+type TabType = "all" | Category | "videos";
 
 const defaultItems: GalleryItem[] = [
-  { type: "image", src: "/gallery/image-1.jpg" },
-  { type: "image", src: "/gallery/image-2.jpg" },
-  { type: "image", src: "/gallery/image-3.jpg" },
-  { type: "image", src: "/gallery/image-4.jpg" },
-  { type: "image", src: "/gallery/image-5.jpg" },
-  { type: "image", src: "/gallery/image-6.jpg" },
-  { type: "image", src: "/gallery/image-7.jpg" },
-  { type: "image", src: "/gallery/image-8.jpg" },
-  { type: "image", src: "/gallery/image-9.jpg" },
-  { type: "image", src: "/gallery/image-10.jpg" },
-  { type: "image", src: "/gallery/image-11.jpg" },
-  { type: "image", src: "/gallery/image-12.jpg" },
+  ...Array.from({ length: 12 }, (_, i) => ({ type: "image" as const, src: `/gallery/departure/departure-${i + 1}.jpg`, category: "departure" as Category })),
+  ...Array.from({ length: 12 }, (_, i) => ({ type: "image" as const, src: `/gallery/visa/visa-${i + 1}.jpg`, category: "visa" as Category })),
+  ...Array.from({ length: 5 }, (_, i) => ({ type: "image" as const, src: `/gallery/manpower/manpower-${i + 1}.jpg`, category: "manpower" as Category })),
+  ...Array.from({ length: 3 }, (_, i) => ({ type: "image" as const, src: `/gallery/office/office-${i + 1}.jpg`, category: "office" as Category })),
 ];
 
 const tabs: { key: TabType; labelBn: string; labelEn: string; icon: typeof ImageIcon }[] = [
   { key: "all", labelBn: "সব", labelEn: "All", icon: ImageIcon },
-  { key: "images", labelBn: "ছবি", labelEn: "Photos", icon: ImageIcon },
+  { key: "departure", labelBn: "বিদেশ যাত্রা", labelEn: "Departures", icon: Plane },
+  { key: "visa", labelBn: "ভিসা", labelEn: "Visa", icon: FileCheck },
+  { key: "manpower", labelBn: "জনশক্তি", labelEn: "Manpower", icon: Users },
+  { key: "office", labelBn: "অফিস", labelEn: "Office", icon: Building2 },
   { key: "videos", labelBn: "ভিডিও", labelEn: "Videos", icon: Video },
 ];
 
@@ -49,8 +47,8 @@ export default function GallerySection() {
 
   const filtered = useMemo(() => {
     if (activeTab === "all") return items;
-    if (activeTab === "images") return items.filter((i) => i.type === "image");
-    return items.filter((i) => i.type === "video");
+    if (activeTab === "videos") return items.filter((i) => i.type === "video");
+    return items.filter((i) => i.category === activeTab);
   }, [activeTab, items]);
 
   const open = useCallback((i: number) => setActiveIndex(i), []);
