@@ -139,7 +139,7 @@ const VisaServicesSection = () => {
           {countries.map((c: any, i: number) => (
             <motion.a
               key={c.name}
-              href="#contact"
+              href={`/visa?country=${c.code}`}
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
