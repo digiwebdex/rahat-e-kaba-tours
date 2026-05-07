@@ -5,31 +5,31 @@ import { useLanguage } from "@/i18n/LanguageContext";
 type Country = {
   name: string;
   nameBn: string;
-  flag: string;
+  code: string;
   duration: string;
   durationBn: string;
   price: string;
 };
 
 const COUNTRIES: Country[] = [
-  { name: "Philippines", nameBn: "ফিলিপাইন", flag: "🇵🇭", duration: "7-10 days", durationBn: "৭-১০ দিন", price: "৳8,500" },
-  { name: "Malaysia", nameBn: "মালয়েশিয়া", flag: "🇲🇾", duration: "5-7 days", durationBn: "৫-৭ দিন", price: "৳5,500" },
-  { name: "Thailand", nameBn: "থাইল্যান্ড", flag: "🇹🇭", duration: "5-7 days", durationBn: "৫-৭ দিন", price: "৳6,500" },
-  { name: "Japan", nameBn: "জাপান", flag: "🇯🇵", duration: "7-10 days", durationBn: "৭-১০ দিন", price: "৳9,500" },
-  { name: "South Korea", nameBn: "দক্ষিণ কোরিয়া", flag: "🇰🇷", duration: "10-15 days", durationBn: "১০-১৫ দিন", price: "৳10,000" },
-  { name: "China", nameBn: "চীন", flag: "🇨🇳", duration: "10-15 days", durationBn: "১০-১৫ দিন", price: "৳12,500" },
-  { name: "Singapore", nameBn: "সিঙ্গাপুর", flag: "🇸🇬", duration: "3-5 days", durationBn: "৩-৫ দিন", price: "৳5,500" },
-  { name: "Indonesia", nameBn: "ইন্দোনেশিয়া", flag: "🇮🇩", duration: "3-5 days", durationBn: "৩-৫ দিন", price: "৳4,500" },
-  { name: "Turkey", nameBn: "তুরস্ক", flag: "🇹🇷", duration: "10-15 days", durationBn: "১০-১৫ দিন", price: "৳8,000" },
-  { name: "United Kingdom", nameBn: "যুক্তরাজ্য", flag: "🇬🇧", duration: "2-3 days", durationBn: "২-৩ দিন", price: "৳10,000" },
-  { name: "Canada", nameBn: "কানাডা", flag: "🇨🇦", duration: "20-30 days", durationBn: "২০-৩০ দিন", price: "৳20,000" },
-  { name: "USA", nameBn: "যুক্তরাষ্ট্র", flag: "🇺🇸", duration: "Interview based", durationBn: "ইন্টারভিউ ভিত্তিক", price: "৳10,000" },
-  { name: "Germany", nameBn: "জার্মানি", flag: "🇩🇪", duration: "15-21 days", durationBn: "১৫-২১ দিন", price: "৳15,000" },
-  { name: "Spain", nameBn: "স্পেন", flag: "🇪🇸", duration: "15-21 days", durationBn: "১৫-২১ দিন", price: "৳14,000" },
-  { name: "Netherlands", nameBn: "নেদারল্যান্ডস", flag: "🇳🇱", duration: "15-21 days", durationBn: "১৫-২১ দিন", price: "৳15,000" },
-  { name: "Hong Kong", nameBn: "হংকং", flag: "🇭🇰", duration: "5-7 days", durationBn: "৫-৭ দিন", price: "৳6,000" },
-  { name: "Sri Lanka", nameBn: "শ্রীলঙ্কা", flag: "🇱🇰", duration: "3-5 days", durationBn: "৩-৫ দিন", price: "৳4,000" },
-  { name: "Australia", nameBn: "অস্ট্রেলিয়া", flag: "🇦🇺", duration: "20-30 days", durationBn: "২০-৩০ দিন", price: "৳25,000" },
+  { name: "Philippines", nameBn: "ফিলিপাইন", code: "ph", duration: "7-10 days", durationBn: "৭-১০ দিন", price: "৳8,500" },
+  { name: "Malaysia", nameBn: "মালয়েশিয়া", code: "my", duration: "5-7 days", durationBn: "৫-৭ দিন", price: "৳5,500" },
+  { name: "Thailand", nameBn: "থাইল্যান্ড", code: "th", duration: "5-7 days", durationBn: "৫-৭ দিন", price: "৳6,500" },
+  { name: "Japan", nameBn: "জাপান", code: "jp", duration: "7-10 days", durationBn: "৭-১০ দিন", price: "৳9,500" },
+  { name: "South Korea", nameBn: "দক্ষিণ কোরিয়া", code: "kr", duration: "10-15 days", durationBn: "১০-১৫ দিন", price: "৳10,000" },
+  { name: "China", nameBn: "চীন", code: "cn", duration: "10-15 days", durationBn: "১০-১৫ দিন", price: "৳12,500" },
+  { name: "Singapore", nameBn: "সিঙ্গাপুর", code: "sg", duration: "3-5 days", durationBn: "৩-৫ দিন", price: "৳5,500" },
+  { name: "Indonesia", nameBn: "ইন্দোনেশিয়া", code: "id", duration: "3-5 days", durationBn: "৩-৫ দিন", price: "৳4,500" },
+  { name: "Turkey", nameBn: "তুরস্ক", code: "tr", duration: "10-15 days", durationBn: "১০-১৫ দিন", price: "৳8,000" },
+  { name: "United Kingdom", nameBn: "যুক্তরাজ্য", code: "gb", duration: "2-3 days", durationBn: "২-৩ দিন", price: "৳10,000" },
+  { name: "Canada", nameBn: "কানাডা", code: "ca", duration: "20-30 days", durationBn: "২০-৩০ দিন", price: "৳20,000" },
+  { name: "USA", nameBn: "যুক্তরাষ্ট্র", code: "us", duration: "Interview based", durationBn: "ইন্টারভিউ ভিত্তিক", price: "৳10,000" },
+  { name: "Germany", nameBn: "জার্মানি", code: "de", duration: "15-21 days", durationBn: "১৫-২১ দিন", price: "৳15,000" },
+  { name: "Spain", nameBn: "স্পেন", code: "es", duration: "15-21 days", durationBn: "১৫-২১ দিন", price: "৳14,000" },
+  { name: "Netherlands", nameBn: "নেদারল্যান্ডস", code: "nl", duration: "15-21 days", durationBn: "১৫-২১ দিন", price: "৳15,000" },
+  { name: "Hong Kong", nameBn: "হংকং", code: "hk", duration: "5-7 days", durationBn: "৫-৭ দিন", price: "৳6,000" },
+  { name: "Sri Lanka", nameBn: "শ্রীলঙ্কা", code: "lk", duration: "3-5 days", durationBn: "৩-৫ দিন", price: "৳4,000" },
+  { name: "Australia", nameBn: "অস্ট্রেলিয়া", code: "au", duration: "20-30 days", durationBn: "২০-৩০ দিন", price: "৳25,000" },
 ];
 
 const VisaServicesSection = () => {
