@@ -1639,6 +1639,69 @@ export type Database = {
           },
         ]
       }
+      service_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          payment_date: string
+          payment_method: string
+          receipt_file_path: string | null
+          recorded_by: string | null
+          service_id: string
+          service_type: string
+          transaction_ref: string | null
+          updated_at: string
+          wallet_account_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string
+          receipt_file_path?: string | null
+          recorded_by?: string | null
+          service_id: string
+          service_type: string
+          transaction_ref?: string | null
+          updated_at?: string
+          wallet_account_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string
+          receipt_file_path?: string | null
+          recorded_by?: string | null
+          service_id?: string
+          service_type?: string
+          transaction_ref?: string | null
+          updated_at?: string
+          wallet_account_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_payments_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_payments_wallet_account_id_fkey"
+            columns: ["wallet_account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_balances"
+            referencedColumns: ["account_id"]
+          },
+        ]
+      }
       settlement_items: {
         Row: {
           amount_applied: number
@@ -2536,6 +2599,60 @@ export type Database = {
           total_bookings: number | null
           total_expenses: number | null
           total_payments: number | null
+        }
+        Relationships: []
+      }
+      v_entity_ledger: {
+        Row: {
+          amount: number | null
+          category: string | null
+          created_at: string | null
+          credit: number | null
+          customer_id: string | null
+          date: string | null
+          debit: number | null
+          id: string | null
+          ledger_type: string | null
+          note: string | null
+          payment_method: string | null
+          reference: string | null
+          source_id: string | null
+          source_type: string | null
+          type: string | null
+        }
+        Insert: {
+          amount?: number | null
+          category?: string | null
+          created_at?: string | null
+          credit?: number | null
+          customer_id?: string | null
+          date?: string | null
+          debit?: number | null
+          id?: string | null
+          ledger_type?: never
+          note?: string | null
+          payment_method?: string | null
+          reference?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          type?: string | null
+        }
+        Update: {
+          amount?: number | null
+          category?: string | null
+          created_at?: string | null
+          credit?: number | null
+          customer_id?: string | null
+          date?: string | null
+          debit?: number | null
+          id?: string | null
+          ledger_type?: never
+          note?: string | null
+          payment_method?: string | null
+          reference?: string | null
+          source_id?: string | null
+          source_type?: string | null
+          type?: string | null
         }
         Relationships: []
       }
