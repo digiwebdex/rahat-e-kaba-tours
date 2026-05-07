@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAllSiteContent, useUpdateSiteContent } from "@/hooks/useSiteContent";
-import { Save, Plus, Trash2, ChevronDown, ChevronUp, Type, FileText, Globe, Phone, MapPin, Languages, Image, MessageCircle, Star, BookOpen, Video, Shield, Layout, Navigation } from "lucide-react";
+import { Save, Plus, Trash2, ChevronDown, ChevronUp, Type, FileText, Globe, Phone, MapPin, Languages, Image, MessageCircle, Star, BookOpen, Video, Shield, Layout, Navigation, Briefcase, Youtube, Plane } from "lucide-react";
 import { toast } from "sonner";
 import { Language } from "@/i18n/translations";
 import BannerImageUpload from "@/components/admin/BannerImageUpload";
@@ -273,6 +273,97 @@ const SECTION_CONFIG: Record<string, { label: string; labelBn: string; icon: any
       { key: "sections", label: "Content Sections", type: "array", bilingual: true, arrayFields: [
         { key: "heading", label: "Section Heading", type: "text" },
         { key: "body", label: "Section Body", type: "text" },
+      ]},
+    ],
+  },
+  visa_services: {
+    label: "Visa Services Section",
+    labelBn: "ভিসা সেবা সেকশন",
+    icon: Plane,
+    fields: [
+      { key: "section_label", label: "Section Label", type: "text", bilingual: true },
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "footer_note", label: "Footer Note (price disclaimer)", type: "text", bilingual: true },
+      { key: "steps", label: "Process Steps (icon: Search/FileText/Send/CheckCircle2)", type: "array", bilingual: true, arrayFields: [
+        { key: "icon", label: "Icon (Search/FileText/Send/CheckCircle2)", type: "text" },
+        { key: "title", label: "Step Title", type: "text" },
+        { key: "desc", label: "Step Description", type: "text" },
+      ]},
+      { key: "countries", label: "Countries (code = ISO2 e.g. ph, my, jp)", type: "array", bilingual: true, arrayFields: [
+        { key: "name", label: "Country Name", type: "text" },
+        { key: "code", label: "ISO Code (e.g. ph, my)", type: "text" },
+        { key: "duration", label: "Processing Duration", type: "text" },
+        { key: "price", label: "Starting Price", type: "text" },
+      ]},
+    ],
+  },
+  open_positions: {
+    label: "Now Hiring / Open Positions",
+    labelBn: "এখন নিয়োগ চলছে",
+    icon: Briefcase,
+    fields: [
+      { key: "section_label", label: "Section Label", type: "text", bilingual: true },
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "heading_highlight", label: "Heading Highlight", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "apply_button_text", label: "Apply Button Text", type: "text", bilingual: true },
+      { key: "countries", label: "Countries", type: "array", bilingual: true, arrayFields: [
+        { key: "name", label: "Country Name", type: "text" },
+        { key: "iso", label: "ISO Code (e.g. vn, kw, la, rs, ru)", type: "text" },
+        { key: "tagline", label: "Tagline", type: "text" },
+        { key: "processing", label: "Processing Time", type: "text" },
+      ]},
+    ],
+  },
+  youtube_videos: {
+    label: "YouTube Videos Section",
+    labelBn: "ইউটিউব ভিডিও সেকশন",
+    icon: Youtube,
+    fields: [
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "channel_url", label: "YouTube Channel URL", type: "text", bilingual: false },
+      { key: "channel_handle", label: "Channel Handle (e.g. @alrawshaint)", type: "text", bilingual: false },
+      { key: "channel_label", label: "Channel Label (above handle)", type: "text", bilingual: true },
+      { key: "cta_text", label: "Bottom CTA Button Text", type: "text", bilingual: true },
+      { key: "videos", label: "Videos (id = YouTube video ID)", type: "array", bilingual: true, arrayFields: [
+        { key: "id", label: "YouTube Video ID", type: "text" },
+        { key: "title", label: "Video Title", type: "text" },
+      ]},
+    ],
+  },
+  travel_blog: {
+    label: "Travel Blog Section",
+    labelBn: "ট্রাভেল ব্লগ সেকশন",
+    icon: BookOpen,
+    fields: [
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "read_more_text", label: "Read More Text", type: "text", bilingual: true },
+      { key: "posts", label: "Blog Posts", type: "array", bilingual: true, arrayFields: [
+        { key: "category", label: "Category", type: "text" },
+        { key: "title", label: "Title", type: "text" },
+        { key: "excerpt", label: "Excerpt", type: "text" },
+        { key: "date", label: "Date (e.g. Apr 2026)", type: "text" },
+        { key: "image", label: "Image URL", type: "text" },
+        { key: "href", label: "Link URL", type: "text" },
+      ]},
+    ],
+  },
+  process_timeline: {
+    label: "Process Timeline (How it works)",
+    labelBn: "আবেদন প্রক্রিয়া",
+    icon: Layout,
+    fields: [
+      { key: "section_label", label: "Section Label", type: "text", bilingual: true },
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "heading_highlight", label: "Heading Highlight", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "steps", label: "Steps (icon: FileText/Users/CheckCircle2/Stamp/Plane)", type: "array", bilingual: true, arrayFields: [
+        { key: "icon", label: "Icon (FileText/Users/CheckCircle2/Stamp/Plane)", type: "text" },
+        { key: "title", label: "Step Title", type: "text" },
+        { key: "desc", label: "Step Description", type: "text" },
       ]},
     ],
   },
