@@ -19,6 +19,7 @@ import { SiteContentProvider } from "@/hooks/useSiteContentProvider";
 
 const ContactSection = lazy(() => import("@/components/ContactSection"));
 const AboutSection = lazy(() => import("@/components/AboutSection"));
+const GoogleMapSection = lazy(() => import("@/components/GoogleMapSection"));
 
 const SectionFallback = () => <div className="py-20" />;
 
@@ -50,6 +51,9 @@ const Index = () => {
         </Suspense>
         <Suspense fallback={<SectionFallback />}>
           <ContactSection />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <GoogleMapSection />
         </Suspense>
         <Footer />
         <WhatsAppFloat />
