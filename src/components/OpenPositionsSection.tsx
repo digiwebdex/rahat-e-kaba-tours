@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Send, Briefcase, ChevronDown, Clock, Home, Plane, ShieldCheck,
-  Calendar, Utensils, MapPin, DollarSign, Users,
+  Calendar, Utensils, Users, Sparkles, Globe2, ArrowRight,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useState } from "react";
@@ -30,7 +30,8 @@ interface Position {
 
 interface Country {
   key: CountryKey;
-  flag: string;
+  flag: string;       // emoji fallback
+  iso: string;        // 2-letter ISO for flag image
   enName: string;
   bnName: string;
   image: string;
@@ -44,6 +45,7 @@ const COUNTRIES: Country[] = [
   {
     key: "vietnam",
     flag: "🇻🇳",
+    iso: "vn",
     enName: "Vietnam",
     bnName: "ভিয়েতনাম",
     image: imgVietnam,
@@ -60,6 +62,7 @@ const COUNTRIES: Country[] = [
   {
     key: "kuwait",
     flag: "🇰🇼",
+    iso: "kw",
     enName: "Kuwait",
     bnName: "কুয়েত",
     image: imgKuwait,
@@ -73,6 +76,7 @@ const COUNTRIES: Country[] = [
   {
     key: "laos",
     flag: "🇱🇦",
+    iso: "la",
     enName: "Laos",
     bnName: "লাওস",
     image: imgLaos,
@@ -88,6 +92,7 @@ const COUNTRIES: Country[] = [
   {
     key: "serbia",
     flag: "🇷🇸",
+    iso: "rs",
     enName: "Serbia",
     bnName: "সার্বিয়া",
     image: imgSerbia,
@@ -101,6 +106,7 @@ const COUNTRIES: Country[] = [
   {
     key: "russia",
     flag: "🇷🇺",
+    iso: "ru",
     enName: "Russia",
     bnName: "রাশিয়া",
     image: imgRussia,
@@ -124,6 +130,24 @@ const OpenPositionsSection = () => {
   const visible = active === "all" ? COUNTRIES : COUNTRIES.filter((c) => c.key === active);
   const openApply = (pos: string) => { setPresetPosition(pos); setApplyOpen(true); };
 
+  const totalVacancies = COUNTRIES.reduce((sum, c) => {
+    return sum + c.positions.reduce((s, p) => s + (parseInt(p.vacancies || "0", 10) || (p.vacancies ? 0 : 1)), 0);
+  }, 0);
+  const totalRoles = COUNTRIES.reduce((s, c) => s + c.positions.length, 0);
+
+  const flagImg = (iso: string, alt: string, size = 24) => (
+    <img
+      src={`https://flagcdn.com/w80/${iso}.png`}
+      srcSet={`https://flagcdn.com/w160/${iso}.png 2x`}
+      width={size}
+      height={Math.round((size * 3) / 4)}
+      alt={alt}
+      loading="lazy"
+      className="object-cover rounded-[3px] ring-1 ring-black/10 shrink-0"
+      style={{ width: size, height: Math.round((size * 3) / 4) }}
+    />
+  );
+
   const detailRow = (p: Position) => [
     p.contract && { Icon: Calendar, en: "Contract", bn: "চুক্তি", val: p.contract },
     { Icon: Clock, en: "Duty", bn: "ডিউটি", val: p.duty },
@@ -144,7 +168,11 @@ const OpenPositionsSection = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">
+          <span className="inline-flex items-center gap-2 text-accent text-xs font-bold tracking-[0.3em] uppercase">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+            </span>
             {bn ? "চলমান নিয়োগ" : "Now Hiring"}
           </span>
           <h2 className="font-heading text-3xl md:text-5xl font-extrabold mt-3 mb-4">
@@ -156,47 +184,79 @@ const OpenPositionsSection = () => {
               ? "ভিয়েতনাম, কুয়েত, লাওস, সার্বিয়া ও রাশিয়াতে বৈধ ওয়ার্ক পারমিট ভিসায় নিয়োগ চলছে। বিস্তারিত জানতে কোম্পানির কার্ডে ক্লিক করুন।"
               : "Hiring across Vietnam, Kuwait, Laos, Serbia and Russia. Click any country card to see role-by-role details."}
           </p>
+
+          {/* Stats strip */}
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4 mt-7">
+            {[
+              { Icon: Globe2, val: COUNTRIES.length.toString(), label: bn ? "দেশ" : "Countries" },
+              { Icon: Briefcase, val: totalRoles.toString(), label: bn ? "পদ" : "Roles" },
+              { Icon: Users, val: `${totalVacancies}+`, label: bn ? "শূন্যপদ" : "Vacancies" },
+              { Icon: Sparkles, val: "RL-2902", label: bn ? "BMET অনুমোদিত" : "BMET Approved" },
+            ].map((s, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2.5 bg-card/80 backdrop-blur border border-border rounded-full pl-2 pr-4 py-1.5 shadow-sm"
+              >
+                <span className="w-7 h-7 rounded-full bg-accent/10 text-accent flex items-center justify-center">
+                  <s.Icon className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-sm font-extrabold text-foreground tabular-nums">{s.val}</span>
+                <span className="text-[11px] text-muted-foreground uppercase tracking-wider">{s.label}</span>
+              </div>
+            ))}
+          </div>
         </motion.div>
 
-        {/* Country filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-10">
-          <button
-            onClick={() => setActive("all")}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all border ${
-              active === "all"
-                ? "bg-primary text-primary-foreground border-primary shadow-ocean"
-                : "bg-card text-foreground/70 border-border hover:border-primary/40 hover:text-primary"
-            }`}
-          >
-            🌍 {bn ? "সব দেশ" : "All Countries"}
-          </button>
-          {COUNTRIES.map((c) => {
-            const isActive = active === c.key;
-            return (
-              <button
-                key={c.key}
-                onClick={() => setActive(c.key)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all border ${
-                  isActive
-                    ? "bg-primary text-primary-foreground border-primary shadow-ocean"
-                    : "bg-card text-foreground/70 border-border hover:border-primary/40 hover:text-primary"
-                }`}
-              >
-                <span>{c.flag}</span>
-                {bn ? c.bnName : c.enName}
-              </button>
-            );
-          })}
+        {/* Sticky country tabs */}
+        <div className="sticky top-16 z-20 -mx-4 px-4 py-3 mb-10 bg-secondary/60 backdrop-blur-md border-y border-border/50">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide snap-x">
+            <button
+              onClick={() => setActive("all")}
+              className={`relative shrink-0 snap-start inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-semibold transition-all border ${
+                active === "all"
+                  ? "bg-primary text-primary-foreground border-primary shadow-md"
+                  : "bg-card text-foreground/70 border-border hover:border-primary/40 hover:text-primary"
+              }`}
+            >
+              <Globe2 className="w-4 h-4" />
+              {bn ? "সব" : "All"}
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active === "all" ? "bg-white/20" : "bg-muted"}`}>
+                {totalRoles}
+              </span>
+            </button>
+            {COUNTRIES.map((c) => {
+              const isActive = active === c.key;
+              return (
+                <button
+                  key={c.key}
+                  onClick={() => setActive(c.key)}
+                  className={`relative shrink-0 snap-start inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-semibold transition-all border ${
+                    isActive
+                      ? "bg-primary text-primary-foreground border-primary shadow-md"
+                      : "bg-card text-foreground/70 border-border hover:border-primary/40 hover:text-primary"
+                  }`}
+                >
+                  {flagImg(c.iso, `${c.enName} flag`, 20)}
+                  {bn ? c.bnName : c.enName}
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isActive ? "bg-white/20" : "bg-muted"}`}>
+                    {c.positions.length}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="space-y-12">
+          <AnimatePresence mode="popLayout">
           {visible.map((country, ci) => (
             <motion.div
               key={country.key}
+              layout
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: ci * 0.06 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ delay: ci * 0.06, layout: { duration: 0.4 } }}
             >
               {/* Country banner */}
               <div className="relative overflow-hidden rounded-3xl mb-6 group">
@@ -209,7 +269,7 @@ const OpenPositionsSection = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-charcoal/85 via-charcoal/60 to-transparent" />
                 <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-10">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-3xl md:text-4xl">{country.flag}</span>
+                    {flagImg(country.iso, `${country.enName} flag`, 44)}
                     <h3 className="font-heading text-2xl md:text-4xl font-extrabold text-white">
                       {bn ? country.bnName : country.enName}
                     </h3>
@@ -324,10 +384,11 @@ const OpenPositionsSection = () => {
                         </button>
                         <button
                           onClick={() => openApply(`${country.enName} — ${p.en}`)}
-                          className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-ocean text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:shadow-ocean hover:scale-[1.02] transition-all"
+                          className="group/btn flex-1 inline-flex items-center justify-center gap-2 bg-gradient-ocean text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:shadow-ocean hover:scale-[1.02] transition-all"
                         >
                           <Send className="h-4 w-4" />
                           {bn ? "আবেদন করুন" : "Apply Now"}
+                          <ArrowRight className="h-3.5 w-3.5 opacity-0 -translate-x-1 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all" />
                         </button>
                       </div>
                     </motion.div>
@@ -336,6 +397,7 @@ const OpenPositionsSection = () => {
               </div>
             </motion.div>
           ))}
+          </AnimatePresence>
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-12 max-w-3xl mx-auto">
