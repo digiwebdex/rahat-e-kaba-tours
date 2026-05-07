@@ -1,119 +1,234 @@
 
-## Hasan Travels — Frontend Redesign + New Service Sections
+# Migrate Project to VPS — alrawshaintl.com
 
-### 1. Brand assets & theme
+The project is **already self-hosted ready**: it has its own Express backend (`server/`), PostgreSQL schema (`server/schema.sql`), and uses a custom API client (`@/lib/api`) — not the Supabase runtime. We only need to push to GitHub, clone on the VPS, install, build, configure Nginx + SSL, and run with PM2.
 
-- Save uploaded logo as `src/assets/hasan-travels-logo.png` (replaces current placeholder) and a white-background favicon variant in `public/`.
-- Sample logo colors and update design tokens in `src/index.css` + `tailwind.config.ts`:
-  - **Primary** — Royal Blue `hsl(222 70% 35%)` (HASAN wordmark)
-  - **Accent** — Vibrant Red `hsl(354 80% 52%)` (plane + triangles)
-  - **Foreground** — Charcoal `hsl(0 0% 12%)` (TRAVELS text)
-  - Light mode default; harmonized dark mode.
-- Wire the logo into Navbar, Footer, Hero, Auth, PDF header, OG image meta.
+> Run **PowerShell** blocks on your local Windows machine. Run **VPS** blocks after you SSH into the server.
 
-### 2. Language defaults
+---
 
-- `src/i18n/LanguageContext.tsx` — `DEFAULT_LANG` already `"en"`; confirm and ensure language toggle still offers Bangla. Update all new strings in both `en` + `bn` dictionaries (`src/i18n/translations.ts`).
+## Part A — Local (PowerShell): Push to GitHub
 
-### 3. Frontend content (driven entirely by uploaded info)
+```powershell
+# 1. Go to your local project folder (adjust path)
+cd C:\path\to\your\project
 
-Replace Hajj/Umrah-centric homepage with current Hasan Travels offerings:
+# 2. Initialize git if not already
+git init
+git branch -M main
 
-**Hero** (`HeroSection.tsx`)
-- Headline: "Work in Fiji — Legal Work Permit Visa from Bangladesh"
-- Sub: "BMET-approved processing • 3-year permit • Salary 60,000–1,20,000 BDT + OT • Free company accommodation"
-- Background: Fiji island/factory worker imagery (use uploaded `Services1.jpg` motif as inspiration; generate hero image via AI in build mode with red/blue brand palette).
-- CTAs: "Apply Now" (WhatsApp deep-link `+8801322181500`) + "View Open Positions".
-- Bilingual hero strapline ("ফিজিতে ওয়ার্ক পারমিট ভিসা").
+# 3. Connect to your GitHub repo
+git remote remove origin 2>$null
+git remote add origin https://github.com/digiwebdex/rahat-e-kaba-tours.git
 
-**Services section** (`ServicesSection.tsx`) — 4 cards:
-1. **Fiji Work Permit** (active, primary)
-2. **Student Consultancy** (new — overseas study guidance)
-3. **Hajj & Umrah** (badged "Coming Soon")
-4. **Air Ticket & Visa Support** (general travel)
+# 4. Make sure secrets are NOT pushed
+@"
+node_modules
+dist
+.env
+server/.env
+server/uploads
+*.log
+"@ | Out-File -Encoding utf8 .gitignore -Append
 
-**Packages section** → repurpose as **Open Positions** grid built from `all_information.txt`. Categorized cards:
-- Mechanical & Auto: Diesel Mechanic, Auto Electrician, Denting & Painting, MIG/TIG Welder, AC Technician, Hydraulic Mechanic, Heavy/Truck Driver, Motor Coil Winder
-- Construction & Civil: Mason, Construction Foreman, Finishing Carpenter, PVC Installer, QS/Estimator/Draftsman
-- Industrial: Industrial Electrician, Electrical Box Welder, Lathe Operator, Solar Panel Salesman
-- Garments & Office: Sewing Operator/Mechanic/Supervisor, Embroidery Man, Graphic Designer, Senior Accountant, Office Staff (Female), Computer Operator, Warehouse Supervisor, Sales & Marketing
-Each card: position name (EN+BN), salary range (BDT), category icon, "Apply via WhatsApp" button.
-
-**Why Hasan Travels (Facilities)** — 6 trust badges:
-- BMET-approved legal process
-- Govt. Recruiting Licence (display "RL" badge — placeholder, user can update)
-- Free company accommodation
-- 3-year renewable permit
-- Visa processing in 3–4 months
-- 8h duty + overtime
-
-**Process / Guidelines** — 5-step timeline: Submit CV + Work Video + Passport + White-bg photo → Delegate Interview → Selection → Visa Processing (3–4 months) → Fly to Fiji.
-
-**About** — Rewrite for Hasan Travels: trusted Bangladesh-based travel & manpower agency; current focus Fiji Work Permit + Student Consultancy; expanding into Hajj, Umrah, and overseas education.
-
-**Student Consultancy section** (new component `StudentConsultancySection.tsx`) — countries served (placeholder list), services offered (admission guidance, SOP, visa filing, accommodation), CTA to consultation form.
-
-**Gallery** — replace with uploaded Fiji recruitment posters as gallery items.
-
-**Testimonials** — neutral placeholders ("To be added") so old data is gone.
-
-**Contact** (`ContactSection.tsx` + `Footer.tsx`):
-- Address: Aziz Square, Lift-5, 67/7 Rabindra Sarani, Sector-07, Uttara, Dhaka-1230, Bangladesh
-- WhatsApp/Imo: +880 1322-181500
-- Email: info@hasantravelsbd.com
-- Web: hasantravelsbd.com
-- Embed Google Map for the Uttara address.
-
-**SEO** (`SEOHead.tsx`, `index.html`, sitemap) — title/description/keywords centered on "Hasan Travels • Fiji Work Permit • Student Consultancy • BMET".
-
-### 4. New admin panel sections (backend preserved)
-
-Add two new admin pages (sidebar entries, routes in `App.tsx`):
-
-1. **Work Permit Management** (`/admin/work-permit`)
-   - CRUD for **Job Positions**: title (EN/BN), category, salary range, requirements, status (open/closed), interview date, country (default Fiji).
-   - CRUD for **Applications**: applicant name, phone, position applied, CV/passport/work-video URLs, status (new/shortlisted/interviewed/selected/visa-processing/deployed/rejected), notes.
-   - Public application form on the website posts here.
-
-2. **Student Consultancy Management** (`/admin/student-consultancy`)
-   - CRUD for **Study Programs**: country, university, course, duration, tuition range, intake.
-   - CRUD for **Consultations**: student name, phone, email, target country, current education, status pipeline, notes.
-
-DB migration adds 4 new tables (`job_positions`, `work_permit_applications`, `study_programs`, `student_consultations`) with RLS: admin-write via existing `has_role`, public can `INSERT` only into the two application tables.
-
-Existing backend (bookings, payments, moallems, hotels, accounting, CMS, etc.) is **untouched** — Hajj/Umrah modules stay ready for future activation.
-
-### 5. Cleanup of old content
-
-- Remove Trip-Tastic / Manasik gallery photos and demo testimonials from public site (already DB-wiped).
-- Hide `PackagesSection`/`HotelsSection`/`MoallemsSection`-style public pages from main nav until Hajj/Umrah goes live (toggleable via existing CMS section visibility).
-- Public nav: Home • Services • Open Positions • Student Consultancy • About • Contact.
-
-### Technical notes
-
-```text
-Files added
-  src/components/StudentConsultancySection.tsx
-  src/components/PositionCard.tsx
-  src/components/ProcessTimeline.tsx
-  src/pages/admin/AdminWorkPermitPage.tsx
-  src/pages/admin/AdminStudentConsultancyPage.tsx
-  supabase/migrations/<ts>_hasan_travels_services.sql
-  src/assets/hasan-travels-logo.png  (from upload)
-  src/assets/hero-fiji.jpg           (AI-generated, brand palette)
-
-Files edited
-  src/index.css, tailwind.config.ts (brand tokens)
-  src/i18n/translations.ts (en+bn keys for new sections)
-  src/components/{HeroSection,ServicesSection,PackagesSection,FacilitiesSection,
-                  AboutSection,ContactSection,Footer,Navbar,SEOHead}.tsx
-  src/pages/{Index,About,Contact}.tsx
-  src/components/admin/AdminSidebar.tsx, src/App.tsx (routes)
-  index.html, public/sitemap.xml, public/robots.txt
+# 5. Commit & push
+git add .
+git commit -m "Initial deploy to VPS"
+git push -u origin main --force
 ```
 
-Color tokens stay HSL semantic; no hardcoded hex in components. All new copy bilingual (EN primary). Lovable preview will render the public site immediately after the build (admin pages require VPS API for live data, but UI shells will preview fine).
+---
 
-### Ready to implement on approval
+## Part B — VPS: One-time Server Setup
 
-On approval I will: copy the logo asset, write the migration, build all new components + admin pages, swap homepage content, apply the red/blue theme, and you'll see the redesigned site in Lovable preview.
+SSH into the VPS:
+
+```powershell
+ssh root@187.77.144.38
+```
+
+Then run on the VPS:
+
+```bash
+# 1. Update + install required packages
+apt update && apt upgrade -y
+apt install -y curl git nginx ufw build-essential
+
+# 2. Install Node.js 20
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt install -y nodejs
+
+# 3. Install PM2 globally
+npm install -g pm2
+
+# 4. Install PostgreSQL 16
+apt install -y postgresql postgresql-contrib
+
+# 5. Open firewall
+ufw allow OpenSSH
+ufw allow 'Nginx Full'
+ufw --force enable
+```
+
+---
+
+## Part C — VPS: Database Setup
+
+```bash
+# Create DB user + database (change the password!)
+sudo -u postgres psql <<'SQL'
+CREATE USER digiwebdex WITH PASSWORD 'ChangeThis_StrongPass_2026';
+CREATE DATABASE alrawsha OWNER digiwebdex;
+GRANT ALL PRIVILEGES ON DATABASE alrawsha TO digiwebdex;
+\c alrawsha
+GRANT ALL ON SCHEMA public TO digiwebdex;
+SQL
+```
+
+---
+
+## Part D — VPS: Clone & Configure Project
+
+```bash
+# 1. Clone repo
+mkdir -p /var/www
+cd /var/www
+git clone https://github.com/digiwebdex/rahat-e-kaba-tours.git alrawsha
+cd alrawsha
+
+# 2. Backend env
+cat > server/.env <<'EOF'
+DATABASE_URL=postgresql://digiwebdex:ChangeThis_StrongPass_2026@127.0.0.1:5432/alrawsha
+JWT_SECRET=replace_with_long_random_string_1
+JWT_REFRESH_SECRET=replace_with_long_random_string_2
+JWT_EXPIRES_IN=1h
+JWT_REFRESH_EXPIRES_IN=7d
+PORT=3004
+FRONTEND_URL=https://alrawshaintl.com
+UPLOAD_DIR=./uploads
+BULKSMSBD_API_KEY=
+BULKSMSBD_SENDER_ID=ALRAWSHA
+RESEND_API_KEY=
+NOTIFICATION_FROM_EMAIL=noreply@alrawshaintl.com
+EOF
+
+# 3. Frontend env (point API to same domain)
+cat > .env <<'EOF'
+VITE_API_URL=/api
+EOF
+
+# 4. Load DB schema
+sudo -u postgres psql -d alrawsha -f server/schema.sql
+
+# 5. Install backend deps + create uploads dir
+cd /var/www/alrawsha/server
+npm install --production
+mkdir -p uploads
+
+# 6. Install frontend deps + build
+cd /var/www/alrawsha
+npm install
+npm run build
+```
+
+---
+
+## Part E — VPS: Run Backend with PM2
+
+```bash
+cd /var/www/alrawsha/server
+pm2 start index.js --name alrawsha-api
+pm2 save
+pm2 startup systemd -u root --hp /root
+# Run the command PM2 prints, then:
+pm2 save
+```
+
+---
+
+## Part F — VPS: Nginx + Domain
+
+```bash
+cat > /etc/nginx/sites-available/alrawsha <<'NGINX'
+server {
+    listen 80;
+    server_name alrawshaintl.com www.alrawshaintl.com;
+
+    client_max_body_size 25M;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:3004/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /uploads/ {
+        alias /var/www/alrawsha/server/uploads/;
+    }
+
+    location / {
+        root /var/www/alrawsha/dist;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+}
+NGINX
+
+ln -sf /etc/nginx/sites-available/alrawsha /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
+nginx -t && systemctl restart nginx
+```
+
+**DNS:** At your domain registrar, point:
+- `A    @     187.77.144.38`
+- `A    www   187.77.144.38`
+
+Wait 5–30 minutes for DNS propagation, then install SSL:
+
+```bash
+apt install -y certbot python3-certbot-nginx
+certbot --nginx -d alrawshaintl.com -d www.alrawshaintl.com --non-interactive --agree-tos -m admin@alrawshaintl.com --redirect
+systemctl reload nginx
+```
+
+---
+
+## Part G — Standard Update Workflow (after future code changes)
+
+**Local PowerShell:**
+```powershell
+git add .
+git commit -m "Update"
+git push origin main
+```
+
+**VPS:**
+```bash
+cd /var/www/alrawsha
+git pull origin main
+cd server && npm install --production && cd ..
+npm install && npm run build
+pm2 reload alrawsha-api
+```
+
+---
+
+## Verification Checklist
+
+- `https://alrawshaintl.com` loads the homepage
+- `https://alrawshaintl.com/api/health` returns OK (or any 2xx)
+- `pm2 status` shows `alrawsha-api` online
+- `sudo -u postgres psql -d alrawsha -c "\dt"` lists tables
+- Admin login works at `/auth`
+
+---
+
+## Important Notes
+
+- **No Supabase / Lovable runtime is used** — the app talks to `/api` on your own VPS, backed by your local PostgreSQL.
+- The default admin user is created via `server/schema.sql` seeds (check the file for credentials, then change immediately).
+- Replace **all** `replace_with_...` and the database password with strong random values before going live.
+- File uploads land in `/var/www/alrawsha/server/uploads/` — back this folder up regularly along with the database (`pg_dump alrawsha`).
