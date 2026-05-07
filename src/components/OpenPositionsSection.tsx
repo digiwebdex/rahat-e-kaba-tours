@@ -13,6 +13,19 @@ import imgKuwait from "@/assets/alrawsha-kuwait.jpg";
 import imgLaos from "@/assets/alrawsha-laos.jpg";
 import imgSerbia from "@/assets/alrawsha-serbia.jpg";
 import imgRussia from "@/assets/alrawsha-russia.jpg";
+import imgMalaysia from "@/assets/alrawsha-malaysia.jpg";
+import imgKyrgyzstan from "@/assets/alrawsha-kyrgyzstan.jpg";
+import imgQatar from "@/assets/alrawsha-qatar.jpg";
+import imgDubai from "@/assets/alrawsha-dubai.jpg";
+import imgIraq from "@/assets/alrawsha-iraq.jpg";
+import imgSaudi from "@/assets/alrawsha-saudi.jpg";
+import imgBelarus from "@/assets/alrawsha-belarus.jpg";
+import imgUzbekistan from "@/assets/alrawsha-uzbekistan.jpg";
+import imgMoldova from "@/assets/alrawsha-moldova.jpg";
+import imgRomania from "@/assets/alrawsha-romania.jpg";
+import imgGreeceCyprus from "@/assets/alrawsha-greece-cyprus.jpg";
+import imgPoland from "@/assets/alrawsha-poland.jpg";
+import imgSingapore from "@/assets/alrawsha-singapore.jpg";
 
 type CountryKey =
   | "vietnam" | "kuwait" | "laos" | "serbia" | "russia"
