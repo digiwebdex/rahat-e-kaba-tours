@@ -14,7 +14,11 @@ import imgLaos from "@/assets/alrawsha-laos.jpg";
 import imgSerbia from "@/assets/alrawsha-serbia.jpg";
 import imgRussia from "@/assets/alrawsha-russia.jpg";
 
-type CountryKey = "vietnam" | "kuwait" | "laos" | "serbia" | "russia";
+type CountryKey =
+  | "vietnam" | "kuwait" | "laos" | "serbia" | "russia"
+  | "malaysia" | "kyrgyzstan" | "qatar" | "dubai" | "iraq"
+  | "saudi" | "belarus" | "uzbekistan" | "moldova" | "romania"
+  | "greece_cyprus" | "poland";
 
 interface Position {
   en: string;
@@ -116,6 +120,126 @@ const COUNTRIES: Country[] = [
     processing: "Passport submission ongoing",
     positions: [
       { en: "Factory Worker", bn: "ফ্যাক্টরি ওয়ার্কার", salary: "BDT 70,000–80,000", duty: "10 hours", food: "Company", stay: "Company", age: "25–40" },
+    ],
+  },
+  {
+    key: "malaysia", flag: "🇲🇾", iso: "my",
+    enName: "Malaysia", bnName: "মালয়েশিয়া", image: imgVietnam,
+    enTagline: "Work Permit Visa — Multiple Sectors",
+    bnTagline: "ওয়ার্ক পারমিট ভিসা — বিভিন্ন সেক্টর",
+    processing: "45–60 days",
+    positions: [
+      { en: "General Worker", bn: "জেনারেল ওয়ার্কার", salary: "RM 1,500–2,000", duty: "8h + OT", food: "Company", stay: "Company", contract: "2 years", age: "21–45" },
+    ],
+  },
+  {
+    key: "kyrgyzstan", flag: "🇰🇬", iso: "kg",
+    enName: "Kyrgyzstan", bnName: "কিরগিজস্তান", image: imgSerbia,
+    enTagline: "Work Permit Visa — Construction & Factory",
+    bnTagline: "ওয়ার্ক পারমিট ভিসা — কনস্ট্রাকশন ও ফ্যাক্টরি",
+    processing: "30–45 days",
+    positions: [
+      { en: "Construction Worker", bn: "কনস্ট্রাকশন ওয়ার্কার", salary: "Competitive", duty: "8h + OT", food: "As per contract", stay: "As per contract", age: "22–45" },
+    ],
+  },
+  {
+    key: "qatar", flag: "🇶🇦", iso: "qa",
+    enName: "Qatar", bnName: "কাতার", image: imgKuwait,
+    enTagline: "Work Visa — Service & Construction",
+    bnTagline: "ওয়ার্ক ভিসা — সার্ভিস ও কনস্ট্রাকশন",
+    processing: "30–45 days",
+    positions: [
+      { en: "General Worker", bn: "জেনারেল ওয়ার্কার", salary: "QAR 1,200–1,800", duty: "8h + OT", food: "Company", stay: "Company", age: "21–45" },
+    ],
+  },
+  {
+    key: "dubai", flag: "🇦🇪", iso: "ae",
+    enName: "Dubai (UAE)", bnName: "দুবাই (ইউএই)", image: imgKuwait,
+    enTagline: "Employment Visa — Multiple Categories",
+    bnTagline: "এমপ্লয়মেন্ট ভিসা — বিভিন্ন ক্যাটাগরি",
+    processing: "20–30 days",
+    positions: [
+      { en: "General Worker", bn: "জেনারেল ওয়ার্কার", salary: "AED 1,200–2,000", duty: "8h + OT", food: "Company", stay: "Company", age: "21–45" },
+    ],
+  },
+  {
+    key: "iraq", flag: "🇮🇶", iso: "iq",
+    enName: "Iraq", bnName: "ইরাক", image: imgKuwait,
+    enTagline: "Work Visa — Oil Field & Construction",
+    bnTagline: "ওয়ার্ক ভিসা — অয়েল ফিল্ড ও কনস্ট্রাকশন",
+    processing: "45–60 days",
+    positions: [
+      { en: "General Worker", bn: "জেনারেল ওয়ার্কার", salary: "USD 500–700", duty: "10h + OT", food: "Company", stay: "Company", age: "25–45" },
+    ],
+  },
+  {
+    key: "saudi", flag: "🇸🇦", iso: "sa",
+    enName: "Saudi Arabia", bnName: "সৌদি আরব", image: imgKuwait,
+    enTagline: "Work Visa — All Sectors",
+    bnTagline: "ওয়ার্ক ভিসা — সকল সেক্টর",
+    processing: "30–45 days",
+    positions: [
+      { en: "General Worker", bn: "জেনারেল ওয়ার্কার", salary: "SAR 1,200–2,000", duty: "8h + OT", food: "Company", stay: "Company", age: "21–45" },
+    ],
+  },
+  {
+    key: "belarus", flag: "🇧🇾", iso: "by",
+    enName: "Belarus", bnName: "বেলারুশ", image: imgSerbia,
+    enTagline: "Work Permit Visa — Factory & Agriculture",
+    bnTagline: "ওয়ার্ক পারমিট ভিসা — ফ্যাক্টরি ও এগ্রিকালচার",
+    processing: "60–90 days",
+    positions: [
+      { en: "Factory Worker", bn: "ফ্যাক্টরি ওয়ার্কার", salary: "Competitive (EU region)", duty: "8h + OT", food: "As per contract", stay: "Company", age: "22–45" },
+    ],
+  },
+  {
+    key: "uzbekistan", flag: "🇺🇿", iso: "uz",
+    enName: "Uzbekistan", bnName: "উজবেকিস্তান", image: imgSerbia,
+    enTagline: "Work Permit Visa — Construction & Industry",
+    bnTagline: "ওয়ার্ক পারমিট ভিসা — কনস্ট্রাকশন ও ইন্ডাস্ট্রি",
+    processing: "30–45 days",
+    positions: [
+      { en: "General Worker", bn: "জেনারেল ওয়ার্কার", salary: "Competitive", duty: "8h + OT", food: "As per contract", stay: "As per contract", age: "22–45" },
+    ],
+  },
+  {
+    key: "moldova", flag: "🇲🇩", iso: "md",
+    enName: "Moldova", bnName: "মলদোভা", image: imgSerbia,
+    enTagline: "Work Permit Visa — EU Pathway",
+    bnTagline: "ওয়ার্ক পারমিট ভিসা — ইইউ পথ",
+    processing: "60–90 days",
+    positions: [
+      { en: "General Worker", bn: "জেনারেল ওয়ার্কার", salary: "EUR 500–800", duty: "8h + OT", food: "As per contract", stay: "As per contract", age: "22–45" },
+    ],
+  },
+  {
+    key: "romania", flag: "🇷🇴", iso: "ro",
+    enName: "Romania", bnName: "রোমানিয়া", image: imgSerbia,
+    enTagline: "EU Work Permit — Construction & Factory",
+    bnTagline: "ইইউ ওয়ার্ক পারমিট — কনস্ট্রাকশন ও ফ্যাক্টরি",
+    processing: "3–4 months",
+    positions: [
+      { en: "Construction Worker", bn: "কনস্ট্রাকশন ওয়ার্কার", salary: "EUR 700–1,000", duty: "Standard EU labour law", food: "As per contract", stay: "Company", contract: "Renewable", age: "22–45" },
+    ],
+  },
+  {
+    key: "greece_cyprus", flag: "🇬🇷", iso: "gr",
+    enName: "Greece & Cyprus", bnName: "গ্রিস ও সাইপ্রাস", image: imgSerbia,
+    enTagline: "EU Work Visa — Agriculture & Hospitality",
+    bnTagline: "ইইউ ওয়ার্ক ভিসা — এগ্রিকালচার ও হসপিটালিটি",
+    processing: "3–5 months",
+    positions: [
+      { en: "Agriculture / Hospitality Worker", bn: "এগ্রিকালচার / হসপিটালিটি ওয়ার্কার", salary: "EUR 800–1,200", duty: "Standard EU labour law", food: "As per contract", stay: "As per contract", contract: "Renewable", age: "22–45" },
+    ],
+  },
+  {
+    key: "poland", flag: "🇵🇱", iso: "pl",
+    enName: "Poland", bnName: "পোল্যান্ড", image: imgSerbia,
+    enTagline: "EU Work Permit — Multiple Sectors",
+    bnTagline: "ইইউ ওয়ার্ক পারমিট — বিভিন্ন সেক্টর",
+    processing: "3–4 months",
+    positions: [
+      { en: "General Worker", bn: "জেনারেল ওয়ার্কার", salary: "EUR 700–1,100", duty: "Standard EU labour law", food: "As per contract", stay: "As per contract", contract: "Renewable", age: "22–45" },
     ],
   },
 ];
