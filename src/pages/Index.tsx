@@ -7,6 +7,7 @@ import FacilitiesSection from "@/components/FacilitiesSection";
 import ProcessTimeline from "@/components/ProcessTimeline";
 import VisaServicesSection from "@/components/VisaServicesSection";
 import StudentConsultancySection from "@/components/StudentConsultancySection";
+import GallerySection from "@/components/GallerySection";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import BackToTop from "@/components/BackToTop";
@@ -36,6 +37,7 @@ const Index = () => {
         <VisaServicesSection />
         <FacilitiesSection />
         <ProcessTimeline />
+        <GallerySection />
         {/* <StudentConsultancySection /> — disabled */}
         <Suspense fallback={<SectionFallback />}>
           <AboutSection />
