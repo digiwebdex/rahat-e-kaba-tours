@@ -18,7 +18,7 @@ type CountryKey =
   | "vietnam" | "kuwait" | "laos" | "serbia" | "russia"
   | "malaysia" | "kyrgyzstan" | "qatar" | "dubai" | "iraq"
   | "saudi" | "belarus" | "uzbekistan" | "moldova" | "romania"
-  | "greece_cyprus" | "poland";
+  | "greece_cyprus" | "poland" | "singapore";
 
 interface Position {
   en: string;
@@ -240,6 +240,18 @@ const COUNTRIES: Country[] = [
     processing: "3–4 months",
     positions: [
       { en: "General Worker", bn: "জেনারেল ওয়ার্কার", salary: "EUR 700–1,100", duty: "Standard EU labour law", food: "As per contract", stay: "As per contract", contract: "Renewable", age: "22–45" },
+    ],
+  },
+  {
+    key: "singapore", flag: "🇸🇬", iso: "sg",
+    enName: "Singapore", bnName: "সিঙ্গাপুর", image: imgKuwait,
+    enTagline: "Work Permit Visa — Construction, Marine & Services",
+    bnTagline: "ওয়ার্ক পারমিট ভিসা — কনস্ট্রাকশন, মেরিন ও সার্ভিস",
+    processing: "45–60 days",
+    positions: [
+      { en: "Construction Worker", bn: "কনস্ট্রাকশন ওয়ার্কার", salary: "SGD 600–900 + OT", duty: "8h + OT", food: "Self / allowance", stay: "Company", contract: "2 years (renewable)", age: "21–45" },
+      { en: "Shipyard / Marine Worker", bn: "শিপইয়ার্ড / মেরিন ওয়ার্কার", salary: "SGD 700–1,000 + OT", duty: "8h + OT", food: "Self / allowance", stay: "Company", contract: "2 years", age: "21–45", notes: "Skill test required" },
+      { en: "Service / Cleaner", bn: "সার্ভিস / ক্লিনার", salary: "SGD 600–800", duty: "8h + OT", food: "Self", stay: "Company", contract: "2 years", age: "21–45" },
     ],
   },
 ];
