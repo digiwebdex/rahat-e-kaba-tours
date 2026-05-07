@@ -341,6 +341,7 @@ export type Database = {
           paid_to_supplier: number
           profit_amount: number | null
           selling_price_per_person: number | null
+          service_type: string
           status: string
           supplier_agent_id: string | null
           supplier_due: number
@@ -378,6 +379,7 @@ export type Database = {
           paid_to_supplier?: number
           profit_amount?: number | null
           selling_price_per_person?: number | null
+          service_type?: string
           status?: string
           supplier_agent_id?: string | null
           supplier_due?: number
@@ -415,6 +417,7 @@ export type Database = {
           paid_to_supplier?: number
           profit_amount?: number | null
           selling_price_per_person?: number | null
+          service_type?: string
           status?: string
           supplier_agent_id?: string | null
           supplier_due?: number
@@ -1070,6 +1073,8 @@ export type Database = {
       moallems: {
         Row: {
           address: string | null
+          commission_type: string | null
+          commission_value: number
           contract_date: string | null
           contracted_amount: number
           contracted_hajji: number
@@ -1086,6 +1091,8 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          commission_type?: string | null
+          commission_value?: number
           contract_date?: string | null
           contracted_amount?: number
           contracted_hajji?: number
@@ -1102,6 +1109,8 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          commission_type?: string | null
+          commission_value?: number
           contract_date?: string | null
           contracted_amount?: number
           contracted_hajji?: number
@@ -1823,10 +1832,12 @@ export type Database = {
           contract_date: string | null
           contracted_amount: number
           contracted_hajji: number
+          country: string | null
           created_at: string
           id: string
           notes: string | null
           phone: string | null
+          service_type: string | null
           status: string
           updated_at: string
         }
@@ -1837,10 +1848,12 @@ export type Database = {
           contract_date?: string | null
           contracted_amount?: number
           contracted_hajji?: number
+          country?: string | null
           created_at?: string
           id?: string
           notes?: string | null
           phone?: string | null
+          service_type?: string | null
           status?: string
           updated_at?: string
         }
@@ -1851,10 +1864,12 @@ export type Database = {
           contract_date?: string | null
           contracted_amount?: number
           contracted_hajji?: number
+          country?: string | null
           created_at?: string
           id?: string
           notes?: string | null
           phone?: string | null
+          service_type?: string | null
           status?: string
           updated_at?: string
         }
