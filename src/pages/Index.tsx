@@ -5,6 +5,7 @@ import ServicesSection from "@/components/ServicesSection";
 import OpenPositionsSection from "@/components/OpenPositionsSection";
 import FacilitiesSection from "@/components/FacilitiesSection";
 import ProcessTimeline from "@/components/ProcessTimeline";
+import VisaServicesSection from "@/components/VisaServicesSection";
 import StudentConsultancySection from "@/components/StudentConsultancySection";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
@@ -32,6 +33,7 @@ const Index = () => {
         <HeroSection />
         <ServicesSection />
         <OpenPositionsSection />
+        <VisaServicesSection />
         <FacilitiesSection />
         <ProcessTimeline />
         {/* <StudentConsultancySection /> — disabled */}
