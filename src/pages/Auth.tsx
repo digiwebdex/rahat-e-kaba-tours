@@ -182,29 +182,7 @@ const Auth = () => {
           </p>
         </div>
 
-        {/* OTP / Email toggle for login */}
-        {(mode === "login" || mode === "otp") && (
-          <div className="flex gap-1 mb-4 bg-secondary rounded-lg p-1">
-            <button
-              onClick={() => { setMode("login"); setOtpSent(false); setOtpCode(""); }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all ${
-                mode === "login" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Mail className="h-4 w-4" />
-              {language === "bn" ? "ইমেইল" : "Email"}
-            </button>
-            <button
-              onClick={() => { setMode("otp"); }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all ${
-                mode === "otp" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Smartphone className="h-4 w-4" />
-              {language === "bn" ? "ফোন OTP" : "Phone OTP"}
-            </button>
-          </div>
-        )}
+        {/* Phone OTP login disabled */}
 
         {mode === "login" && (
           <form onSubmit={handleEmailLogin} className="bg-card border border-border rounded-xl p-6 space-y-4">
