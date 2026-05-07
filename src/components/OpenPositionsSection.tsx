@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Send, Briefcase, Clock, Home, Plane, ShieldCheck,
+  Send, Briefcase, ChevronDown, Clock, Home, Plane, ShieldCheck,
   Calendar, Utensils, Users, Sparkles, Globe2, ArrowRight,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
