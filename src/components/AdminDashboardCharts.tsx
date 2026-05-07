@@ -398,10 +398,10 @@ function KpiCard({ label, value, icon: Icon, iconBg, iconColor, sub, onClick }: 
 }
 
 /* ─── Quick Stat Row ─── */
-function QuickStat({ label, value, color, onClick }: { label: string; value: number; color: string; onClick: () => void }) {
+function QuickStat({ label, value, color, onClick }: { label: string; value: number; color: string; onClick?: () => void }) {
   return (
     <div
-      className="flex items-center justify-between py-2 px-2 -mx-2 rounded-lg hover:bg-secondary/30 cursor-pointer transition-colors"
+      className={`flex items-center justify-between py-2 px-2 -mx-2 rounded-lg transition-colors ${onClick ? "hover:bg-secondary/30 cursor-pointer" : ""}`}
       onClick={onClick}
     >
       <span className="text-sm text-muted-foreground">{label}</span>
