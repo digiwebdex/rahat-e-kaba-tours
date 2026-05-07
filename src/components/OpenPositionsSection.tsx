@@ -6,6 +6,7 @@ import {
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useState } from "react";
 import ApplyDialog from "./ApplyDialog";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 import imgVietnam from "@/assets/alrawsha-vietnam.jpg";
 import imgKuwait from "@/assets/alrawsha-kuwait.jpg";
@@ -126,6 +127,25 @@ const OpenPositionsSection = () => {
   const [applyOpen, setApplyOpen] = useState(false);
   const [presetPosition, setPresetPosition] = useState<string>("");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const { data: cmsContent } = useBulkSiteContent("open_positions");
+  const lc = cmsContent?.[language];
+
+  // Build CMS overrides keyed by ISO code (case-insensitive)
+  const overridesByIso: Record<string, any> = {};
+  if (lc?.countries && Array.isArray(lc.countries)) {
+    lc.countries.forEach((c: any) => {
+      if (c?.iso) overridesByIso[c.iso.toLowerCase()] = c;
+    });
+  }
+  const getOverride = (iso: string) => overridesByIso[iso.toLowerCase()];
+
+  const sectionLabel = lc?.section_label || (bn ? "চলমান নিয়োগ" : "Now Hiring");
+  const headingPart1 = lc?.heading || (bn ? "আমাদের " : "Open positions in ");
+  const headingHighlight = lc?.heading_highlight || (bn ? "চলমান পজিশনসমূহ" : "5 Countries");
+  const description = lc?.description || (bn
+    ? "ভিয়েতনাম, কুয়েত, লাওস, সার্বিয়া ও রাশিয়াতে বৈধ ওয়ার্ক পারমিট ভিসায় নিয়োগ চলছে। বিস্তারিত জানতে কোম্পানির কার্ডে ক্লিক করুন।"
+    : "Hiring across Vietnam, Kuwait, Laos, Serbia and Russia. Click any country card to see role-by-role details.");
+  const applyText = lc?.apply_button_text || (bn ? "আবেদন করুন" : "Apply Now");
 
   const visible = active === "all" ? COUNTRIES : COUNTRIES.filter((c) => c.key === active);
   const openApply = (pos: string) => { setPresetPosition(pos); setApplyOpen(true); };
@@ -173,17 +193,13 @@ const OpenPositionsSection = () => {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
             </span>
-            {bn ? "চলমান নিয়োগ" : "Now Hiring"}
+            {sectionLabel}
           </span>
           <h2 className="font-heading text-3xl md:text-5xl font-extrabold mt-3 mb-4">
-            {bn ? "আমাদের " : "Open positions in "}
-            <span className="text-gradient-ocean">{bn ? "চলমান পজিশনসমূহ" : "5 Countries"}</span>
+            {headingPart1}
+            <span className="text-gradient-ocean">{headingHighlight}</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            {bn
-              ? "ভিয়েতনাম, কুয়েত, লাওস, সার্বিয়া ও রাশিয়াতে বৈধ ওয়ার্ক পারমিট ভিসায় নিয়োগ চলছে। বিস্তারিত জানতে কোম্পানির কার্ডে ক্লিক করুন।"
-              : "Hiring across Vietnam, Kuwait, Laos, Serbia and Russia. Click any country card to see role-by-role details."}
-          </p>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{description}</p>
 
           {/* Stats strip */}
           <div className="flex flex-wrap justify-center gap-3 md:gap-4 mt-7">
@@ -226,6 +242,8 @@ const OpenPositionsSection = () => {
             </button>
             {COUNTRIES.map((c) => {
               const isActive = active === c.key;
+              const ov = getOverride(c.iso);
+              const displayName = ov?.name || (bn ? c.bnName : c.enName);
               return (
                 <button
                   key={c.key}
@@ -237,7 +255,7 @@ const OpenPositionsSection = () => {
                   }`}
                 >
                   {flagImg(c.iso, `${c.enName} flag`, 20)}
-                  {bn ? c.bnName : c.enName}
+                  {displayName}
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isActive ? "bg-white/20" : "bg-muted"}`}>
                     {c.positions.length}
                   </span>
@@ -271,18 +289,18 @@ const OpenPositionsSection = () => {
                   <div className="flex items-center gap-3 mb-2">
                     {flagImg(country.iso, `${country.enName} flag`, 44)}
                     <h3 className="font-heading text-2xl md:text-4xl font-extrabold text-white">
-                      {bn ? country.bnName : country.enName}
+                      {getOverride(country.iso)?.name || (bn ? country.bnName : country.enName)}
                     </h3>
                     <span className="hidden md:inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-white bg-accent/90 px-2.5 py-1 rounded-full">
                       <ShieldCheck className="h-3 w-3" /> {bn ? "চলমান" : "Active"}
                     </span>
                   </div>
                   <p className="text-white/85 text-sm md:text-base max-w-xl">
-                    {bn ? country.bnTagline : country.enTagline}
+                    {getOverride(country.iso)?.tagline || (bn ? country.bnTagline : country.enTagline)}
                   </p>
                   <div className="mt-3 inline-flex items-center gap-2 text-xs text-white/80">
                     <Plane className="h-3.5 w-3.5 text-accent" />
-                    <span>{bn ? "প্রসেসিং" : "Processing"}: <strong className="text-white">{country.processing}</strong></span>
+                    <span>{bn ? "প্রসেসিং" : "Processing"}: <strong className="text-white">{getOverride(country.iso)?.processing || country.processing}</strong></span>
                   </div>
                 </div>
               </div>
@@ -387,7 +405,7 @@ const OpenPositionsSection = () => {
                           className="group/btn flex-1 inline-flex items-center justify-center gap-2 bg-gradient-ocean text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:shadow-ocean hover:scale-[1.02] transition-all"
                         >
                           <Send className="h-4 w-4" />
-                          {bn ? "আবেদন করুন" : "Apply Now"}
+                          {applyText}
                           <ArrowRight className="h-3.5 w-3.5 opacity-0 -translate-x-1 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all" />
                         </button>
                       </div>

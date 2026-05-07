@@ -1,12 +1,17 @@
 import { motion } from "framer-motion";
 import { FileText, Users, CheckCircle2, Stamp, Plane } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
+
+const ICON_MAP: Record<string, any> = { FileText, Users, CheckCircle2, Stamp, Plane };
 
 const ProcessTimeline = () => {
   const { language } = useLanguage();
   const bn = language === "bn";
+  const { data: content } = useBulkSiteContent("process_timeline");
+  const lc = content?.[language];
 
-  const steps = [
+  const defaultSteps = [
     {
       Icon: FileText,
       titleEn: "Submit Documents",
@@ -44,6 +49,15 @@ const ProcessTimeline = () => {
     },
   ];
 
+  const steps = (lc?.steps && Array.isArray(lc.steps) && lc.steps.length > 0)
+    ? lc.steps.map((s: any) => ({ Icon: ICON_MAP[s.icon] || FileText, title: s.title, desc: s.desc }))
+    : defaultSteps.map((s) => ({ Icon: s.Icon, title: bn ? s.titleBn : s.titleEn, desc: bn ? s.descBn : s.descEn }));
+
+  const sectionLabel = lc?.section_label || (bn ? "আবেদন প্রক্রিয়া" : "How it works");
+  const headingPart1 = lc?.heading || (bn ? "৫টি সহজ ধাপে " : "From application to ");
+  const headingHighlight = lc?.heading_highlight || (bn ? "ফিজি যাত্রা" : "boarding pass");
+  const description = lc?.description || (bn ? "আবেদন থেকে বিদেশযাত্রা — পুরো প্রক্রিয়াটি স্বচ্ছ ও বৈধ।" : "A transparent, BMET-approved process every step of the way.");
+
   return (
     <section id="process" className="py-24 bg-background relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
@@ -54,17 +68,13 @@ const ProcessTimeline = () => {
           className="text-center max-w-2xl mx-auto mb-14"
         >
           <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">
-            {bn ? "আবেদন প্রক্রিয়া" : "How it works"}
+            {sectionLabel}
           </span>
           <h2 className="font-heading text-3xl md:text-5xl font-extrabold mt-3 mb-4">
-            {bn ? "৫টি সহজ ধাপে " : "From application to "}
-            <span className="text-gradient-ocean">{bn ? "ফিজি যাত্রা" : "boarding pass"}</span>
+            {headingPart1}
+            <span className="text-gradient-ocean">{headingHighlight}</span>
           </h2>
-          <p className="text-muted-foreground">
-            {bn
-              ? "আবেদন থেকে বিদেশযাত্রা — পুরো প্রক্রিয়াটি স্বচ্ছ ও বৈধ।"
-              : "A transparent, BMET-approved process every step of the way."}
-          </p>
+          <p className="text-muted-foreground">{description}</p>
         </motion.div>
 
         <div className="relative max-w-5xl mx-auto">
@@ -75,7 +85,7 @@ const ProcessTimeline = () => {
               const Icon = s.Icon;
               return (
                 <motion.div
-                  key={s.titleEn}
+                  key={s.title + i}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -91,10 +101,10 @@ const ProcessTimeline = () => {
                     </div>
                   </div>
                   <h3 className="font-heading font-bold text-foreground mt-4 mb-1.5 text-sm md:text-base">
-                    {bn ? s.titleBn : s.titleEn}
+                    {s.title}
                   </h3>
                   <p className="text-xs text-muted-foreground leading-relaxed px-2">
-                    {bn ? s.descBn : s.descEn}
+                    {s.desc}
                   </p>
                 </motion.div>
               );
