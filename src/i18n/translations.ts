@@ -325,8 +325,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "facilities.label": "Our Facilities",
     "facilities.heading": "Why",
     "facilities.headingHighlight": "Choose Us",
-    "facilities.description": "Comprehensive facilities and dedicated support for your sacred journey from Bangladesh",
-    "facilities.visa.title": "Umrah Visa with Insurance",
+    "facilities.description": "Comprehensive facilities and dedicated support for your overseas journey from Bangladesh",
+    "facilities.visa.title": "Visa with Insurance",
     "facilities.visa.desc": "Complete visa processing with travel insurance included",
     "facilities.flight.title": "Direct & Transit Flights",
     "facilities.flight.desc": "Best airline options - SV, BG, BS and more",
@@ -334,8 +334,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "facilities.hotel.desc": "150-750m from Haramain Sharifain with stunning views",
     "facilities.transport.title": "Private Transportation",
     "facilities.transport.desc": "Exclusive private transport throughout Saudi Arabia",
-    "facilities.training.title": "Umrah Training",
-    "facilities.training.desc": "Pre and post-departure Umrah training sessions",
+    "facilities.training.title": "Pre-Departure Training",
+    "facilities.training.desc": "Pre and post-departure orientation sessions",
     "facilities.guide.title": "Expert Bangladeshi Guides",
     "facilities.guide.desc": "Experienced male and female guides for your group",
     "facilities.support.title": "24/7 Customer Support",
@@ -427,7 +427,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "verify.totalAmount": "Total Amount",
     "verify.paidAmount": "Paid Amount",
     "verify.dueAmount": "Due Amount",
-    "verify.companyFooter": "Hasan Travels — Hajj & Umrah Services",
+    "verify.companyFooter": "Al Rawsha International — Work Permit, Air Tickets & Visa",
 
     // Invoice Page
     "invoice.searchPlaceholder": "Enter Tracking ID (e.g. TT-XXXXXXXX)",
@@ -465,7 +465,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "invoice.generatedNote": "This is a computer-generated document. For queries:",
     "invoice.verifiedBooking": "✓ Verified Booking",
     "invoice.scanToVerify": "Scan to verify booking authenticity",
-    "invoice.hajjUmrahServices": "Hajj & Umrah Services",
+    "invoice.hajjUmrahServices": "Work Permit, Air Tickets & Visa Services",
     "invoice.invoiceTitle": "INVOICE",
     "invoice.days": "Days",
 
@@ -975,7 +975,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "invoice.generatedNote": "এটি একটি কম্পিউটার জেনারেটেড ডকুমেন্ট। জিজ্ঞাসায়:",
     "invoice.verifiedBooking": "✓ যাচাইকৃত বুকিং",
     "invoice.scanToVerify": "বুকিং প্রামাণিকতা যাচাই করতে স্ক্যান করুন",
-    "invoice.hajjUmrahServices": "হজ ও উমরাহ সেবা",
+    "invoice.hajjUmrahServices": "ওয়ার্ক পারমিট, এয়ার টিকেট ও ভিসা সেবা",
     "invoice.invoiceTitle": "ইনভয়েস",
     "invoice.days": "দিন",
 
