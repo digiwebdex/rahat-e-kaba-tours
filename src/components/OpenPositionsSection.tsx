@@ -276,7 +276,6 @@ const OpenPositionsSection = () => {
               exit={{ opacity: 0, y: -10 }}
               transition={{ delay: ci * 0.06, layout: { duration: 0.4 } }}
             >
-              {(() => null)()}
               {/* Country banner */}
               <div className="relative overflow-hidden rounded-3xl mb-6 group">
                 <img
