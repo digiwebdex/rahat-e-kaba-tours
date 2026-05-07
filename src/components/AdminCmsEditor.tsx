@@ -367,6 +367,19 @@ const SECTION_CONFIG: Record<string, { label: string; labelBn: string; icon: any
       ]},
     ],
   },
+  google_map: {
+    label: "Google Map Section",
+    labelBn: "গুগল ম্যাপ সেকশন",
+    icon: MapPin,
+    fields: [
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "address", label: "Address (shown under map)", type: "text", bilingual: true },
+      { key: "directions_text", label: "Directions Button Text", type: "text", bilingual: true },
+      { key: "embed_url", label: "Google Maps Embed URL (from Google Maps → Share → Embed → src)", type: "textarea", bilingual: false },
+      { key: "directions_url", label: "Directions URL (Google Maps link)", type: "text", bilingual: false },
+    ],
+  },
 };
 
 const AdminCmsEditor = () => {
