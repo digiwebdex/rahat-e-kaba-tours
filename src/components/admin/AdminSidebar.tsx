@@ -2,7 +2,7 @@ import {
   LayoutDashboard, FileText, Users, Package, CreditCard,
   Calculator, BarChart3, Pencil, Settings, LogOut, UserCheck, Truck,
   Hotel, Bell, AlertTriangle, BookOpen, DollarSign, RotateCcw, PieChart,
-  Plane, FileCheck, Map, Search, Upload, Shield, ShieldCheck, Briefcase, GraduationCap,
+  Plane, FileCheck, Map, Search, Upload, Shield, ShieldCheck, Briefcase, GraduationCap, BookOpenCheck,
 } from "lucide-react";
 import logo from "@/assets/al-rawsha-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -30,6 +30,7 @@ const financeMenuItems = [
   { title: "Payments",        url: "/admin/payments",       icon: CreditCard,      roles: ["admin", "accountant", "viewer"] },
   { title: "Settlements",     url: "/admin/settlements",    icon: FileCheck,       roles: ["admin", "accountant", "viewer"] },
   { title: "Accounting",      url: "/admin/accounting",     icon: Calculator,      roles: ["admin", "accountant", "viewer"] },
+  { title: "Ledger",          url: "/admin/ledger",         icon: BookOpenCheck,   roles: ["admin", "accountant", "viewer"] },
   { title: "Receivables",     url: "/admin/receivables",    icon: DollarSign,      roles: ["admin", "accountant", "viewer"] },
   { title: "Due Alerts",      url: "/admin/due-alerts",     icon: AlertTriangle,   roles: ["admin", "accountant", "viewer"] },
   
