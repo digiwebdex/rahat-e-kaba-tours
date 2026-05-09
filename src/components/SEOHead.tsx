@@ -16,7 +16,7 @@ const SITE_NAME = "Al Rawsha International";
 const DEFAULT_DESCRIPTION =
   "BMET-approved (RL-2902) recruiting agency in Bangladesh. Overseas work permits, air tickets & visa support — Vietnam, Kuwait, Laos, Serbia & Russia.";
 const DEFAULT_OG_IMAGE = "/og-image.jpg";
-const BASE_URL = "https://alrawshaint.com";
+const BASE_URL = "https://alrawshaintl.com";
 
 export default function SEOHead({
   title,
