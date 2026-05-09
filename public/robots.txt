@@ -19,4 +19,4 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-Sitemap: https://alrawshaint.com/sitemap.xml
+Sitemap: https://alrawshaintl.com/sitemap.xml
