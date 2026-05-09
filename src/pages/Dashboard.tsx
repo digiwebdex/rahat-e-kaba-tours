@@ -8,7 +8,7 @@ import {
   ChevronDown, ChevronUp, Search, Save, MapPin, Phone, Mail, Settings, Download
 } from "lucide-react";
 import { motion } from "framer-motion";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/al-rawsha-logo.png";
 import DocumentUpload from "@/components/DocumentUpload";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { generateInvoice, generateReceipt, CompanyInfo, InvoicePayment } from "@/lib/invoiceGenerator";

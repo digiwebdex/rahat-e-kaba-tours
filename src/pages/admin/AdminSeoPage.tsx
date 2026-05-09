@@ -77,7 +77,7 @@ const DEFAULT_SEO: SeoSettings = {
   site_title: "Al Rawsha International",
   site_description: "আল রওশা ইন্টারন্যাশনাল - হজ্জ, উমরাহ ও ভিসা সেবায় বাংলাদেশের বিশ্বস্ত প্রতিষ্ঠান।",
   site_keywords: "হজ্জ, উমরাহ, ভিসা, ট্যুর, বাংলাদেশ, আল রওশা ইন্টারন্যাশনাল, hajj, umrah, visa, tour, tangail",
-  og_image: "/assets/logo.png",
+  og_image: "/assets/al-rawsha-logo.png",
   base_url: "https://alrawshaintl.com",
   google_analytics_id: "",
   google_search_console: "",

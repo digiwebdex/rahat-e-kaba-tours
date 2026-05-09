@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/api";
 import { toast } from "sonner";
-import logoEn from "@/assets/logo-nobg.png";
-import logoBn from "@/assets/logo-bangla.png";
+import logoEn from "@/assets/al-rawsha-logo.png";
+import logoBn from "@/assets/al-rawsha-logo.png";
 import { Shield, CheckCircle2, XCircle, Eye, EyeOff } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 

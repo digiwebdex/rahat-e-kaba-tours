@@ -84,7 +84,7 @@ export function organizationJsonLd() {
     "@type": "TravelAgency",
     name: SITE_NAME,
     url: BASE_URL,
-    logo: `${BASE_URL}/assets/logo.png`,
+    logo: `${BASE_URL}/assets/al-rawsha-logo.png`,
     description: DEFAULT_DESCRIPTION,
     address: {
       "@type": "PostalAddress",
@@ -131,7 +131,7 @@ export function productJsonLd(pkg: {
     "@type": "Product",
     name: pkg.name,
     description: pkg.description || "",
-    image: pkg.image || `${BASE_URL}/assets/logo.png`,
+    image: pkg.image || `${BASE_URL}/assets/al-rawsha-logo.png`,
     url: pkg.url.startsWith("http") ? pkg.url : `${BASE_URL}${pkg.url}`,
     offers: {
       "@type": "Offer",
