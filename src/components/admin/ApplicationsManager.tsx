@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/api";
 import { toast } from "sonner";
-import { Loader2, Search, Briefcase, GraduationCap, Phone, Mail, MapPin, Calendar, FileText } from "lucide-react";
+import { Loader2, Search, Briefcase, GraduationCap, Phone, Mail, MapPin, Calendar, FileText, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
+import ApplyDialog from "@/components/ApplyDialog";
 
 type ServiceType = "work_permit" | "student_consultancy";
 
@@ -40,6 +41,7 @@ export default function ApplicationsManager({ serviceType }: Props) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selected, setSelected] = useState<any | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -97,6 +99,9 @@ export default function ApplicationsManager({ serviceType }: Props) {
             <p className="text-sm text-muted-foreground">{rows.length} total applications</p>
           </div>
         </div>
+        <Button onClick={() => setAddOpen(true)} className="bg-gradient-ocean text-white hover:opacity-90">
+          <Plus className="h-4 w-4 mr-1" /> Add Application
+        </Button>
       </div>
 
       {/* Pipeline counters */}
@@ -244,6 +249,14 @@ export default function ApplicationsManager({ serviceType }: Props) {
           )}
         </DialogContent>
       </Dialog>
+
+      <ApplyDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        serviceType={serviceType}
+        adminMode
+        onSubmitted={() => { setAddOpen(false); load(); }}
+      />
     </div>
   );
 }
