@@ -40,7 +40,7 @@ export interface PaymentReceiptData {
 
 export async function generatePaymentReceipt(data: PaymentReceiptData) {
   const { doc, logoBase64, sig, cfg } = await initPdf({
-    qrUrl: `https://alrawshaint.com/verify?id=${data.bookingTrackingId}`,
+    qrUrl: `https://alrawshaintl.com/verify?id=${data.bookingTrackingId}`,
   });
   const qr = await generateTrackingQr(data.bookingTrackingId);
 

@@ -20,7 +20,7 @@ const DEFAULT_CONFIG: PdfCompanyConfig = {
   phone2: "+880 1709-294065",
   email: "alrawshainternational@gmail.com",
   address: "Rupayan FPAB (Lift-07), Purana Paltan (Box Culvert Road), Dhaka-1000, Bangladesh",
-  website: "https://alrawshaint.com",
+  website: "https://alrawshaintl.com",
   footer_text: "Thank you for choosing Al Rawsha International!",
   footer_contact: "This is a computer-generated document. For queries: +880 1886-999465 | alrawshainternational@gmail.com",
 };

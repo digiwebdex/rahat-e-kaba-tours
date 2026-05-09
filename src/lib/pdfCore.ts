@@ -262,7 +262,7 @@ export function addPdfFooter(doc: jsPDF, cfg: PdfCompanyConfig, options?: { show
     doc.setFontSize(7.5);
     doc.setTextColor(255);
     doc.text(cfg.email || "alrawshainternational@gmail.com", centerX, barY + 10);
-    doc.text("alrawshaint.com", centerX, barY + 16);
+    doc.text("alrawshaintl.com", centerX, barY + 16);
 
     // Thank You — right side
     doc.setFontSize(16);

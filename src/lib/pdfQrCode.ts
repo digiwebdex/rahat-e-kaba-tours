@@ -1,7 +1,7 @@
 import QRCode from "qrcode";
 import jsPDF from "jspdf";
 
-const TRACKING_BASE_URL = "https://alrawshaint.com/verify";
+const TRACKING_BASE_URL = "https://alrawshaintl.com/verify";
 
 /**
  * Generate a QR code data URL for a booking tracking ID.
