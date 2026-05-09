@@ -208,6 +208,26 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
             </DialogHeader>
 
             <div className="space-y-3 pt-2">
+              {adminMode && (
+                <div className="pb-2 border-b">
+                  <Label className="mb-1 block">{bn ? "বিদ্যমান কাস্টমার নির্বাচন (ঐচ্ছিক)" : "Select Existing Customer (optional)"}</Label>
+                  <CustomerSearchSelect
+                    selectedId={pickedCustomerId}
+                    onSelect={(c) => {
+                      if (!c) {
+                        setPickedCustomerId(null);
+                        return;
+                      }
+                      setPickedCustomerId(c.user_id);
+                      setFullName(c.full_name || "");
+                      setPhone(c.phone || "");
+                      setEmail(c.email || "");
+                      setAddress(c.address || "");
+                      setPassport(c.passport_number || "");
+                    }}
+                  />
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>{bn ? "পূর্ণ নাম *" : "Full Name *"}</Label>
