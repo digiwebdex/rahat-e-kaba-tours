@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Link } from "react-router-dom";
+import CustomerSearchSelect from "@/components/admin/CustomerSearchSelect";
 
 export type ApplyServiceType = "work_permit" | "student_consultancy";
 
@@ -19,12 +20,16 @@ interface Props {
   serviceType: ApplyServiceType;
   /** Pre-selected position (work permit) or program (student) */
   preset?: string;
+  /** When true, shows admin-only customer picker and treats submission as manual entry */
+  adminMode?: boolean;
+  /** Called after successful submission (admin flow) */
+  onSubmitted?: () => void;
 }
 
 const COUNTRIES = ["United Kingdom", "Canada", "Australia", "United States", "Germany", "Malaysia", "Other"];
 const STUDY_LEVELS = ["Foundation", "Bachelor's", "Master's", "PhD", "Diploma"];
 
-const ApplyDialog = ({ open, onOpenChange, serviceType, preset }: Props) => {
+const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSubmitted }: Props) => {
   const { language } = useLanguage();
   const bn = language === "bn";
   const isWorkPermit = serviceType === "work_permit";
@@ -32,6 +37,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset }: Props) => {
   const [user, setUser] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ trackingId: string } | null>(null);
+  const [pickedCustomerId, setPickedCustomerId] = useState<string | null>(null);
 
   // Common fields
   const [fullName, setFullName] = useState("");
@@ -57,6 +63,13 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset }: Props) => {
     setDone(null);
     setPosition(preset || "");
     setProgram(preset || "");
+    if (adminMode) {
+      // Admin manual entry — start with blank fields
+      setUser(null);
+      setPickedCustomerId(null);
+      setFullName(""); setPhone(""); setEmail(""); setAddress(""); setPassport("");
+      return;
+    }
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -73,7 +86,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset }: Props) => {
         setUser(null);
       }
     })();
-  }, [open, preset]);
+  }, [open, preset, adminMode]);
 
   const reset = () => {
     setFullName(""); setPhone(""); setEmail(""); setAddress(""); setPassport("");
@@ -110,7 +123,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset }: Props) => {
         package_id: pkg?.id || null,
         service_type: serviceType,
         application_data,
-        user_id: user?.id || null,
+        user_id: pickedCustomerId || user?.id || null,
         guest_name: fullName,
         guest_phone: phone,
         guest_email: email || null,
@@ -130,6 +143,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset }: Props) => {
       setDone({ trackingId: data.tracking_id });
       toast.success(bn ? "আবেদন জমা হয়েছে!" : "Application submitted!");
       reset();
+      onSubmitted?.();
     } catch (e: any) {
       console.error(e);
       toast.error(e?.message || (bn ? "জমা দিতে ব্যর্থ" : "Submission failed"));
@@ -194,6 +208,26 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset }: Props) => {
             </DialogHeader>
 
             <div className="space-y-3 pt-2">
+              {adminMode && (
+                <div className="pb-2 border-b">
+                  <Label className="mb-1 block">{bn ? "বিদ্যমান কাস্টমার নির্বাচন (ঐচ্ছিক)" : "Select Existing Customer (optional)"}</Label>
+                  <CustomerSearchSelect
+                    selectedId={pickedCustomerId}
+                    onSelect={(c) => {
+                      if (!c) {
+                        setPickedCustomerId(null);
+                        return;
+                      }
+                      setPickedCustomerId(c.user_id);
+                      setFullName(c.full_name || "");
+                      setPhone(c.phone || "");
+                      setEmail(c.email || "");
+                      setAddress(c.address || "");
+                      setPassport(c.passport_number || "");
+                    }}
+                  />
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>{bn ? "পূর্ণ নাম *" : "Full Name *"}</Label>
