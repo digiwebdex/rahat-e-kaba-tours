@@ -7,7 +7,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import QRCode from "qrcode";
-import logoImg from "@/assets/logo-pdf.png";
+import logoImg from "@/assets/al-rawsha-logo.png";
 import { getSignatureData, type SignatureData } from "./pdfSignature";
 import { registerBengaliFont, addBengaliText, hasBengali, bengaliCellHook } from "./pdfFontLoader";
 import { getPdfCompanyConfig, type PdfCompanyConfig } from "./pdfCompanyConfig";

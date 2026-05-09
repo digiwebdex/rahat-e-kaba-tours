@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import logoImg from "@/assets/logo-nobg.png";
+import logoImg from "@/assets/al-rawsha-logo.png";
 import { toast } from "sonner";
 import { formatBDT } from "@/lib/utils";
 
