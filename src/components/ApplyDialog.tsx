@@ -123,7 +123,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
         package_id: pkg?.id || null,
         service_type: serviceType,
         application_data,
-        user_id: user?.id || null,
+        user_id: pickedCustomerId || user?.id || null,
         guest_name: fullName,
         guest_phone: phone,
         guest_email: email || null,
