@@ -39,17 +39,13 @@ export default function CustomerSearchSelect({ onSelect, selectedId }: Props) {
   const searchCustomers = useCallback(async (q: string) => {
     setLoading(true);
     try {
-      let req = supabase
+      const term = q.trim();
+      let req: any = supabase
         .from("profiles")
         .select("user_id, full_name, phone, email, passport_number, address")
         .order("full_name")
         .limit(50);
-      const term = q.trim();
-      if (term) {
-        req = req.or(
-          `full_name.ilike.%${term}%,phone.ilike.%${term}%,email.ilike.%${term}%,passport_number.ilike.%${term}%`
-        );
-      }
+      if (term) req = req.ilike("full_name", `%${term}%`);
       const { data } = await req;
       setResults(data || []);
     } catch {
