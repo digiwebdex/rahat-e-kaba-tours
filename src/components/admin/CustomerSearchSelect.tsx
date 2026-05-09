@@ -37,16 +37,20 @@ export default function CustomerSearchSelect({ onSelect, selectedId }: Props) {
   }, []);
 
   const searchCustomers = useCallback(async (q: string) => {
-    if (!q.trim()) { setResults([]); return; }
     setLoading(true);
     try {
-      const term = `%${q.trim()}%`;
-      const { data } = await supabase
+      let req = supabase
         .from("profiles")
         .select("user_id, full_name, phone, email, passport_number, address")
-        .ilike("full_name", term)
         .order("full_name")
-        .limit(20);
+        .limit(50);
+      const term = q.trim();
+      if (term) {
+        req = req.or(
+          `full_name.ilike.%${term}%,phone.ilike.%${term}%,email.ilike.%${term}%,passport_number.ilike.%${term}%`
+        );
+      }
+      const { data } = await req;
       setResults(data || []);
     } catch {
       setResults([]);
@@ -60,6 +64,11 @@ export default function CustomerSearchSelect({ onSelect, selectedId }: Props) {
     setOpen(true);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => searchCustomers(val), 300);
+  };
+
+  const handleFocus = () => {
+    setOpen(true);
+    if (results.length === 0) searchCustomers(query);
   };
 
   const handleSelect = (c: Customer) => {
@@ -111,7 +120,7 @@ export default function CustomerSearchSelect({ onSelect, selectedId }: Props) {
           className="w-full bg-secondary border border-border rounded-md pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
           value={query}
           onChange={(e) => handleInputChange(e.target.value)}
-          onFocus={() => { if (query.trim()) setOpen(true); }}
+          onFocus={handleFocus}
           placeholder="Search by name, phone, email or passport..."
         />
       </div>
