@@ -1,42 +1,79 @@
 ## Goal
-Deep end-to-end test of every admin module on `https://alrawshaintl.com/admin` using the provided credentials. Create real records tagged with `TEST-` prefix, verify they flow correctly through the system (lists, calculations, PDFs, accounting, reports), then soft-delete / mark cancelled at the end.
+Two parts:
+1. **Code cleanup** — delete the orphaned legacy Booking module and rewire the broken "Manage Payments / Invoice" button.
+2. **Full booking sweep** — submit each of the 3 application types from BOTH the public website (as a guest) AND the admin panel, then record a payment against one and verify it flows through Payments → Accounting → Receivables → Notifications.
 
-## Ground rules
-- All test data names/notes prefixed with `TEST-` (e.g. `TEST-Customer-001`, booking notes `TEST RUN 2026-05-15`).
-- Notifications left ON per your choice. I'll use a placeholder phone (`01700000000`) so SMS goes nowhere real.
-- I will NOT touch: existing real bookings, real customers, CMS content, signature/PDF settings, payment-method config, user roles, primary admin account, backups.
-- For each step I'll screenshot + report pass/fail. If a module breaks, I stop and report (no auto-fix in this run — fixes happen in a separate task after we see the full picture).
+---
 
-## Test sequence (live VPS, in order)
+## Part 1 — Code cleanup (commit + deploy first)
 
-1. **Auth & layout** — login, sidebar visibility, role badge, session-timeout hook loaded.
-2. **Dashboard** — KPIs render, charts load, no console errors.
-3. **Packages** — list loads, open one for read; no edits.
-4. **Customers** — create `TEST-Customer-Rubel` with phone `01700000000`.
-5. **Create Booking** — make a booking for that customer against an existing package, 1 traveler, note `TEST RUN`. Verify tracking ID, totals, member row.
-6. **Bookings list** — filter/search finds it; open detail, generate invoice PDF, verify it renders.
-7. **Payments** — record a partial payment against the TEST booking (cash wallet). Verify due/paid recalculation.
-8. **Online payment** — initiate SSLCommerz session for the TEST booking, abort at gateway (no card entered). Verify session row created.
-9. **Accounting / Cashbook / Ledger** — confirm the payment shows in daily cashbook, wallet balance updated, ledger entries posted.
-10. **Receivables / Due alerts** — TEST booking appears with correct due.
-11. **Refunds** — create a partial refund against the TEST booking using default policy. Verify deduction math + wallet decrement.
-12. **Suppliers / Moallems** — open lists (read), open one profile, verify Hajji count + FIFO advance display.
-13. **Supplier payment** — record a small `TEST` supplier payment, verify it appears in supplier ledger and global payment filter.
-14. **Work permit / Tickets / Visa modules** — open each list, submit one `TEST-` application in work permit (the `application_data` JSONB column we added earlier).
-15. **Reports & Analytics** — open Reports, Analytics, Audit Logs; verify TEST entries are visible and exportable.
-16. **Notifications log** — confirm SMS/email events fired for the test booking + payment (status only; phone is dummy so delivery will fail gracefully).
-17. **CMS / Settings / Security / Backup pages** — open only (no writes). Confirm they render and permissions work.
-18. **Cleanup** — set TEST booking `status='cancelled'`, set TEST customer `status='deleted'`, delete TEST refund/payment if module supports it (otherwise leave cancelled — they're already excluded from financial calcs per project rule).
+### Files to delete
+- `src/pages/admin/AdminBookingsPage.tsx`
+- `src/pages/admin/AdminCreateBookingPage.tsx`
 
-## Deliverable
-A single report at the end with:
-- Per-module pass/fail table
-- Screenshots of any failures + the relevant network/console error
-- List of test records left in the DB and their final status
-- Recommended fixes (queued as separate tasks, not applied in this run)
+### Files to edit
+- `src/components/admin/ApplicationsManager.tsx` — change the `<Link to="/admin/bookings">Manage Payments / Invoice</Link>` button so it routes to the correct payment context. Best target: `/admin/payments?application_id={app.id}&application_type=work_permit` so the Payments page can pre-filter / pre-select the application.
+- `src/components/admin/AdminSidebar.tsx` — verify no "Bookings" link remains (looked clean already, but double-check).
+- Any other file importing the deleted pages — fix imports.
+- `src/pages/admin/AdminWorkPermitPage.tsx` — change hardcoded title `"Fiji Work Permit Applications"` to `"Overseas Work Permit Applications"` and remove hardcoded `Destination: Fiji` line (or make it data-driven from `application_data.destination` if present).
+- `src/pages/admin/AdminCustomersPage.tsx` — rename KPI label `"Contracted Pilgrims"` → `"Total Applications"` and `"Contract Amount"` → `"Total Service Fee"` (recruitment-agency wording).
+
+### Acceptance
+- `npm run build` succeeds with no broken imports.
+- Sidebar still renders all current items.
+- Sandbox preview shows Work Permit page with new title and no "Destination: Fiji" line.
+
+After Part 1 builds clean, deliver standard VPS deploy commands so user can pull + reload:
+```bash
+cd /var/www/alrawsha
+git pull origin main
+cd /var/www/alrawsha && npm install && npm run build
+cd /var/www/alrawsha/server && npm install --omit=dev
+pm2 restart alrawsha-api --update-env && pm2 save
+pm2 list
+```
+
+---
+
+## Part 2 — Full booking sweep (live VPS, after Part 1 deploys)
+
+### Public-website tests (logged out, as guest)
+For each of the 3 application types:
+
+1. **Work Permit** — find the public form on the website (likely homepage CTA or `/work-permit` / `/apply`). Fill: Name `TEST-Public-WorkPermit`, phone `01700000091`, position `TEST Driver`, submit. Capture the success message + tracking ID.
+2. **Air Ticket** — find public ticket form. Submit `TEST-Public-Ticket`, phone `01700000092`, route DAC→DXB, departure date 30 days out.
+3. **Visa Service** — find public visa form. Submit `TEST-Public-Visa`, phone `01700000093`, country UAE, visa type Tourist.
+
+After each submission, log back into admin and verify the application appears in the corresponding admin list with status `New` and the correct `TT-` tracking ID.
+
+### Admin-panel tests (logged in)
+For each type:
+
+4. **Work Permit (admin create)** — already done last run (`TT-435722A4`). Verify it still exists.
+5. **Air Ticket (admin create)** — open `/admin/tickets`, "+ Add" with TEST-Customer-Rubel, route + dates, save.
+6. **Visa Service (admin create)** — open `/admin/visa`, "+ Add" with TEST-Customer-Rubel, country + type, save.
+
+### End-to-end payment test (against one application)
+Pick the existing `TT-435722A4`:
+7. Set service fee to 50,000 BDT. Save.
+8. Click the (now-fixed) "Manage Payments / Invoice" button → should land on `/admin/payments` with the application pre-selected.
+9. Record a partial payment of 20,000 BDT via Cash wallet.
+10. Verify:
+    - Application list shows Paid: 20,000, Due: 30,000.
+    - `/admin/accounting` shows the wallet credit.
+    - `/admin/ledger` has matching debit/credit entries.
+    - `/admin/receivables` lists the application with 30,000 due.
+    - `/admin/notifications` log shows the SMS event fired (delivery will fail to dummy phone — that's fine, we just want the log row).
+    - Invoice PDF generates and renders correctly.
+
+### Cleanup
+- Set all `TEST-` applications and customers to `status='cancelled'` / `status='deleted'`.
+- Leave the test payment in place so user can see the accounting trail (it's already excluded from financial calcs because the parent application is cancelled).
+
+---
+
+## Deliverable after Part 2
+Single pass/fail table covering all 11 steps, plus screenshots of any failures and a list of remaining test data with its final status.
 
 ## Estimated time
-~15–25 minutes of browser automation depending on page load speeds and how many failures need investigation.
-
-## After approval
-Switch me out of Plan mode → I'll start by navigating to `/admin`, logging in, and posting screenshots as I go.
+Part 1: ~5 min code work + your VPS deploy. Part 2: ~20 min browser automation.
