@@ -86,11 +86,15 @@ async function apiFetch(path: string, options: RequestInit & { skipRedirect?: bo
 
     // If still unauthorized, clear tokens but only redirect for non-auth-check paths
     if (res.status === 401) {
-      TokenManager.clear();
-      if (!skipRedirect && !path.startsWith('/auth/')) {
-        window.location.href = '/auth';
+      // For skipRedirect callers (session checks like /auth/me), preserve cached
+      // tokens so a transient backend hiccup doesn't log the user out on F5.
+      if (!skipRedirect) {
+        TokenManager.clear();
+        if (!path.startsWith('/auth/')) {
+          window.location.href = '/auth';
+        }
+        throw new Error('Session expired');
       }
-      throw new Error('Session expired');
     }
   }
 
