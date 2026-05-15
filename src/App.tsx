@@ -33,7 +33,6 @@ const Visa = lazy(() => import("./pages/Visa"));
 // Lazy load admin pages (heavy: recharts, xlsx, jspdf)
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
 const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
-const AdminBookingsPage = lazy(() => import("./pages/admin/AdminBookingsPage"));
 const AdminCustomersPage = lazy(() => import("./pages/admin/AdminCustomersPage"));
 const AdminPackagesPage = lazy(() => import("./pages/admin/AdminPackagesPage"));
 const AdminPaymentsPage = lazy(() => import("./pages/admin/AdminPaymentsPage"));
@@ -42,7 +41,6 @@ const AdminLedgerPage = lazy(() => import("./pages/admin/AdminLedgerPage"));
 const AdminReportsPage = lazy(() => import("./pages/admin/AdminReportsPage"));
 const AdminCmsPage = lazy(() => import("./pages/admin/AdminCmsPage"));
 const AdminSettingsPage = lazy(() => import("./pages/admin/AdminSettingsPage"));
-const AdminCreateBookingPage = lazy(() => import("./pages/admin/AdminCreateBookingPage"));
 const AdminMoallemsPage = lazy(() => import("./pages/admin/AdminMoallemsPage"));
 const AdminMoallemProfilePage = lazy(() => import("./pages/admin/AdminMoallemProfilePage"));
 const AdminSupplierAgentsPage = lazy(() => import("./pages/admin/AdminSupplierAgentsPage"));

@@ -239,11 +239,11 @@ export default function AdminCustomersPage() {
           <p className="text-lg font-bold text-foreground">{customers.length}</p>
         </div>
         <div className="bg-card border border-border rounded-xl p-4">
-          <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Contracted Pilgrims</p>
+          <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Total Applications</p>
           <p className="text-lg font-bold text-foreground">{totals.totalTravelers}</p>
         </div>
         <div className="bg-card border border-border rounded-xl p-4">
-          <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Contract Amount</p>
+          <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Total Service Fee</p>
           <p className="text-lg font-bold text-foreground">{formatBDT(totals.totalAmount)}</p>
         </div>
         <div className="bg-card border border-border rounded-xl p-4">

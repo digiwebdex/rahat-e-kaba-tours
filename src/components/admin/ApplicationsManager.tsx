@@ -34,7 +34,7 @@ const statusBadge = (status: string) => {
 export default function ApplicationsManager({ serviceType }: Props) {
   const isWP = serviceType === "work_permit";
   const Icon = isWP ? Briefcase : GraduationCap;
-  const title = isWP ? "Fiji Work Permit Applications" : "Student Consultancy Applications";
+  const title = isWP ? "Overseas Work Permit Applications" : "Student Consultancy Applications";
 
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -239,7 +239,10 @@ export default function ApplicationsManager({ serviceType }: Props) {
                 </div>
 
                 <div className="flex gap-2 pt-2 border-t">
-                  <Link to={`/admin/bookings`} className="flex-1">
+                  <Link
+                    to={`/admin/payments?application_id=${selected.id}&application_type=${serviceType}`}
+                    className="flex-1"
+                  >
                     <Button variant="outline" className="w-full">Manage Payments / Invoice</Button>
                   </Link>
                   <Button variant="outline" onClick={() => setSelected(null)}>Close</Button>
