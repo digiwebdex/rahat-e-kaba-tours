@@ -488,6 +488,71 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                   <div className="text-sm font-semibold">
                     {bn ? "পেমেন্ট তথ্য" : "Payment Details"}
                   </div>
+                  {/* Package + travelers + middleman */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="col-span-2">
+                      <Label>{bn ? "প্যাকেজ" : "Package"}</Label>
+                      <Select
+                        value={selectedPackageId || "none"}
+                        onValueChange={(v) => {
+                          if (v === "none") {
+                            setSelectedPackageId("");
+                            return;
+                          }
+                          setSelectedPackageId(v);
+                          const pk = packageList.find((p) => p.id === v);
+                          if (pk) {
+                            const trav = Math.max(1, Number(numTravelers) || 1);
+                            setTotalAmount(String(Number(pk.price) * trav));
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={bn ? "প্যাকেজ নির্বাচন করুন" : "Select package"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">{bn ? "— কাস্টম —" : "— Custom —"}</SelectItem>
+                          {packageList.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name} — ৳{Number(p.price).toLocaleString("en-IN")}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>{bn ? "যাত্রী সংখ্যা" : "Number of Travelers"}</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={numTravelers}
+                        onChange={(e) => {
+                          setNumTravelers(e.target.value);
+                          if (selectedPackageId) {
+                            const pk = packageList.find((p) => p.id === selectedPackageId);
+                            if (pk) {
+                              const trav = Math.max(1, Number(e.target.value) || 1);
+                              setTotalAmount(String(Number(pk.price) * trav));
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <Label>{bn ? "মিডলম্যান (ঐচ্ছিক)" : "Middleman (optional)"}</Label>
+                      <Select value={middlemanId} onValueChange={setMiddlemanId}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">{bn ? "— কেউ না —" : "— None —"}</SelectItem>
+                          {middlemen.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>
+                              {m.company_name ? `${m.agent_name} (${m.company_name})` : m.agent_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label>{bn ? "মোট প্যাকেজ মূল্য (৳)" : "Total Package Amount (৳)"}</Label>
@@ -532,6 +597,9 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                       </div>
                     </>
                   )}
+                  <div className="pt-2 border-t">
+                    <DocumentUploadStep documents={uploadedDocs} onChange={setUploadedDocs} />
+                  </div>
                 </div>
               )}
 
