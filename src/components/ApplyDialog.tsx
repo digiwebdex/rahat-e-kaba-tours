@@ -435,7 +435,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                     </div>
                   </div>
                 </div>
-              ) : (
+              ) : isStudent ? (
                 <div className="space-y-3 pt-2 border-t">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -464,6 +464,69 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                   <div>
                     <Label>{bn ? "সর্বশেষ শিক্ষাগত যোগ্যতা" : "Last Education"}</Label>
                     <Input value={lastEducation} onChange={(e) => setLastEducation(e.target.value)} placeholder="e.g. BSc Civil, 2024" maxLength={120} />
+                  </div>
+                </div>
+              ) : isAirTicket ? (
+                <div className="space-y-3 pt-2 border-t">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>{bn ? "ট্রিপ টাইপ" : "Trip Type"}</Label>
+                      <Select value={tripType} onValueChange={setTripType}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {TRIP_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>{bn ? "যাত্রী সংখ্যা" : "Passengers"}</Label>
+                      <Input type="number" min={1} value={numTravelers} onChange={(e) => setNumTravelers(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label>{bn ? "কোথা থেকে" : "From"}</Label>
+                      <Input value={fromCity} onChange={(e) => setFromCity(e.target.value)} placeholder="Dhaka" maxLength={60} />
+                    </div>
+                    <div>
+                      <Label>{bn ? "কোথায় *" : "To *"}</Label>
+                      <Input value={toCity} onChange={(e) => setToCity(e.target.value)} placeholder="Dubai" maxLength={60} />
+                    </div>
+                    <div>
+                      <Label>{bn ? "যাত্রার তারিখ *" : "Travel Date *"}</Label>
+                      <Input type="date" value={travelDate} onChange={(e) => setTravelDate(e.target.value)} />
+                    </div>
+                    {tripType !== "One-way" && (
+                      <div>
+                        <Label>{bn ? "ফেরার তারিখ" : "Return Date"}</Label>
+                        <Input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3 pt-2 border-t">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>{bn ? "ভিসার দেশ *" : "Visa Country *"}</Label>
+                      <Select value={visaCountry} onValueChange={setVisaCountry}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {VISA_COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>{bn ? "ভিসার ধরন" : "Visa Type"}</Label>
+                      <Select value={visaType} onValueChange={setVisaType}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {VISA_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="col-span-2">
+                      <Label>{bn ? "আনুমানিক ভ্রমণের মাস" : "Intended Travel Month"}</Label>
+                      <Input type="month" value={travelMonth} onChange={(e) => setTravelMonth(e.target.value)} />
+                    </div>
                   </div>
                 </div>
               )}
