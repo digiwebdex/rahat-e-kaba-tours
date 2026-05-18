@@ -359,6 +359,58 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                 <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} maxLength={500} />
               </div>
 
+              {adminMode && (
+                <div className="space-y-3 pt-3 border-t">
+                  <div className="text-sm font-semibold">
+                    {bn ? "পেমেন্ট তথ্য" : "Payment Details"}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>{bn ? "মোট প্যাকেজ মূল্য (৳)" : "Total Package Amount (৳)"}</Label>
+                      <Input type="number" min="0" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label>{bn ? "অগ্রিম প্রদান (৳)" : "Advance Paid (৳)"}</Label>
+                      <Input type="number" min="0" value={advanceAmount} onChange={(e) => setAdvanceAmount(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {bn ? "বাকি " : "Due: "}
+                    <strong className="text-red-600">
+                      ৳{Math.max(0, (Number(totalAmount) || 0) - (Number(advanceAmount) || 0)).toLocaleString("en-IN")}
+                    </strong>
+                  </div>
+                  {Number(advanceAmount) > 0 && (
+                    <>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{bn ? "পেমেন্ট মাধ্যম" : "Payment Method"}</Label>
+                          <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {PAYMENT_METHODS.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>{bn ? "ওয়ালেট অ্যাকাউন্ট" : "Wallet Account"}</Label>
+                          <Select value={walletId} onValueChange={setWalletId}>
+                            <SelectTrigger><SelectValue placeholder="Select wallet" /></SelectTrigger>
+                            <SelectContent>
+                              {wallets.map(w => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div>
+                        <Label>{bn ? "ট্রানজ্যাকশন রেফ" : "Transaction Ref"}</Label>
+                        <Input value={txnRef} onChange={(e) => setTxnRef(e.target.value)} placeholder={bn ? "ঐচ্ছিক" : "Optional"} />
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
               <Button
                 onClick={submit}
                 disabled={submitting}
