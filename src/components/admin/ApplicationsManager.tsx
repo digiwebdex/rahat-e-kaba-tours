@@ -45,6 +45,7 @@ export default function ApplicationsManager({ serviceType }: Props) {
   const [selected, setSelected] = useState<any | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [editForm, setEditForm] = useState<any>({});
+  const [agentMap, setAgentMap] = useState<Record<string, string>>({});
 
   const load = async () => {
     setLoading(true);
@@ -61,6 +62,19 @@ export default function ApplicationsManager({ serviceType }: Props) {
   };
 
   useEffect(() => { load(); }, [serviceType]);
+
+  useEffect(() => {
+    supabase
+      .from("supplier_agents")
+      .select("id, agent_name, company_name")
+      .then(({ data }) => {
+        const m: Record<string, string> = {};
+        (data || []).forEach((a: any) => {
+          m[a.id] = a.company_name ? `${a.agent_name} (${a.company_name})` : a.agent_name;
+        });
+        setAgentMap(m);
+      });
+  }, []);
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
@@ -188,6 +202,7 @@ export default function ApplicationsManager({ serviceType }: Props) {
                 <th className="text-left p-3">Applicant</th>
                 <th className="text-left p-3">Phone</th>
                 <th className="text-left p-3">{isWP ? "Position" : "Country / Program"}</th>
+                <th className="text-left p-3">Referred By</th>
                 <th className="text-left p-3">Fee (BDT)</th>
                 <th className="text-left p-3">Paid</th>
                 <th className="text-left p-3">Status</th>
@@ -204,6 +219,7 @@ export default function ApplicationsManager({ serviceType }: Props) {
                     <td className="p-3 font-medium">{r.guest_name || "—"}</td>
                     <td className="p-3">{r.guest_phone || "—"}</td>
                     <td className="p-3">{isWP ? ad.position : `${ad.country || ""} · ${ad.program || ""}`}</td>
+                    <td className="p-3 text-xs">{r.supplier_agent_id ? (agentMap[r.supplier_agent_id] || "—") : <span className="text-muted-foreground">—</span>}</td>
                     <td className="p-3 tabular-nums">{Number(r.total_amount || 0).toLocaleString()}</td>
                     <td className="p-3 tabular-nums text-emerald-600">{Number(r.paid_amount || 0).toLocaleString()}</td>
                     <td className="p-3">{statusBadge(r.status)}</td>
@@ -288,6 +304,12 @@ export default function ApplicationsManager({ serviceType }: Props) {
 
                 <div className="bg-secondary/50 rounded-lg p-4 space-y-2">
                   <h4 className="font-semibold text-sm">Application Details</h4>
+                  {selected.supplier_agent_id && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Referred by</span>
+                      <span className="font-medium">{agentMap[selected.supplier_agent_id] || "—"}</span>
+                    </div>
+                  )}
                   {Object.entries(selected.application_data || {}).map(([k, v]) => (
                     <div key={k} className="flex justify-between text-sm">
                       <span className="text-muted-foreground capitalize">{k.replace(/_/g, " ")}</span>
