@@ -304,6 +304,12 @@ export default function ApplicationsManager({ serviceType }: Props) {
 
                 <div className="bg-secondary/50 rounded-lg p-4 space-y-2">
                   <h4 className="font-semibold text-sm">Application Details</h4>
+                  {selected.supplier_agent_id && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Referred by</span>
+                      <span className="font-medium">{agentMap[selected.supplier_agent_id] || "—"}</span>
+                    </div>
+                  )}
                   {Object.entries(selected.application_data || {}).map(([k, v]) => (
                     <div key={k} className="flex justify-between text-sm">
                       <span className="text-muted-foreground capitalize">{k.replace(/_/g, " ")}</span>
