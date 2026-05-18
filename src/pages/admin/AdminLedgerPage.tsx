@@ -5,6 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
+import { Plus } from "lucide-react";
 
 interface Row {
   id: string;
@@ -29,6 +35,21 @@ export default function AdminLedgerPage() {
   const [from, setFrom] = useState<string>("");
   const [to, setTo] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [moallems, setMoallems] = useState<any[]>([]);
+  const [payOpen, setPayOpen] = useState(false);
+  const [paySaving, setPaySaving] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const emptyPay = {
+    payee_type: "supplier" as "supplier" | "middleman",
+    payee_id: "",
+    amount: "",
+    payment_method: "cash",
+    wallet_account_id: "",
+    date: new Date().toISOString().split("T")[0],
+    notes: "",
+  };
+  const [payForm, setPayForm] = useState(emptyPay);
 
   useEffect(() => {
     (async () => {
@@ -40,7 +61,7 @@ export default function AdminLedgerPage() {
       setRows((data as any) || []);
       setLoading(false);
     })();
-  }, [from, to]);
+  }, [from, to, reloadKey]);
 
   useEffect(() => {
     (async () => {
@@ -51,7 +72,73 @@ export default function AdminLedgerPage() {
         .order("name");
       setWallets((data as any) || []);
     })();
+  }, [reloadKey]);
+
+  useEffect(() => {
+    (async () => {
+      const [sRes, mRes] = await Promise.all([
+        supabase.from("supplier_agents" as any).select("id,agent_name,company_name").eq("status", "active").order("agent_name"),
+        supabase.from("moallems" as any).select("id,name,phone").eq("status", "active").order("name"),
+      ]);
+      setSuppliers((sRes.data as any) || []);
+      setMoallems((mRes.data as any) || []);
+    })();
   }, []);
+
+  const payeeOptions = payForm.payee_type === "supplier"
+    ? suppliers.map(s => ({ id: s.id, label: s.agent_name + (s.company_name ? ` — ${s.company_name}` : "") }))
+    : moallems.map(m => ({ id: m.id, label: m.name + (m.phone ? ` (${m.phone})` : "") }));
+
+  const submitPayment = async () => {
+    const amount = parseFloat(payForm.amount);
+    if (!payForm.payee_id) { toast({ title: "Select a payee", variant: "destructive" }); return; }
+    if (!amount || amount <= 0) { toast({ title: "Enter a valid amount", variant: "destructive" }); return; }
+    if (!payForm.wallet_account_id) { toast({ title: "Select a wallet/account", variant: "destructive" }); return; }
+    setPaySaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user.id || null;
+      if (payForm.payee_type === "supplier") {
+        const { error } = await supabase.from("supplier_agent_payments" as any).insert({
+          supplier_agent_id: payForm.payee_id,
+          amount,
+          payment_method: payForm.payment_method,
+          wallet_account_id: payForm.wallet_account_id,
+          date: payForm.date,
+          notes: payForm.notes.trim() || null,
+          recorded_by: userId,
+        });
+        if (error) throw error;
+        const payee = suppliers.find(s => s.id === payForm.payee_id);
+        await supabase.from("expenses" as any).insert({
+          title: `Supplier Payment — ${payee?.agent_name || ""}`,
+          amount, category: "supplier_payment", expense_type: "supplier",
+          date: payForm.date,
+          note: payForm.notes.trim() || `Payment to supplier: ${payee?.agent_name}`,
+          wallet_account_id: payForm.wallet_account_id,
+        });
+      } else {
+        const { error } = await supabase.from("moallem_payments" as any).insert({
+          moallem_id: payForm.payee_id,
+          amount,
+          payment_method: payForm.payment_method,
+          wallet_account_id: payForm.wallet_account_id,
+          date: payForm.date,
+          notes: payForm.notes.trim() || null,
+          recorded_by: userId,
+        });
+        if (error) throw error;
+      }
+      toast({ title: "Payment recorded" });
+      setPayOpen(false);
+      setPayForm(emptyPay);
+      setReloadKey(k => k + 1);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setPaySaving(false);
+    }
+  };
 
   const filtered = useMemo(() => rows.filter(r => {
     if (scope !== "all" && r.ledger_type !== scope) return false;
@@ -69,8 +156,13 @@ export default function AdminLedgerPage() {
   return (
     <div className="space-y-4 p-6">
       <div>
-        <h1 className="text-2xl font-bold">Ledger</h1>
-        <p className="text-sm text-muted-foreground">Unified debit/credit history across customers, suppliers, middlemen, and wallets.</p>
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold">Ledger</h1>
+            <p className="text-sm text-muted-foreground">Unified debit/credit history across customers, suppliers, middlemen, and wallets.</p>
+          </div>
+          <Button onClick={() => setPayOpen(true)}><Plus className="h-4 w-4 mr-1" /> Pay Supplier / Middleman</Button>
+        </div>
       </div>
 
       {wallets.length > 0 && (
@@ -164,6 +256,77 @@ export default function AdminLedgerPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={payOpen} onOpenChange={setPayOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Record Payment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label>Payee Type</Label>
+                <Select value={payForm.payee_type} onValueChange={(v: any) => setPayForm({ ...payForm, payee_type: v, payee_id: "" })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="supplier">Supplier</SelectItem>
+                    <SelectItem value="middleman">Middleman (Moallem)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Date</Label>
+                <Input type="date" value={payForm.date} onChange={e => setPayForm({ ...payForm, date: e.target.value })} />
+              </div>
+            </div>
+            <div>
+              <Label>Payee</Label>
+              <Select value={payForm.payee_id} onValueChange={v => setPayForm({ ...payForm, payee_id: v })}>
+                <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
+                <SelectContent>
+                  {payeeOptions.map(o => <SelectItem key={o.id} value={o.id}>{o.label}</SelectItem>)}
+                  {payeeOptions.length === 0 && <div className="px-2 py-1 text-xs text-muted-foreground">No active records</div>}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label>Amount</Label>
+                <Input type="number" min="0" step="0.01" value={payForm.amount} onChange={e => setPayForm({ ...payForm, amount: e.target.value })} />
+              </div>
+              <div>
+                <Label>Method</Label>
+                <Select value={payForm.payment_method} onValueChange={v => setPayForm({ ...payForm, payment_method: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="bank">Bank</SelectItem>
+                    <SelectItem value="mobile">Mobile</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label>From Wallet / Account</Label>
+              <Select value={payForm.wallet_account_id} onValueChange={v => setPayForm({ ...payForm, wallet_account_id: v })}>
+                <SelectTrigger><SelectValue placeholder="Select wallet…" /></SelectTrigger>
+                <SelectContent>
+                  {wallets.map(w => <SelectItem key={w.id} value={w.id}>{w.name} (৳{Number(w.balance || 0).toLocaleString("en-IN")})</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Notes</Label>
+              <Textarea rows={2} value={payForm.notes} onChange={e => setPayForm({ ...payForm, notes: e.target.value })} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPayOpen(false)} disabled={paySaving}>Cancel</Button>
+            <Button onClick={submitPayment} disabled={paySaving}>{paySaving ? "Saving…" : "Record Payment"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
