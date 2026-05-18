@@ -78,9 +78,14 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
 
   useEffect(() => {
     if (!open || !adminMode) return;
-    supabase.from("accounts").select("id, name, type").eq("type", "asset").then(({ data }) => {
-      setWallets(data || []);
-      if (data && data.length && !walletId) setWalletId(data[0].id);
+    supabase.from("accounts").select("id, name, type").then(({ data }) => {
+      const rows = (data || []).filter((a: any) => {
+        const t = String(a.type || "").toLowerCase();
+        const n = String(a.name || "").toLowerCase();
+        return t === "asset" || t === "wallet" || /cash|bank|bkash|nagad|rocket|wallet/.test(n);
+      }).sort((a: any, b: any) => String(a.name).localeCompare(String(b.name)));
+      setWallets(rows);
+      if (rows.length && !walletId) setWalletId(rows[0].id);
     });
   }, [open, adminMode]);
 
