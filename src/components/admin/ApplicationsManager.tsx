@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/api";
 import { toast } from "sonner";
-import { Loader2, Search, Briefcase, GraduationCap, Phone, Mail, MapPin, Calendar, FileText, Plus, Trash2, Save } from "lucide-react";
+import { Loader2, Search, Briefcase, GraduationCap, Plane, ShieldCheck, Phone, Mail, MapPin, Calendar, FileText, Plus, Trash2, Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Link } from "react-router-dom";
 import ApplyDialog from "@/components/ApplyDialog";
 
-type ServiceType = "work_permit" | "student_consultancy";
+type ServiceType = "work_permit" | "student_consultancy" | "air_ticket" | "visa";
 
 interface Props {
   serviceType: ServiceType;
@@ -35,8 +35,24 @@ const statusBadge = (status: string) => {
 
 export default function ApplicationsManager({ serviceType }: Props) {
   const isWP = serviceType === "work_permit";
-  const Icon = isWP ? Briefcase : GraduationCap;
-  const title = isWP ? "Overseas Work Permit Applications" : "Student Consultancy Applications";
+  const isStudent = serviceType === "student_consultancy";
+  const isAirTicket = serviceType === "air_ticket";
+  const isVisa = serviceType === "visa";
+  const Icon = isWP ? Briefcase : isStudent ? GraduationCap : isAirTicket ? Plane : ShieldCheck;
+  const title = isWP
+    ? "Overseas Work Permit Applications"
+    : isStudent
+    ? "Student Consultancy Applications"
+    : isAirTicket
+    ? "Air Ticket Inquiries (from Website)"
+    : "Visa Inquiries (from Website)";
+  const detailHeader = isWP
+    ? "Position"
+    : isStudent
+    ? "Country / Program"
+    : isAirTicket
+    ? "Route / Date"
+    : "Visa Country / Type";
 
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -201,7 +217,7 @@ export default function ApplicationsManager({ serviceType }: Props) {
                 <th className="text-left p-3">Tracking ID</th>
                 <th className="text-left p-3">Applicant</th>
                 <th className="text-left p-3">Phone</th>
-                <th className="text-left p-3">{isWP ? "Position" : "Country / Program"}</th>
+                <th className="text-left p-3">{detailHeader}</th>
                 <th className="text-left p-3">Referred By</th>
                 <th className="text-left p-3">Fee (BDT)</th>
                 <th className="text-left p-3">Paid</th>
@@ -218,7 +234,15 @@ export default function ApplicationsManager({ serviceType }: Props) {
                     <td className="p-3 font-mono text-xs text-primary">{r.tracking_id}</td>
                     <td className="p-3 font-medium">{r.guest_name || "—"}</td>
                     <td className="p-3">{r.guest_phone || "—"}</td>
-                    <td className="p-3">{isWP ? ad.position : `${ad.country || ""} · ${ad.program || ""}`}</td>
+                    <td className="p-3">
+                      {isWP
+                        ? ad.position
+                        : isStudent
+                        ? `${ad.country || ""} · ${ad.program || ""}`
+                        : isAirTicket
+                        ? `${ad.from || ""} → ${ad.to || ""}${ad.travel_date ? ` · ${ad.travel_date}` : ""}`
+                        : `${ad.visa_country || ""}${ad.visa_type ? ` · ${ad.visa_type}` : ""}`}
+                    </td>
                     <td className="p-3 text-xs">{r.supplier_agent_id ? (agentMap[r.supplier_agent_id] || "—") : <span className="text-muted-foreground">—</span>}</td>
                     <td className="p-3 tabular-nums">{Number(r.total_amount || 0).toLocaleString()}</td>
                     <td className="p-3 tabular-nums text-emerald-600">{Number(r.paid_amount || 0).toLocaleString()}</td>
