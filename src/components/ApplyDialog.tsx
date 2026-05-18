@@ -419,14 +419,16 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                   <div className="pt-2 border-t">
                     <DocumentUploadStep documents={uploadedDocs} onChange={setUploadedDocs} />
                   </div>
-                  {pkgInfo.price > 0 && (
-                    <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 flex items-center justify-between">
+                  <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+                    <div className="flex items-center justify-between">
                       <div>
                         <div className="text-xs uppercase text-muted-foreground">
                           {bn ? "সার্ভিস ফি" : "Service Fee"}
                         </div>
                         <div className="font-bold text-lg text-primary">
-                          ৳{pkgInfo.price.toLocaleString("en-IN")}
+                          {pkgInfo.price > 0
+                            ? `৳${pkgInfo.price.toLocaleString("en-IN")}`
+                            : (bn ? "যোগাযোগ করুন" : "Contact for pricing")}
                         </div>
                       </div>
                       <div className="text-[11px] text-muted-foreground text-right max-w-[55%]">
@@ -435,7 +437,24 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                           : "After submission you can pay online instantly."}
                       </div>
                     </div>
-                  )}
+                    {PAYMENT_METHODS.length > 0 && (
+                      <div>
+                        <div className="text-[11px] uppercase text-muted-foreground mb-1">
+                          {bn ? "গৃহীত পেমেন্ট মাধ্যম" : "Accepted Payment Methods"}
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {PAYMENT_METHODS.map((m) => (
+                            <span
+                              key={m.value}
+                              className="px-2 py-0.5 rounded-full bg-background border text-[11px] font-medium"
+                            >
+                              {m.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
 
