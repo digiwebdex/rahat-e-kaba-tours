@@ -506,6 +506,22 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                       </div>
                     )}
                   </div>
+                  {!adminMode && middlemen.length > 0 && (
+                    <div>
+                      <Label>{bn ? "রেফার করেছেন (ঐচ্ছিক)" : "Referred by (optional)"}</Label>
+                      <Select value={middlemanId} onValueChange={setMiddlemanId}>
+                        <SelectTrigger><SelectValue placeholder={bn ? "— কেউ না —" : "— None —"} /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">{bn ? "— কেউ না —" : "— None —"}</SelectItem>
+                          {middlemen.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>
+                              {m.company_name ? `${m.agent_name} (${m.company_name})` : m.agent_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3 pt-2 border-t">
@@ -533,6 +549,22 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                       <Input type="month" value={travelMonth} onChange={(e) => setTravelMonth(e.target.value)} />
                     </div>
                   </div>
+                  {!adminMode && middlemen.length > 0 && (
+                    <div>
+                      <Label>{bn ? "রেফার করেছেন (ঐচ্ছিক)" : "Referred by (optional)"}</Label>
+                      <Select value={middlemanId} onValueChange={setMiddlemanId}>
+                        <SelectTrigger><SelectValue placeholder={bn ? "— কেউ না —" : "— None —"} /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">{bn ? "— কেউ না —" : "— None —"}</SelectItem>
+                          {middlemen.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>
+                              {m.company_name ? `${m.agent_name} (${m.company_name})` : m.agent_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
               )}
 
