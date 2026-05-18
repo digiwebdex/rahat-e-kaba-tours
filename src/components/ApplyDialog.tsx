@@ -246,6 +246,22 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                 {bn ? "বন্ধ" : "Close"}
               </Button>
             </div>
+            {!adminMode && done.due > 0 && (
+              <div className="pt-3 border-t">
+                <p className="text-xs text-muted-foreground mb-2">
+                  {bn ? "চাইলে এখনই অনলাইনে অগ্রিম ফি প্রদান করতে পারেন:" : "Optionally pay your advance fee online now:"}
+                </p>
+                <PayOnlineButton
+                  bookingId={done.bookingId}
+                  trackingId={done.trackingId}
+                  dueAmount={done.due}
+                  customerName={fullName}
+                  customerPhone={phone}
+                  customerEmail={email}
+                  className="w-full bg-gradient-ocean text-white hover:opacity-90"
+                />
+              </div>
+            )}
           </div>
         ) : (
           <>
