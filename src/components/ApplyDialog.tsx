@@ -100,7 +100,17 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
   const [middlemanId, setMiddlemanId] = useState<string>("none");
 
   useEffect(() => {
-    if (!open || !adminMode) return;
+    if (!open) return;
+    // Middlemen list — needed for both admin flow (all services) and public flow (air_ticket / visa)
+    if (adminMode || isAirTicket || isVisa) {
+      supabase
+        .from("supplier_agents")
+        .select("id, agent_name, company_name")
+        .eq("status", "active")
+        .order("agent_name", { ascending: true })
+        .then(({ data }) => setMiddlemen((data as any) || []));
+    }
+    if (!adminMode) return;
     supabase.from("accounts").select("id, name, type").then(({ data }) => {
       const rows = (data || []).filter((a: any) => {
         const t = String(a.type || "").toLowerCase();
@@ -118,13 +128,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
       .eq("is_active", true)
       .order("price", { ascending: true })
       .then(({ data }) => setPackageList((data as any) || []));
-    supabase
-      .from("supplier_agents")
-      .select("id, agent_name, company_name")
-      .eq("status", "active")
-      .order("agent_name", { ascending: true })
-      .then(({ data }) => setMiddlemen((data as any) || []));
-  }, [open, adminMode, serviceType]);
+  }, [open, adminMode, serviceType, isAirTicket, isVisa]);
 
   useEffect(() => {
     if (!open) return;
@@ -230,9 +234,10 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
         status: "pending",
         booking_type: "individual",
       };
-      if (adminMode) {
-        if (selectedPackageId) payload.package_id = selectedPackageId;
-        if (middlemanId && middlemanId !== "none") payload.supplier_agent_id = middlemanId;
+      if (adminMode && selectedPackageId) payload.package_id = selectedPackageId;
+      // Middleman referral — admin (any service) OR public (air ticket / visa)
+      if (middlemanId && middlemanId !== "none" && (adminMode || isAirTicket || isVisa)) {
+        payload.supplier_agent_id = middlemanId;
       }
 
       const { data, error } = await supabase
@@ -501,6 +506,22 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                       </div>
                     )}
                   </div>
+                  {!adminMode && middlemen.length > 0 && (
+                    <div>
+                      <Label>{bn ? "রেফার করেছেন (ঐচ্ছিক)" : "Referred by (optional)"}</Label>
+                      <Select value={middlemanId} onValueChange={setMiddlemanId}>
+                        <SelectTrigger><SelectValue placeholder={bn ? "— কেউ না —" : "— None —"} /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">{bn ? "— কেউ না —" : "— None —"}</SelectItem>
+                          {middlemen.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>
+                              {m.company_name ? `${m.agent_name} (${m.company_name})` : m.agent_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3 pt-2 border-t">
@@ -528,6 +549,22 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                       <Input type="month" value={travelMonth} onChange={(e) => setTravelMonth(e.target.value)} />
                     </div>
                   </div>
+                  {!adminMode && middlemen.length > 0 && (
+                    <div>
+                      <Label>{bn ? "রেফার করেছেন (ঐচ্ছিক)" : "Referred by (optional)"}</Label>
+                      <Select value={middlemanId} onValueChange={setMiddlemanId}>
+                        <SelectTrigger><SelectValue placeholder={bn ? "— কেউ না —" : "— None —"} /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">{bn ? "— কেউ না —" : "— None —"}</SelectItem>
+                          {middlemen.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>
+                              {m.company_name ? `${m.agent_name} (${m.company_name})` : m.agent_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
               )}
 
