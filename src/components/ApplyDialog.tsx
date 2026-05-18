@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/api";
 import { toast } from "sonner";
-import { Loader2, Briefcase, GraduationCap, CheckCircle, Copy } from "lucide-react";
+import { Loader2, Briefcase, GraduationCap, CheckCircle, Copy, Plane, ShieldCheck } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,11 +31,17 @@ interface Props {
 
 const COUNTRIES = ["United Kingdom", "Canada", "Australia", "United States", "Germany", "Malaysia", "Other"];
 const STUDY_LEVELS = ["Foundation", "Bachelor's", "Master's", "PhD", "Diploma"];
+const VISA_TYPES = ["Tourist", "Business", "Medical", "Student", "Family", "Other"];
+const VISA_COUNTRIES = ["United Arab Emirates", "Saudi Arabia", "Malaysia", "Thailand", "India", "Singapore", "United Kingdom", "Canada", "Australia", "United States", "Schengen (Europe)", "Other"];
+const TRIP_TYPES = ["One-way", "Round-trip", "Multi-city"];
 
 const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSubmitted }: Props) => {
   const { language } = useLanguage();
   const bn = language === "bn";
   const isWorkPermit = serviceType === "work_permit";
+  const isStudent = serviceType === "student_consultancy";
+  const isAirTicket = serviceType === "air_ticket";
+  const isVisa = serviceType === "visa";
   const { methods: PAYMENT_METHODS } = usePaymentMethods();
 
   const [user, setUser] = useState<any>(null);
@@ -61,6 +67,18 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
   const [program, setProgram] = useState(preset || "");
   const [level, setLevel] = useState(STUDY_LEVELS[1]);
   const [lastEducation, setLastEducation] = useState("");
+
+  // Air-ticket specific
+  const [fromCity, setFromCity] = useState("Dhaka");
+  const [toCity, setToCity] = useState("");
+  const [travelDate, setTravelDate] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const [tripType, setTripType] = useState(TRIP_TYPES[1]);
+
+  // Visa specific
+  const [visaCountry, setVisaCountry] = useState(VISA_COUNTRIES[0]);
+  const [visaType, setVisaType] = useState(VISA_TYPES[0]);
+  const [travelMonth, setTravelMonth] = useState("");
 
   // Admin-only payment fields
   const [totalAmount, setTotalAmount] = useState<string>("0");
