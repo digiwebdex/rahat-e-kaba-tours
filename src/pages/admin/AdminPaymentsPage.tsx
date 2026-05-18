@@ -92,12 +92,29 @@ export default function AdminPaymentsPage() {
   const [expandedMoallemId, setExpandedMoallemId] = useState<string | null>(null);
   const [expandedSupplierId, setExpandedSupplierId] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const normalizeWalletAccounts = (accounts: any[] = []) => accounts
+    .filter((account) => {
+      const type = String(account.type || "").toLowerCase();
+      const name = String(account.name || "").toLowerCase();
+      return ["asset", "wallet"].includes(type) || /cash|bank|bkash|nagad|rocket|wallet/.test(name);
+    })
+    .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+
+  const fetchWalletAccounts = async () => {
+    const { data, error } = await supabase.from("accounts" as any).select("id, name, type, balance").order("name", { ascending: true });
+    if (error) {
+      console.error("Failed to load wallet accounts", error);
+      return [];
+    }
+    return normalizeWalletAccounts((data as any[]) || []);
+  };
+
   const fetchPayments = async () => {
-    const [payRes, moallemPayRes, supplierPayRes, walletRes, profileRes] = await Promise.all([
+    const [payRes, moallemPayRes, supplierPayRes, wallets, profileRes] = await Promise.all([
       supabase.from("payments").select("*, bookings(tracking_id, total_amount, paid_amount, due_amount, guest_name, guest_passport, num_travelers, status, packages(name, type, duration_days))").order("created_at", { ascending: false }),
       supabase.from("moallem_payments").select("*, moallems(name, phone), bookings:booking_id(tracking_id, total_amount, paid_amount, due_amount, paid_by_moallem, moallem_due, guest_name, packages(name, type))").order("created_at", { ascending: false }),
       supabase.from("supplier_agent_payments").select("*, supplier_agents(agent_name, company_name), bookings:booking_id(tracking_id, total_amount, total_cost, paid_to_supplier, supplier_due, guest_name, packages(name, type))").order("created_at", { ascending: false }),
-      supabase.from("accounts" as any).select("*").eq("type", "asset"),
+      fetchWalletAccounts(),
       supabase.from("profiles").select("user_id, full_name, phone"),
     ]);
     const profileMap = new Map((profileRes.data || []).map((p: any) => [p.user_id, p]));
@@ -115,14 +132,13 @@ export default function AdminPaymentsPage() {
       ...p,
       _type: "supplier" as PaymentType,
     })));
-    setWalletAccounts((walletRes.data as any[]) || []);
+    setWalletAccounts(wallets || []);
   };
 
   useEffect(() => { fetchPayments(); }, []);
 
   const refreshWallets = async () => {
-    const { data } = await supabase.from("accounts" as any).select("*").eq("type", "asset");
-    setWalletAccounts((data as any[]) || []);
+    setWalletAccounts(await fetchWalletAccounts());
   };
 
   const openAddModal = async () => {
