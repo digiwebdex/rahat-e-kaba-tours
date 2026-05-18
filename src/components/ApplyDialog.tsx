@@ -15,7 +15,7 @@ import { PayOnlineButton } from "@/components/PayOnlineButton";
 import DocumentUploadStep, { type UploadedDoc } from "@/components/booking/DocumentUploadStep";
 import { usePaymentMethods } from "@/hooks/usePaymentMethods";
 
-export type ApplyServiceType = "work_permit" | "student_consultancy";
+export type ApplyServiceType = "work_permit" | "student_consultancy" | "air_ticket" | "visa";
 
 interface Props {
   open: boolean;
