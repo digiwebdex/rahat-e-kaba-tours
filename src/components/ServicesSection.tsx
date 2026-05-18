@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import ApplyDialog from "./ApplyDialog";
 
 const ACCENT_BLUE = "from-[hsl(var(--brand-blue))] to-[hsl(var(--brand-blue-dark))]";
 const ACCENT_RED = "from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]";
@@ -36,6 +37,7 @@ interface Service {
   descBn: string;
   status?: "active" | "soon";
   href?: string;
+  applyService?: "work_permit" | "air_ticket" | "visa";
   ctaEn: string;
   ctaBn: string;
   highlightsEn: string[];
@@ -55,6 +57,7 @@ const services: Service[] = [
     descBn: "ভিয়েতনাম, কুয়েত, লাওস, সার্বিয়া ও রাশিয়াতে বৈধ ওয়ার্ক পারমিট ভিসা। থাকা-খাওয়া কোম্পানির। বেতন $৩৫০–৫০০ / ১০০–১২০ দিনার / ৭০–৮০ হাজার টাকা।",
     status: "active",
     href: "#positions",
+    applyService: "work_permit",
     ctaEn: "View Open Positions",
     ctaBn: "ওপেন পজিশন দেখুন",
     highlightsEn: [
@@ -89,7 +92,7 @@ const services: Service[] = [
     descEn: "Domestic & international flight bookings with best fare guarantee and 24/7 booking assistance.",
     descBn: "ডোমেস্টিক ও ইন্টারন্যাশনাল ফ্লাইট বুকিং, বেস্ট ফেয়ার গ্যারান্টি এবং ২৪/৭ বুকিং সহায়তা।",
     status: "active",
-    href: "#contact",
+    applyService: "air_ticket",
     ctaEn: "Get a Quote",
     ctaBn: "কোটেশন নিন",
     highlightsEn: [
@@ -124,7 +127,7 @@ const services: Service[] = [
     descEn: "Tourist, business and medical visa assistance with full documentation support and attestation.",
     descBn: "ট্যুরিস্ট, বিজনেস ও মেডিকেল ভিসা সহায়তা — সম্পূর্ণ ডকুমেন্টেশন ও অ্যাটেস্টেশন সাপোর্ট।",
     status: "active",
-    href: "#contact",
+    applyService: "visa",
     ctaEn: "Apply Now",
     ctaBn: "আবেদন করুন",
     highlightsEn: [
@@ -155,6 +158,7 @@ const ServicesSection = () => {
   const { language } = useLanguage();
   const bn = language === "bn";
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [applyService, setApplyService] = useState<"work_permit" | "air_ticket" | "visa" | null>(null);
 
   return (
     <section id="services" className="py-24 relative overflow-hidden bg-background">
@@ -302,11 +306,13 @@ const ServicesSection = () => {
                           ))}
                         </ul>
 
-                        {s.href && (
+                        {(s.applyService || s.href) && (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (s.href?.startsWith("#")) {
+                              if (s.applyService) {
+                                setApplyService(s.applyService);
+                              } else if (s.href?.startsWith("#")) {
                                 document
                                   .getElementById(s.href.slice(1))
                                   ?.scrollIntoView({ behavior: "smooth" });
@@ -314,7 +320,7 @@ const ServicesSection = () => {
                             }}
                             className={`w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r ${s.gradient} text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-md hover:shadow-glow hover:scale-[1.02] transition-all`}
                           >
-                            {bn ? s.ctaBn : s.ctaEn}
+                            {s.applyService ? (bn ? "এখনই আবেদন করুন" : "Apply Online Now") : (bn ? s.ctaBn : s.ctaEn)}
                             <ArrowUpRight className="h-3.5 w-3.5" />
                           </button>
                         )}
@@ -349,6 +355,13 @@ const ServicesSection = () => {
           })}
         </div>
       </div>
+      {applyService && (
+        <ApplyDialog
+          open={!!applyService}
+          onOpenChange={(o) => !o && setApplyService(null)}
+          serviceType={applyService}
+        />
+      )}
     </section>
   );
 };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/api";
 import { toast } from "sonner";
-import { Loader2, Briefcase, GraduationCap, CheckCircle, Copy } from "lucide-react";
+import { Loader2, Briefcase, GraduationCap, CheckCircle, Copy, Plane, ShieldCheck } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +15,7 @@ import { PayOnlineButton } from "@/components/PayOnlineButton";
 import DocumentUploadStep, { type UploadedDoc } from "@/components/booking/DocumentUploadStep";
 import { usePaymentMethods } from "@/hooks/usePaymentMethods";
 
-export type ApplyServiceType = "work_permit" | "student_consultancy";
+export type ApplyServiceType = "work_permit" | "student_consultancy" | "air_ticket" | "visa";
 
 interface Props {
   open: boolean;
@@ -31,11 +31,17 @@ interface Props {
 
 const COUNTRIES = ["United Kingdom", "Canada", "Australia", "United States", "Germany", "Malaysia", "Other"];
 const STUDY_LEVELS = ["Foundation", "Bachelor's", "Master's", "PhD", "Diploma"];
+const VISA_TYPES = ["Tourist", "Business", "Medical", "Student", "Family", "Other"];
+const VISA_COUNTRIES = ["United Arab Emirates", "Saudi Arabia", "Malaysia", "Thailand", "India", "Singapore", "United Kingdom", "Canada", "Australia", "United States", "Schengen (Europe)", "Other"];
+const TRIP_TYPES = ["One-way", "Round-trip", "Multi-city"];
 
 const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSubmitted }: Props) => {
   const { language } = useLanguage();
   const bn = language === "bn";
   const isWorkPermit = serviceType === "work_permit";
+  const isStudent = serviceType === "student_consultancy";
+  const isAirTicket = serviceType === "air_ticket";
+  const isVisa = serviceType === "visa";
   const { methods: PAYMENT_METHODS } = usePaymentMethods();
 
   const [user, setUser] = useState<any>(null);
@@ -61,6 +67,18 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
   const [program, setProgram] = useState(preset || "");
   const [level, setLevel] = useState(STUDY_LEVELS[1]);
   const [lastEducation, setLastEducation] = useState("");
+
+  // Air-ticket specific
+  const [fromCity, setFromCity] = useState("Dhaka");
+  const [toCity, setToCity] = useState("");
+  const [travelDate, setTravelDate] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const [tripType, setTripType] = useState(TRIP_TYPES[1]);
+
+  // Visa specific
+  const [visaCountry, setVisaCountry] = useState(VISA_COUNTRIES[0]);
+  const [visaType, setVisaType] = useState(VISA_TYPES[0]);
+  const [travelMonth, setTravelMonth] = useState("");
 
   // Admin-only payment fields
   const [totalAmount, setTotalAmount] = useState<string>("0");
@@ -168,8 +186,16 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
       toast.error(bn ? "পদের নাম দিন" : "Please specify the position");
       return;
     }
-    if (!isWorkPermit && !program.trim()) {
+    if (isStudent && !program.trim()) {
       toast.error(bn ? "প্রোগ্রাম/বিষয় দিন" : "Please specify program/subject");
+      return;
+    }
+    if (isAirTicket && (!toCity.trim() || !travelDate)) {
+      toast.error(bn ? "গন্তব্য ও ভ্রমণ তারিখ দিন" : "Destination and travel date are required");
+      return;
+    }
+    if (isVisa && !visaCountry) {
+      toast.error(bn ? "ভিসার দেশ নির্বাচন করুন" : "Please pick visa country");
       return;
     }
 
@@ -177,7 +203,11 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
     try {
       const application_data = isWorkPermit
         ? { position, experience, age, destination: "Fiji" }
-        : { country, program, level, last_education: lastEducation };
+        : isStudent
+        ? { country, program, level, last_education: lastEducation }
+        : isAirTicket
+        ? { from: fromCity, to: toCity, travel_date: travelDate, return_date: returnDate || null, trip_type: tripType, passengers: Number(numTravelers) || 1 }
+        : { visa_country: visaCountry, visa_type: visaType, travel_month: travelMonth || null };
 
       // Public submissions auto-attach the standard service fee
       const computedTotal = adminMode
@@ -267,10 +297,14 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
     }
   };
 
-  const Icon = isWorkPermit ? Briefcase : GraduationCap;
+  const Icon = isWorkPermit ? Briefcase : isStudent ? GraduationCap : isAirTicket ? Plane : ShieldCheck;
   const title = isWorkPermit
-    ? (bn ? "ফিজি ওয়ার্ক পারমিটে আবেদন" : "Apply for Fiji Work Permit")
-    : (bn ? "স্টুডেন্ট কনসালটেন্সি আবেদন" : "Student Consultancy Application");
+    ? (bn ? "ওভারসিজ ওয়ার্ক পারমিটে আবেদন" : "Apply for Overseas Work Permit")
+    : isStudent
+    ? (bn ? "স্টুডেন্ট কনসালটেন্সি আবেদন" : "Student Consultancy Application")
+    : isAirTicket
+    ? (bn ? "এয়ার টিকেট বুকিং রিকোয়েস্ট" : "Air Ticket Booking Request")
+    : (bn ? "ভিসা আবেদন রিকোয়েস্ট" : "Visa Application Request");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -401,7 +435,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                     </div>
                   </div>
                 </div>
-              ) : (
+              ) : isStudent ? (
                 <div className="space-y-3 pt-2 border-t">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -430,6 +464,69 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                   <div>
                     <Label>{bn ? "সর্বশেষ শিক্ষাগত যোগ্যতা" : "Last Education"}</Label>
                     <Input value={lastEducation} onChange={(e) => setLastEducation(e.target.value)} placeholder="e.g. BSc Civil, 2024" maxLength={120} />
+                  </div>
+                </div>
+              ) : isAirTicket ? (
+                <div className="space-y-3 pt-2 border-t">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>{bn ? "ট্রিপ টাইপ" : "Trip Type"}</Label>
+                      <Select value={tripType} onValueChange={setTripType}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {TRIP_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>{bn ? "যাত্রী সংখ্যা" : "Passengers"}</Label>
+                      <Input type="number" min={1} value={numTravelers} onChange={(e) => setNumTravelers(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label>{bn ? "কোথা থেকে" : "From"}</Label>
+                      <Input value={fromCity} onChange={(e) => setFromCity(e.target.value)} placeholder="Dhaka" maxLength={60} />
+                    </div>
+                    <div>
+                      <Label>{bn ? "কোথায় *" : "To *"}</Label>
+                      <Input value={toCity} onChange={(e) => setToCity(e.target.value)} placeholder="Dubai" maxLength={60} />
+                    </div>
+                    <div>
+                      <Label>{bn ? "যাত্রার তারিখ *" : "Travel Date *"}</Label>
+                      <Input type="date" value={travelDate} onChange={(e) => setTravelDate(e.target.value)} />
+                    </div>
+                    {tripType !== "One-way" && (
+                      <div>
+                        <Label>{bn ? "ফেরার তারিখ" : "Return Date"}</Label>
+                        <Input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3 pt-2 border-t">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>{bn ? "ভিসার দেশ *" : "Visa Country *"}</Label>
+                      <Select value={visaCountry} onValueChange={setVisaCountry}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {VISA_COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>{bn ? "ভিসার ধরন" : "Visa Type"}</Label>
+                      <Select value={visaType} onValueChange={setVisaType}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {VISA_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="col-span-2">
+                      <Label>{bn ? "আনুমানিক ভ্রমণের মাস" : "Intended Travel Month"}</Label>
+                      <Input type="month" value={travelMonth} onChange={(e) => setTravelMonth(e.target.value)} />
+                    </div>
                   </div>
                 </div>
               )}
