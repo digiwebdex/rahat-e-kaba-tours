@@ -186,8 +186,16 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
       toast.error(bn ? "পদের নাম দিন" : "Please specify the position");
       return;
     }
-    if (!isWorkPermit && !program.trim()) {
+    if (isStudent && !program.trim()) {
       toast.error(bn ? "প্রোগ্রাম/বিষয় দিন" : "Please specify program/subject");
+      return;
+    }
+    if (isAirTicket && (!toCity.trim() || !travelDate)) {
+      toast.error(bn ? "গন্তব্য ও ভ্রমণ তারিখ দিন" : "Destination and travel date are required");
+      return;
+    }
+    if (isVisa && !visaCountry) {
+      toast.error(bn ? "ভিসার দেশ নির্বাচন করুন" : "Please pick visa country");
       return;
     }
 
@@ -195,7 +203,11 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
     try {
       const application_data = isWorkPermit
         ? { position, experience, age, destination: "Fiji" }
-        : { country, program, level, last_education: lastEducation };
+        : isStudent
+        ? { country, program, level, last_education: lastEducation }
+        : isAirTicket
+        ? { from: fromCity, to: toCity, travel_date: travelDate, return_date: returnDate || null, trip_type: tripType, passengers: Number(numTravelers) || 1 }
+        : { visa_country: visaCountry, visa_type: visaType, travel_month: travelMonth || null };
 
       // Public submissions auto-attach the standard service fee
       const computedTotal = adminMode
