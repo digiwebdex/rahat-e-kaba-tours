@@ -10,7 +10,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Plus } from "lucide-react";
+import { Plus, FileDown, FileSpreadsheet } from "lucide-react";
+import { exportPDF, exportExcel } from "@/lib/reportExport";
 
 interface Row {
   id: string;
@@ -153,6 +154,42 @@ export default function AdminLedgerPage() {
 
   const balance = totals.credit - totals.debit;
 
+  const buildExportPayload = () => {
+    const columns = ["Date", "Ledger", "Source", "Category", "Method", "Reference", "Debit", "Credit"];
+    const rows = filtered.map(r => [
+      r.date,
+      r.ledger_type,
+      r.source_type,
+      r.category,
+      r.payment_method || "—",
+      (r.reference || r.note || "—") as string,
+      Number(r.debit || 0),
+      Number(r.credit || 0),
+    ]);
+    const range = from || to ? `${from || "…"} → ${to || "…"}` : "All dates";
+    const summary = [
+      `Scope: ${scope === "all" ? "All Ledgers" : scope}`,
+      `Date range: ${range}`,
+      `Total Credit (In): ৳${totals.credit.toLocaleString("en-IN")}`,
+      `Total Debit (Out): ৳${totals.debit.toLocaleString("en-IN")}`,
+      `Net Balance: ৳${balance.toLocaleString("en-IN")}`,
+      `Entries: ${filtered.length}`,
+    ];
+    const title = `Ledger Report${scope !== "all" ? ` — ${scope}` : ""}`;
+    return { title, columns, rows, summary };
+  };
+
+  const handleExportPDF = async () => {
+    if (filtered.length === 0) { toast({ title: "No entries to export", variant: "destructive" }); return; }
+    try { await exportPDF(buildExportPayload()); }
+    catch (e: any) { toast({ title: "Export failed", description: e.message, variant: "destructive" }); }
+  };
+  const handleExportExcel = () => {
+    if (filtered.length === 0) { toast({ title: "No entries to export", variant: "destructive" }); return; }
+    try { exportExcel(buildExportPayload()); }
+    catch (e: any) { toast({ title: "Export failed", description: e.message, variant: "destructive" }); }
+  };
+
   return (
     <div className="space-y-4 p-6">
       <div>
@@ -161,7 +198,11 @@ export default function AdminLedgerPage() {
             <h1 className="text-2xl font-bold">Ledger</h1>
             <p className="text-sm text-muted-foreground">Unified debit/credit history across customers, suppliers, middlemen, and wallets.</p>
           </div>
-          <Button onClick={() => setPayOpen(true)}><Plus className="h-4 w-4 mr-1" /> Pay Supplier / Middleman</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={handleExportPDF}><FileDown className="h-4 w-4 mr-1" /> Export PDF</Button>
+            <Button variant="outline" onClick={handleExportExcel}><FileSpreadsheet className="h-4 w-4 mr-1" /> Export Excel</Button>
+            <Button onClick={() => setPayOpen(true)}><Plus className="h-4 w-4 mr-1" /> Pay Supplier / Middleman</Button>
+          </div>
         </div>
       </div>
 
