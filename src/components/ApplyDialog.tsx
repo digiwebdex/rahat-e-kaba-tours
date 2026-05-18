@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Link } from "react-router-dom";
 import CustomerSearchSelect from "@/components/admin/CustomerSearchSelect";
+import { PayOnlineButton } from "@/components/PayOnlineButton";
 
 export type ApplyServiceType = "work_permit" | "student_consultancy";
 
@@ -45,7 +46,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
 
   const [user, setUser] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState<{ trackingId: string } | null>(null);
+  const [done, setDone] = useState<{ trackingId: string; bookingId: string; due: number } | null>(null);
   const [pickedCustomerId, setPickedCustomerId] = useState<string | null>(null);
 
   // Common fields
@@ -191,7 +192,11 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
         }
       }
 
-      setDone({ trackingId: data.tracking_id });
+      setDone({
+        trackingId: data.tracking_id,
+        bookingId: data.id,
+        due: Math.max(0, (adminMode ? Number(totalAmount) || 0 : 0) - advNum),
+      });
       toast.success(bn ? "আবেদন জমা হয়েছে!" : "Application submitted!");
       reset();
       onSubmitted?.();
@@ -241,6 +246,22 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                 {bn ? "বন্ধ" : "Close"}
               </Button>
             </div>
+            {!adminMode && done.due > 0 && (
+              <div className="pt-3 border-t">
+                <p className="text-xs text-muted-foreground mb-2">
+                  {bn ? "চাইলে এখনই অনলাইনে অগ্রিম ফি প্রদান করতে পারেন:" : "Optionally pay your advance fee online now:"}
+                </p>
+                <PayOnlineButton
+                  bookingId={done.bookingId}
+                  trackingId={done.trackingId}
+                  dueAmount={done.due}
+                  customerName={fullName}
+                  customerPhone={phone}
+                  customerEmail={email}
+                  className="w-full bg-gradient-ocean text-white hover:opacity-90"
+                />
+              </div>
+            )}
           </div>
         ) : (
           <>
