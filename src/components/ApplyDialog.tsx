@@ -28,6 +28,15 @@ interface Props {
 
 const COUNTRIES = ["United Kingdom", "Canada", "Australia", "United States", "Germany", "Malaysia", "Other"];
 const STUDY_LEVELS = ["Foundation", "Bachelor's", "Master's", "PhD", "Diploma"];
+const PAYMENT_METHODS = [
+  { value: "cash", label: "Cash" },
+  { value: "bank", label: "Bank Transfer" },
+  { value: "bkash", label: "bKash" },
+  { value: "nagad", label: "Nagad" },
+  { value: "rocket", label: "Rocket" },
+  { value: "card", label: "Card" },
+  { value: "cheque", label: "Cheque" },
+];
 
 const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSubmitted }: Props) => {
   const { language } = useLanguage();
@@ -57,6 +66,22 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
   const [program, setProgram] = useState(preset || "");
   const [level, setLevel] = useState(STUDY_LEVELS[1]);
   const [lastEducation, setLastEducation] = useState("");
+
+  // Admin-only payment fields
+  const [totalAmount, setTotalAmount] = useState<string>("0");
+  const [advanceAmount, setAdvanceAmount] = useState<string>("0");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [walletId, setWalletId] = useState<string>("");
+  const [txnRef, setTxnRef] = useState("");
+  const [wallets, setWallets] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!open || !adminMode) return;
+    supabase.from("accounts").select("id, name, type").eq("type", "asset").then(({ data }) => {
+      setWallets(data || []);
+      if (data && data.length && !walletId) setWalletId(data[0].id);
+    });
+  }, [open, adminMode]);
 
   useEffect(() => {
     if (!open) return;
@@ -93,6 +118,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
     setPosition(""); setExperience(""); setAge("");
     setCountry(COUNTRIES[0]); setProgram(""); setLevel(STUDY_LEVELS[1]); setLastEducation("");
     setNotes("");
+    setTotalAmount("0"); setAdvanceAmount("0"); setPaymentMethod("cash"); setTxnRef("");
   };
 
   const submit = async () => {
@@ -130,7 +156,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
         guest_address: address || null,
         guest_passport: passport || null,
         num_travelers: 1,
-        total_amount: 0,
+        total_amount: adminMode ? Number(totalAmount) || 0 : 0,
         notes: notes || null,
         status: "pending",
         booking_type: "individual",
@@ -139,6 +165,31 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
       const { data, error } = await supabase
         .from("bookings").insert(payload).select("id, tracking_id").single();
       if (error) throw error;
+
+      // Record advance payment if provided (admin only)
+      const advNum = Number(advanceAmount) || 0;
+      if (adminMode && advNum > 0) {
+        if (!walletId) {
+          toast.error(bn ? "ওয়ালেট নির্বাচন করুন" : "Please select a wallet account");
+        } else {
+          const userId = pickedCustomerId || user?.id || "00000000-0000-0000-0000-000000000000";
+          const { error: payErr } = await supabase.from("payments").insert({
+            booking_id: data.id,
+            user_id: userId,
+            customer_id: pickedCustomerId || null,
+            amount: advNum,
+            payment_method: paymentMethod,
+            transaction_id: txnRef.trim() || null,
+            status: "completed",
+            paid_at: new Date().toISOString(),
+            due_date: new Date().toISOString().slice(0, 10),
+            installment_number: 1,
+            notes: "Advance at application creation",
+            wallet_account_id: walletId,
+          } as any);
+          if (payErr) toast.error("Booking created but payment failed: " + payErr.message);
+        }
+      }
 
       setDone({ trackingId: data.tracking_id });
       toast.success(bn ? "আবেদন জমা হয়েছে!" : "Application submitted!");
@@ -307,6 +358,58 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                 <Label>{bn ? "অতিরিক্ত নোট" : "Additional Notes"}</Label>
                 <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} maxLength={500} />
               </div>
+
+              {adminMode && (
+                <div className="space-y-3 pt-3 border-t">
+                  <div className="text-sm font-semibold">
+                    {bn ? "পেমেন্ট তথ্য" : "Payment Details"}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>{bn ? "মোট প্যাকেজ মূল্য (৳)" : "Total Package Amount (৳)"}</Label>
+                      <Input type="number" min="0" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label>{bn ? "অগ্রিম প্রদান (৳)" : "Advance Paid (৳)"}</Label>
+                      <Input type="number" min="0" value={advanceAmount} onChange={(e) => setAdvanceAmount(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {bn ? "বাকি " : "Due: "}
+                    <strong className="text-red-600">
+                      ৳{Math.max(0, (Number(totalAmount) || 0) - (Number(advanceAmount) || 0)).toLocaleString("en-IN")}
+                    </strong>
+                  </div>
+                  {Number(advanceAmount) > 0 && (
+                    <>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{bn ? "পেমেন্ট মাধ্যম" : "Payment Method"}</Label>
+                          <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {PAYMENT_METHODS.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>{bn ? "ওয়ালেট অ্যাকাউন্ট" : "Wallet Account"}</Label>
+                          <Select value={walletId} onValueChange={setWalletId}>
+                            <SelectTrigger><SelectValue placeholder="Select wallet" /></SelectTrigger>
+                            <SelectContent>
+                              {wallets.map(w => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div>
+                        <Label>{bn ? "ট্রানজ্যাকশন রেফ" : "Transaction Ref"}</Label>
+                        <Input value={txnRef} onChange={(e) => setTxnRef(e.target.value)} placeholder={bn ? "ঐচ্ছিক" : "Optional"} />
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
 
               <Button
                 onClick={submit}
