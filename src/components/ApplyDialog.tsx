@@ -74,6 +74,13 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
   const [pkgInfo, setPkgInfo] = useState<{ id: string | null; price: number }>({ id: null, price: 0 });
   const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
 
+  // Admin-only: package list, traveler count, middleman selection
+  const [packageList, setPackageList] = useState<Array<{ id: string; name: string; price: number }>>([]);
+  const [selectedPackageId, setSelectedPackageId] = useState<string>("");
+  const [numTravelers, setNumTravelers] = useState<string>("1");
+  const [middlemen, setMiddlemen] = useState<Array<{ id: string; agent_name: string; company_name: string | null }>>([]);
+  const [middlemanId, setMiddlemanId] = useState<string>("none");
+
   useEffect(() => {
     if (!open || !adminMode) return;
     supabase.from("accounts").select("id, name, type").then(({ data }) => {
@@ -85,7 +92,21 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
       setWallets(rows);
       if (rows.length && !walletId) setWalletId(rows[0].id);
     });
-  }, [open, adminMode]);
+    // Admin: load every active package for this service, plus middlemen list
+    supabase
+      .from("packages")
+      .select("id, name, price")
+      .eq("type", serviceType)
+      .eq("is_active", true)
+      .order("price", { ascending: true })
+      .then(({ data }) => setPackageList((data as any) || []));
+    supabase
+      .from("supplier_agents")
+      .select("id, agent_name, company_name")
+      .eq("status", "active")
+      .order("agent_name", { ascending: true })
+      .then(({ data }) => setMiddlemen((data as any) || []));
+  }, [open, adminMode, serviceType]);
 
   useEffect(() => {
     if (!open) return;
@@ -173,19 +194,23 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
         guest_email: email || null,
         guest_address: address || null,
         guest_passport: passport || null,
-        num_travelers: 1,
+        num_travelers: adminMode ? Math.max(1, Number(numTravelers) || 1) : 1,
         total_amount: computedTotal,
         notes: notes || null,
         status: "pending",
         booking_type: "individual",
       };
+      if (adminMode) {
+        if (selectedPackageId) payload.package_id = selectedPackageId;
+        if (middlemanId && middlemanId !== "none") payload.supplier_agent_id = middlemanId;
+      }
 
       const { data, error } = await supabase
         .from("bookings").insert(payload).select("id, tracking_id").single();
       if (error) throw error;
 
-      // Public: upload supporting documents (passport, NID, photo)
-      if (!adminMode && uploadedDocs.length > 0) {
+      // Upload supporting documents — both public & admin flows now support this
+      if (uploadedDocs.length > 0) {
         for (const doc of uploadedDocs) {
           try {
             const formData = new FormData();
