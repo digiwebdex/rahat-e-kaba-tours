@@ -12,6 +12,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { Link } from "react-router-dom";
 import CustomerSearchSelect from "@/components/admin/CustomerSearchSelect";
 import { PayOnlineButton } from "@/components/PayOnlineButton";
+import DocumentUploadStep, { type UploadedDoc } from "@/components/booking/DocumentUploadStep";
 
 export type ApplyServiceType = "work_permit" | "student_consultancy";
 
@@ -76,6 +77,10 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
   const [txnRef, setTxnRef] = useState("");
   const [wallets, setWallets] = useState<any[]>([]);
 
+  // Public: documents + auto service fee
+  const [pkgInfo, setPkgInfo] = useState<{ id: string | null; price: number }>({ id: null, price: 0 });
+  const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
+
   useEffect(() => {
     if (!open || !adminMode) return;
     supabase.from("accounts").select("id, name, type").then(({ data }) => {
@@ -94,6 +99,19 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
     setDone(null);
     setPosition(preset || "");
     setProgram(preset || "");
+    setUploadedDocs([]);
+    // Preload service package + price for both public & admin
+    (async () => {
+      const { data: pkg } = await supabase
+        .from("packages")
+        .select("id, price")
+        .eq("type", serviceType)
+        .limit(1)
+        .maybeSingle();
+      const price = Number(pkg?.price) || 0;
+      setPkgInfo({ id: pkg?.id || null, price });
+      if (adminMode && price > 0) setTotalAmount(String(price));
+    })();
     if (adminMode) {
       // Admin manual entry — start with blank fields
       setUser(null);
@@ -143,16 +161,17 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
 
     setSubmitting(true);
     try {
-      // Find the service package
-      const { data: pkg } = await supabase
-        .from("packages").select("id").eq("type", serviceType).limit(1).maybeSingle();
-
       const application_data = isWorkPermit
         ? { position, experience, age, destination: "Fiji" }
         : { country, program, level, last_education: lastEducation };
 
+      // Public submissions auto-attach the standard service fee
+      const computedTotal = adminMode
+        ? Number(totalAmount) || 0
+        : pkgInfo.price;
+
       const payload: any = {
-        package_id: pkg?.id || null,
+        package_id: pkgInfo.id,
         service_type: serviceType,
         application_data,
         user_id: pickedCustomerId || user?.id || null,
@@ -162,7 +181,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
         guest_address: address || null,
         guest_passport: passport || null,
         num_travelers: 1,
-        total_amount: adminMode ? Number(totalAmount) || 0 : 0,
+        total_amount: computedTotal,
         notes: notes || null,
         status: "pending",
         booking_type: "individual",
@@ -171,6 +190,23 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
       const { data, error } = await supabase
         .from("bookings").insert(payload).select("id, tracking_id").single();
       if (error) throw error;
+
+      // Public: upload supporting documents (passport, NID, photo)
+      if (!adminMode && uploadedDocs.length > 0) {
+        for (const doc of uploadedDocs) {
+          try {
+            const formData = new FormData();
+            formData.append("booking_id", data.id);
+            formData.append("tracking_id", data.tracking_id);
+            formData.append("document_type", doc.type);
+            formData.append("file", doc.file);
+            const up = await supabase.functions.invoke("upload-booking-document", { body: formData });
+            if (up.error) console.error("Doc upload failed:", doc.type, up.error);
+          } catch (err) {
+            console.error("Doc upload error:", doc.type, err);
+          }
+        }
+      }
 
       // Record advance payment if provided (admin only)
       const advNum = Number(advanceAmount) || 0;
@@ -200,7 +236,7 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
       setDone({
         trackingId: data.tracking_id,
         bookingId: data.id,
-        due: Math.max(0, (adminMode ? Number(totalAmount) || 0 : 0) - advNum),
+        due: Math.max(0, computedTotal - (adminMode ? advNum : 0)),
       });
       toast.success(bn ? "আবেদন জমা হয়েছে!" : "Application submitted!");
       reset();
@@ -384,6 +420,31 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
                 <Label>{bn ? "অতিরিক্ত নোট" : "Additional Notes"}</Label>
                 <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} maxLength={500} />
               </div>
+
+              {!adminMode && (
+                <>
+                  <div className="pt-2 border-t">
+                    <DocumentUploadStep documents={uploadedDocs} onChange={setUploadedDocs} />
+                  </div>
+                  {pkgInfo.price > 0 && (
+                    <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 flex items-center justify-between">
+                      <div>
+                        <div className="text-xs uppercase text-muted-foreground">
+                          {bn ? "সার্ভিস ফি" : "Service Fee"}
+                        </div>
+                        <div className="font-bold text-lg text-primary">
+                          ৳{pkgInfo.price.toLocaleString("en-IN")}
+                        </div>
+                      </div>
+                      <div className="text-[11px] text-muted-foreground text-right max-w-[55%]">
+                        {bn
+                          ? "সাবমিটের পর অনলাইনে পেমেন্ট অপশন পাবেন।"
+                          : "After submission you can pay online instantly."}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
 
               {adminMode && (
                 <div className="space-y-3 pt-3 border-t">
