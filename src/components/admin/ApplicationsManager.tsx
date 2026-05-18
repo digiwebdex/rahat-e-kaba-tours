@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/api";
 import { toast } from "sonner";
-import { Loader2, Search, Briefcase, GraduationCap, Phone, Mail, MapPin, Calendar, FileText, Plus } from "lucide-react";
+import { Loader2, Search, Briefcase, GraduationCap, Phone, Mail, MapPin, Calendar, FileText, Plus, Trash2, Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Link } from "react-router-dom";
 import ApplyDialog from "@/components/ApplyDialog";
 
@@ -42,6 +44,7 @@ export default function ApplicationsManager({ serviceType }: Props) {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selected, setSelected] = useState<any | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [editForm, setEditForm] = useState<any>({});
 
   const load = async () => {
     setLoading(true);
@@ -49,6 +52,7 @@ export default function ApplicationsManager({ serviceType }: Props) {
       .from("bookings")
       .select("*")
       .eq("service_type", serviceType)
+      .neq("status", "deleted")
       .order("created_at", { ascending: false })
       .limit(500);
     if (error) toast.error(error.message);
@@ -72,6 +76,43 @@ export default function ApplicationsManager({ serviceType }: Props) {
     toast.success("Service fee updated");
     setRows(prev => prev.map(r => r.id === id ? { ...r, total_amount } : r));
     if (selected?.id === id) setSelected({ ...selected, total_amount });
+  };
+
+  const saveEdit = async () => {
+    if (!selected) return;
+    const patch = {
+      guest_name: editForm.guest_name,
+      guest_phone: editForm.guest_phone,
+      guest_email: editForm.guest_email,
+      guest_address: editForm.guest_address,
+      guest_passport: editForm.guest_passport,
+      notes: editForm.notes,
+    };
+    const { error } = await supabase.from("bookings").update(patch).eq("id", selected.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Application updated");
+    setRows(prev => prev.map(r => r.id === selected.id ? { ...r, ...patch } : r));
+    setSelected({ ...selected, ...patch });
+  };
+
+  const deleteApp = async (id: string) => {
+    const { error } = await supabase.from("bookings").update({ status: "deleted" }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Application deleted");
+    setRows(prev => prev.filter(r => r.id !== id));
+    if (selected?.id === id) setSelected(null);
+  };
+
+  const openDetail = (r: any) => {
+    setSelected(r);
+    setEditForm({
+      guest_name: r.guest_name || "",
+      guest_phone: r.guest_phone || "",
+      guest_email: r.guest_email || "",
+      guest_address: r.guest_address || "",
+      guest_passport: r.guest_passport || "",
+      notes: r.notes || "",
+    });
   };
 
   const filtered = rows.filter(r => {
@@ -168,7 +209,34 @@ export default function ApplicationsManager({ serviceType }: Props) {
                     <td className="p-3">{statusBadge(r.status)}</td>
                     <td className="p-3 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
                     <td className="p-3 text-right">
-                      <Button size="sm" variant="outline" onClick={() => setSelected(r)}>View</Button>
+                      <div className="flex items-center justify-end gap-2">
+                        <Select value={r.status} onValueChange={(v) => updateStatus(r.id, v)}>
+                          <SelectTrigger className="w-[130px] h-8 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {STATUS_OPTIONS.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                        <Button size="sm" variant="outline" onClick={() => openDetail(r)}>View</Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete application?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {r.tracking_id} — {r.guest_name}. This will hide it from the list (soft delete).
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteApp(r.id)} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -193,11 +261,29 @@ export default function ApplicationsManager({ serviceType }: Props) {
 
               <div className="space-y-4 pt-2">
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" />{selected.guest_phone}</div>
-                  <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-muted-foreground" />{selected.guest_email || "—"}</div>
-                  <div className="flex items-center gap-2 col-span-2"><MapPin className="h-4 w-4 text-muted-foreground" />{selected.guest_address || "—"}</div>
-                  <div className="flex items-center gap-2"><FileText className="h-4 w-4 text-muted-foreground" />Passport: {selected.guest_passport || "—"}</div>
-                  <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" />{new Date(selected.created_at).toLocaleString()}</div>
+                  <div>
+                    <label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1"><Phone className="h-3 w-3" />Phone</label>
+                    <Input className="mt-1" value={editForm.guest_phone} onChange={(e) => setEditForm({ ...editForm, guest_phone: e.target.value })} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1"><Mail className="h-3 w-3" />Email</label>
+                    <Input className="mt-1" value={editForm.guest_email} onChange={(e) => setEditForm({ ...editForm, guest_email: e.target.value })} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold uppercase text-muted-foreground">Name</label>
+                    <Input className="mt-1" value={editForm.guest_name} onChange={(e) => setEditForm({ ...editForm, guest_name: e.target.value })} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1"><FileText className="h-3 w-3" />Passport</label>
+                    <Input className="mt-1" value={editForm.guest_passport} onChange={(e) => setEditForm({ ...editForm, guest_passport: e.target.value })} />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />Address</label>
+                    <Input className="mt-1" value={editForm.guest_address} onChange={(e) => setEditForm({ ...editForm, guest_address: e.target.value })} />
+                  </div>
+                  <div className="col-span-2 text-xs text-muted-foreground flex items-center gap-2">
+                    <Calendar className="h-3 w-3" />Created {new Date(selected.created_at).toLocaleString()}
+                  </div>
                 </div>
 
                 <div className="bg-secondary/50 rounded-lg p-4 space-y-2">
@@ -210,12 +296,10 @@ export default function ApplicationsManager({ serviceType }: Props) {
                   ))}
                 </div>
 
-                {selected.notes && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
-                    <div className="font-semibold mb-1">Applicant Notes</div>
-                    {selected.notes}
-                  </div>
-                )}
+                <div>
+                  <label className="text-xs font-semibold uppercase text-muted-foreground">Notes</label>
+                  <Textarea className="mt-1" rows={3} value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} />
+                </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -238,13 +322,35 @@ export default function ApplicationsManager({ serviceType }: Props) {
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-2 border-t">
+                <div className="flex gap-2 pt-2 border-t flex-wrap">
+                  <Button onClick={saveEdit} className="bg-gradient-ocean text-white hover:opacity-90">
+                    <Save className="h-4 w-4 mr-1" /> Save Changes
+                  </Button>
                   <Link
                     to={`/admin/payments?application_id=${selected.id}&application_type=${serviceType}`}
                     className="flex-1"
                   >
                     <Button variant="outline" className="w-full">Manage Payments / Invoice</Button>
                   </Link>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" className="text-red-600 hover:text-red-700">
+                        <Trash2 className="h-4 w-4 mr-1" /> Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete application?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {selected.tracking_id} — {selected.guest_name}. This will hide it from the list.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => deleteApp(selected.id)} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                   <Button variant="outline" onClick={() => setSelected(null)}>Close</Button>
                 </div>
               </div>
