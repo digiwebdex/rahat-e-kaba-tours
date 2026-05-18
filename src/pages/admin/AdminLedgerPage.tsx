@@ -23,6 +23,7 @@ interface Row {
 
 export default function AdminLedgerPage() {
   const [rows, setRows] = useState<Row[]>([]);
+  const [wallets, setWallets] = useState<any[]>([]);
   const [scope, setScope] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [from, setFrom] = useState<string>("");
@@ -40,6 +41,17 @@ export default function AdminLedgerPage() {
       setLoading(false);
     })();
   }, [from, to]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("accounts" as any)
+        .select("id,name,type,balance")
+        .eq("type", "asset")
+        .order("name");
+      setWallets((data as any) || []);
+    })();
+  }, []);
 
   const filtered = useMemo(() => rows.filter(r => {
     if (scope !== "all" && r.ledger_type !== scope) return false;
@@ -60,6 +72,26 @@ export default function AdminLedgerPage() {
         <h1 className="text-2xl font-bold">Ledger</h1>
         <p className="text-sm text-muted-foreground">Unified debit/credit history across customers, suppliers, middlemen, and wallets.</p>
       </div>
+
+      {wallets.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2"><CardTitle className="text-base">Wallet / Account Balances</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {wallets.map(w => (
+                <div key={w.id} className="rounded-md border p-3">
+                  <div className="text-xs text-muted-foreground truncate">{w.name}</div>
+                  <div className={`text-lg font-bold tabular-nums ${Number(w.balance) >= 0 ? "text-green-600" : "text-red-600"}`}>৳{Number(w.balance || 0).toLocaleString("en-IN")}</div>
+                </div>
+              ))}
+              <div className="rounded-md border p-3 bg-muted/40">
+                <div className="text-xs text-muted-foreground">Total Cash & Bank</div>
+                <div className="text-lg font-bold tabular-nums">৳{wallets.reduce((s, w) => s + Number(w.balance || 0), 0).toLocaleString("en-IN")}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card><CardContent className="p-4">
