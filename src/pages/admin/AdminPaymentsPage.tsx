@@ -13,7 +13,7 @@ import { formatBDT, formatTrackingId } from "@/lib/utils";
 
 const inputClass = "w-full bg-secondary border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40";
 
-const PAYMENT_METHODS = [
+const FALLBACK_PAYMENT_METHODS = [
   { value: "cash", label: "Cash" },
   { value: "bkash", label: "bKash" },
   { value: "nagad", label: "Nagad" },
