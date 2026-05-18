@@ -297,10 +297,14 @@ const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSub
     }
   };
 
-  const Icon = isWorkPermit ? Briefcase : GraduationCap;
+  const Icon = isWorkPermit ? Briefcase : isStudent ? GraduationCap : isAirTicket ? Plane : ShieldCheck;
   const title = isWorkPermit
-    ? (bn ? "ফিজি ওয়ার্ক পারমিটে আবেদন" : "Apply for Fiji Work Permit")
-    : (bn ? "স্টুডেন্ট কনসালটেন্সি আবেদন" : "Student Consultancy Application");
+    ? (bn ? "ওভারসিজ ওয়ার্ক পারমিটে আবেদন" : "Apply for Overseas Work Permit")
+    : isStudent
+    ? (bn ? "স্টুডেন্ট কনসালটেন্সি আবেদন" : "Student Consultancy Application")
+    : isAirTicket
+    ? (bn ? "এয়ার টিকেট বুকিং রিকোয়েস্ট" : "Air Ticket Booking Request")
+    : (bn ? "ভিসা আবেদন রিকোয়েস্ট" : "Visa Application Request");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
