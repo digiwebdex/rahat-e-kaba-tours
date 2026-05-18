@@ -10,10 +10,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import AdminActionMenu from "@/components/admin/AdminActionMenu";
 import CustomerSearchSelect from "@/components/admin/CustomerSearchSelect";
 import { formatBDT, formatTrackingId } from "@/lib/utils";
+import { usePaymentMethods } from "@/hooks/usePaymentMethods";
 
 const inputClass = "w-full bg-secondary border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40";
 
-const PAYMENT_METHODS = [
+const FALLBACK_PAYMENT_METHODS = [
   { value: "cash", label: "Cash" },
   { value: "bkash", label: "bKash" },
   { value: "nagad", label: "Nagad" },
@@ -55,6 +56,8 @@ const extractServiceType = (notes: string | null): { serviceValue: string; servi
 export default function AdminPaymentsPage() {
   const isViewer = useIsViewer();
   const canModify = useCanModifyFinancials();
+  const { methods: configuredMethods } = usePaymentMethods();
+  const PAYMENT_METHODS = configuredMethods.length ? configuredMethods : FALLBACK_PAYMENT_METHODS;
   const [payments, setPayments] = useState<any[]>([]);
   const [moallemPayments, setMoallemPayments] = useState<any[]>([]);
   const [supplierPayments, setSupplierPayments] = useState<any[]>([]);

@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import CustomerSearchSelect from "@/components/admin/CustomerSearchSelect";
 import { PayOnlineButton } from "@/components/PayOnlineButton";
 import DocumentUploadStep, { type UploadedDoc } from "@/components/booking/DocumentUploadStep";
+import { usePaymentMethods } from "@/hooks/usePaymentMethods";
 
 export type ApplyServiceType = "work_permit" | "student_consultancy";
 
@@ -30,20 +31,12 @@ interface Props {
 
 const COUNTRIES = ["United Kingdom", "Canada", "Australia", "United States", "Germany", "Malaysia", "Other"];
 const STUDY_LEVELS = ["Foundation", "Bachelor's", "Master's", "PhD", "Diploma"];
-const PAYMENT_METHODS = [
-  { value: "cash", label: "Cash" },
-  { value: "bank", label: "Bank Transfer" },
-  { value: "bkash", label: "bKash" },
-  { value: "nagad", label: "Nagad" },
-  { value: "rocket", label: "Rocket" },
-  { value: "card", label: "Card" },
-  { value: "cheque", label: "Cheque" },
-];
 
 const ApplyDialog = ({ open, onOpenChange, serviceType, preset, adminMode, onSubmitted }: Props) => {
   const { language } = useLanguage();
   const bn = language === "bn";
   const isWorkPermit = serviceType === "work_permit";
+  const { methods: PAYMENT_METHODS } = usePaymentMethods();
 
   const [user, setUser] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);

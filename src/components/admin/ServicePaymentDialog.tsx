@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { usePaymentMethods } from "@/hooks/usePaymentMethods";
 
 interface Props {
   open: boolean;
@@ -19,6 +20,7 @@ interface Props {
 
 export function ServicePaymentDialog({ open, onOpenChange, serviceType, serviceId, remainingDue, onSuccess }: Props) {
   const { toast } = useToast();
+  const { methods: PAYMENT_METHODS } = usePaymentMethods();
   const [wallets, setWallets] = useState<any[]>([]);
   const [amount, setAmount] = useState<number>(0);
   const [method, setMethod] = useState("cash");
@@ -77,12 +79,9 @@ export function ServicePaymentDialog({ open, onOpenChange, serviceType, serviceI
               <Select value={method} onValueChange={setMethod}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cash">Cash</SelectItem>
-                  <SelectItem value="bank">Bank Transfer</SelectItem>
-                  <SelectItem value="bkash">bKash</SelectItem>
-                  <SelectItem value="nagad">Nagad</SelectItem>
-                  <SelectItem value="card">Card</SelectItem>
-                  <SelectItem value="cheque">Cheque</SelectItem>
+                  {PAYMENT_METHODS.map((m) => (
+                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
