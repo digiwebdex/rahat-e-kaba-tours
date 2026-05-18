@@ -65,6 +65,8 @@ const AdminSecurityPage = lazy(() => import("./pages/admin/AdminSecurityPage"));
 const AdminGuidePage = lazy(() => import("./pages/admin/AdminGuidePage"));
 const AdminWorkPermitPage = lazy(() => import("./pages/admin/AdminWorkPermitPage"));
 const AdminStudentConsultancyPage = lazy(() => import("./pages/admin/AdminStudentConsultancyPage"));
+const AdminAirTicketInquiriesPage = lazy(() => import("./pages/admin/AdminAirTicketInquiriesPage"));
+const AdminVisaInquiriesPage = lazy(() => import("./pages/admin/AdminVisaInquiriesPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -124,7 +126,9 @@ const App = () => (
               <Route path="supplier-agents/:id" element={<AdminSupplierAgentProfilePage />} />
               <Route path="work-permit" element={<AdminWorkPermitPage />} />
               <Route path="tickets" element={<AdminTicketsPage />} />
+              <Route path="ticket-inquiries" element={<AdminAirTicketInquiriesPage />} />
               <Route path="visa" element={<AdminVisaPage />} />
+              <Route path="visa-inquiries" element={<AdminVisaInquiriesPage />} />
               <Route path="payments" element={<AdminPaymentsPage />} />
               <Route path="settlements" element={<AdminSettlementsPage />} />
               <Route path="accounting" element={<AdminAccountingPage />} />

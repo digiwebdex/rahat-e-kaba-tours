@@ -23,7 +23,9 @@ const mainMenuItems = [
   { title: "Supplier Agents",      url: "/admin/supplier-agents", icon: Truck,           roles: ["admin", "accountant", "viewer"] },
   { title: "Overseas Work Permit", url: "/admin/work-permit",     icon: Briefcase,       roles: ["admin", "accountant", "booking", "viewer"] },
   { title: "Air Tickets",          url: "/admin/tickets",         icon: Plane,           roles: ["admin", "accountant", "booking", "viewer"] },
+  { title: "Ticket Inquiries",     url: "/admin/ticket-inquiries", icon: Plane,          roles: ["admin", "accountant", "booking", "viewer"] },
   { title: "Visa Services",        url: "/admin/visa",            icon: FileCheck,       roles: ["admin", "accountant", "booking", "viewer"] },
+  { title: "Visa Inquiries",       url: "/admin/visa-inquiries",  icon: FileCheck,       roles: ["admin", "accountant", "booking", "viewer"] },
 ];
 
 const financeMenuItems = [
