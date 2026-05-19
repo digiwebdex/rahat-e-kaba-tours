@@ -3,6 +3,7 @@ import {
   Calculator, BarChart3, Pencil, Settings, LogOut, UserCheck, Truck,
   Hotel, Bell, AlertTriangle, BookOpen, DollarSign, RotateCcw, PieChart,
   Plane, FileCheck, Map, Search, Upload, Shield, ShieldCheck, Briefcase, GraduationCap, BookOpenCheck,
+  ChevronDown, Globe,
 } from "lucide-react";
 import logo from "@/assets/al-rawsha-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -10,9 +11,12 @@ import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem,
   SidebarHeader, SidebarFooter, SidebarSeparator,
+  SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/api";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { AppRole } from "@/hooks/useUserRole";
 
 // Role access matrix — Al Rawsha International (Work Permit, Air Tickets, Visa Services)
@@ -57,6 +61,21 @@ const toolsMenuItems = [
 
 export function AdminSidebar({ role }: { role: AppRole }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [wpCountries, setWpCountries] = useState<string[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("packages")
+      .select("country")
+      .eq("type", "work_permit")
+      .eq("is_active", true)
+      .then(({ data }) => {
+        const set = new Set<string>();
+        (data || []).forEach((p: any) => p.country && set.add(p.country));
+        setWpCountries([...set].sort());
+      });
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -78,6 +97,46 @@ export function AdminSidebar({ role }: { role: AppRole }) {
           <SidebarMenu>
             {filtered.map((item) => (
               <SidebarMenuItem key={item.title}>
+                {item.url === "/admin/work-permit" && wpCountries.length > 0 ? (
+                  <Collapsible defaultOpen={location.pathname.startsWith("/admin/work-permit")}>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-muted/50 transition-colors w-full">
+                        <item.icon className="h-4 w-4" />
+                        <span className="flex-1 text-left">{item.title}</span>
+                        <ChevronDown className="h-3.5 w-3.5 transition-transform data-[state=open]:rotate-180" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton asChild>
+                            <NavLink
+                              to={item.url}
+                              end
+                              className="flex items-center gap-2 text-xs text-muted-foreground hover:bg-muted/50"
+                              activeClassName="bg-primary/10 text-primary font-medium"
+                            >
+                              <Globe className="h-3 w-3" /> All Countries
+                            </NavLink>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        {wpCountries.map((c) => (
+                          <SidebarMenuSubItem key={c}>
+                            <SidebarMenuSubButton asChild>
+                              <NavLink
+                                to={`${item.url}?country=${encodeURIComponent(c)}`}
+                                className="flex items-center gap-2 text-xs text-muted-foreground hover:bg-muted/50"
+                                activeClassName="bg-primary/10 text-primary font-medium"
+                              >
+                                {c}
+                              </NavLink>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </Collapsible>
+                ) : (
                 <SidebarMenuButton asChild>
                   <NavLink
                     to={item.url}
@@ -89,6 +148,7 @@ export function AdminSidebar({ role }: { role: AppRole }) {
                     <span>{item.title}</span>
                   </NavLink>
                 </SidebarMenuButton>
+                )}
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
