@@ -459,6 +459,48 @@ app.get('/api/applications', authenticate, async (req, res) => {
 });
 app.use('/api/applications', createCrudRoutes('applications', { adminOnly: true }));
 
+// Phase 8: dedicated status change endpoint — records history + fires SMS
+app.post('/api/applications/:id/status', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const { status, note } = req.body || {};
+    const allowed = ['pending', 'submitted', 'in_review', 'approved', 'rejected', 'completed', 'cancelled'];
+    if (!status || !allowed.includes(status)) {
+      return res.status(400).json({ error: `status must be one of: ${allowed.join(', ')}` });
+    }
+    const r = await query(
+      `UPDATE applications SET status=$2, updated_at=now() WHERE id=$1
+       RETURNING id, tracking_id, status, customer_id`,
+      [req.params.id, status]
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: 'Application not found' });
+    const app = r.rows[0];
+
+    await query(
+      `INSERT INTO application_status_history (application_id, to_status, note, changed_by)
+       VALUES ($1,$2,$3,$4)`,
+      [app.id, status, note || null, req.user.id]
+    );
+
+    // Lookup customer phone + name for SMS
+    const c = await query(
+      `SELECT full_name, phone FROM customers WHERE id=$1 LIMIT 1`,
+      [app.customer_id]
+    );
+    const cust = c.rows[0];
+    if (cust?.phone) {
+      notifications.notify('application_status_changed', {
+        phone: cust.phone,
+        data: { name: cust.full_name, tracking: app.tracking_id, status },
+      }).catch(() => {});
+    }
+
+    res.json({ success: true, application: app });
+  } catch (e) {
+    console.error('POST /api/applications/:id/status error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Full application data for invoice rendering (admin or owning customer)
 app.get('/api/applications/:idOrTracking/invoice', authenticate, async (req, res) => {
   try {
