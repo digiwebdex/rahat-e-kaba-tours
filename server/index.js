@@ -1903,6 +1903,17 @@ app.post('/api/public/applications', optionalAuth, async (req, res) => {
       [app.rows[0].id]
     );
 
+    // Fire-and-forget SMS to applicant
+    notifications.notify('application_submitted', {
+      phone: normalizedPhone,
+      userId: req.user?.id || null,
+      data: {
+        name: customer.full_name,
+        tracking: app.rows[0].tracking_id,
+        service: service_code,
+      },
+    }).catch(() => {});
+
     res.json({ success: true, application: app.rows[0] });
   } catch (e) {
     console.error('POST /api/public/applications error:', e.message);
