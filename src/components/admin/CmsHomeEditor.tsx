@@ -51,7 +51,7 @@ function SectionCard({ section, onSaved }: { section: Section; onSaved: () => vo
           return;
         }
       }
-      await apiClient.put(`/cms-sections/${section.id}`, {
+      await apiClient.patch(`/cms-sections/${section.id}`, {
         content: payload,
         is_visible: visible,
       });
