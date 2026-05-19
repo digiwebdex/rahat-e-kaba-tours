@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Wallet } from "lucide-react";
+import { Loader2, Wallet, FileDown } from "lucide-react";
 import { toast } from "sonner";
+import { downloadAgentStatement } from "@/lib/agentStatementPdf";
 
 const fmt = (n: any) =>
   Number(n || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -47,6 +48,13 @@ export default function AdminAgentPayoutsPage() {
 
   const pending = useMemo(() => commissions.filter((c) => c.status === "accrued"), [commissions]);
   const paid = useMemo(() => commissions.filter((c) => c.status === "paid"), [commissions]);
+
+  const currentAgent = useMemo(() => agents.find((a) => a.id === agentId), [agents, agentId]);
+
+  const downloadStatement = () => {
+    if (!currentAgent) return toast.error("Select an agent");
+    downloadAgentStatement({ agent: currentAgent, pending, paid });
+  };
 
   const totalSelected = useMemo(
     () => pending.filter((c) => selected[c.id]).reduce((s, c) => s + Number(c.amount), 0),
@@ -142,6 +150,9 @@ export default function AdminAgentPayoutsPage() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={downloadStatement} disabled={!commissions.length}>
+              <FileDown className="h-4 w-4 mr-1" /> Statement PDF
+            </Button>
             <Button variant="outline" size="sm" onClick={toggleAll} disabled={!pending.length}>
               {Object.keys(selected).length === pending.length && pending.length ? "Unselect all" : "Select all"}
             </Button>
