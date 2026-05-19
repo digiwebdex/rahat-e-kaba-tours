@@ -48,20 +48,12 @@ DROP TABLE IF EXISTS blog_posts CASCADE;
 -- notification_settings, company_settings, admin_2fa, admin_2fa_codes, otp_codes
 
 -- ============================================================
--- 2. EXTEND ROLE ENUM
+-- 2. ROLES — reuse existing app_role enum
+--    (alrawsha_user is not owner of the type, so we cannot ALTER TYPE.
+--     Map: booking_officer -> 'booking', referral/supplier agent -> 'staff',
+--     customer -> no DB role needed.)
 -- ============================================================
-DO $$ BEGIN
-  ALTER TYPE app_role ADD VALUE IF NOT EXISTS 'booking_officer';
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-DO $$ BEGIN
-  ALTER TYPE app_role ADD VALUE IF NOT EXISTS 'referral_agent';
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-DO $$ BEGIN
-  ALTER TYPE app_role ADD VALUE IF NOT EXISTS 'supplier_agent';
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-DO $$ BEGIN
-  ALTER TYPE app_role ADD VALUE IF NOT EXISTS 'customer';
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+-- (no-op)
 
 -- ============================================================
 -- 3. CORE CATALOG: services + packages
