@@ -813,3 +813,35 @@ export const supabase = {
     };
   },
 };
+
+// =============================================
+// Direct REST helper (for new recruiting-platform routes)
+// =============================================
+async function jsonOrThrow(res: Response) {
+  const text = await res.text();
+  const data = text ? (() => { try { return JSON.parse(text); } catch { return text; } })() : null;
+  if (!res.ok) {
+    const msg = (data && typeof data === 'object' && data.error) ? data.error : `Request failed (${res.status})`;
+    throw new Error(msg);
+  }
+  return data;
+}
+
+export const apiClient = {
+  async get(path: string) {
+    const res = await apiFetch(path);
+    return jsonOrThrow(res);
+  },
+  async post(path: string, body?: any) {
+    const res = await apiFetch(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined });
+    return jsonOrThrow(res);
+  },
+  async patch(path: string, body?: any) {
+    const res = await apiFetch(path, { method: 'PATCH', body: body ? JSON.stringify(body) : undefined });
+    return jsonOrThrow(res);
+  },
+  async delete(path: string) {
+    const res = await apiFetch(path, { method: 'DELETE' });
+    return jsonOrThrow(res);
+  },
+};
