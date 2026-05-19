@@ -1357,6 +1357,7 @@ export type Database = {
       }
       packages: {
         Row: {
+          country: string | null
           created_at: string
           description: string | null
           duration_days: number | null
@@ -1377,6 +1378,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          country?: string | null
           created_at?: string
           description?: string | null
           duration_days?: number | null
@@ -1397,6 +1399,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          country?: string | null
           created_at?: string
           description?: string | null
           duration_days?: number | null

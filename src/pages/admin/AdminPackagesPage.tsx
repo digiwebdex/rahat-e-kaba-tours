@@ -15,7 +15,7 @@ const EMPTY_FORM = {
   name: "", type: "umrah", description: "", price: "", duration_days: "",
   image_url: "", start_date: "", expiry_date: "", services: "", features: "",
   is_active: true, status: "active", show_on_website: true,
-  rating: "4.9", highlight_tag: "",
+  rating: "4.9", highlight_tag: "", country: "",
 };
 
 export default function AdminPackagesPage() {
@@ -73,6 +73,7 @@ export default function AdminPackagesPage() {
     const featuresList = parseFeatures(f.features);
     const servicesList = f.services ? f.services.split(",").map(s => s.trim()).filter(Boolean) : [];
     const ratingNum = parseFloat(f.rating);
+    const country = f.country.trim() || null;
     return {
       name: f.name.trim(), type: f.type, description: f.description.trim() || null,
       price: parseFloat(f.price), duration_days: f.duration_days ? parseInt(f.duration_days) : null,
@@ -85,6 +86,7 @@ export default function AdminPackagesPage() {
       show_on_website: f.show_on_website,
       rating: isNaN(ratingNum) ? 4.9 : Math.max(0, Math.min(5, ratingNum)),
       highlight_tag: f.highlight_tag.trim() || null,
+      country,
     };
   };
 
@@ -112,6 +114,7 @@ export default function AdminPackagesPage() {
       show_on_website: p.show_on_website !== false,
       rating: p.rating != null ? String(p.rating) : "4.9",
       highlight_tag: p.highlight_tag || "",
+      country: p.country || "",
     });
     setShowForm(true);
   };
@@ -207,6 +210,16 @@ export default function AdminPackagesPage() {
           <input className={inputClass} placeholder="Visa, Hotel, Transport, Food"
             value={form.services} onChange={(e) => setForm({ ...form, services: e.target.value })} />
         </div>
+        {(form.type === "work_permit" || form.type === "student_consultancy" || form.type === "visa") && (
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">
+              Country {form.type === "work_permit" && <span className="text-primary">*</span>}
+            </label>
+            <input className={inputClass} placeholder="e.g. Vietnam, Kuwait, Romania"
+              value={form.country}
+              onChange={(e) => setForm({ ...form, country: e.target.value })} />
+          </div>
+        )}
         <div>
           <label className="text-xs text-muted-foreground block mb-1">Rating (0–5)</label>
           <input className={inputClass} type="number" step="0.1" min="0" max="5" placeholder="4.9"

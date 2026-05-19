@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/api";
 import { toast } from "sonner";
 import { Loader2, Search, Briefcase, GraduationCap, Plane, ShieldCheck, Phone, Mail, MapPin, Calendar, FileText, Plus, Trash2, Save } from "lucide-react";
@@ -62,6 +63,15 @@ export default function ApplicationsManager({ serviceType }: Props) {
   const [addOpen, setAddOpen] = useState(false);
   const [editForm, setEditForm] = useState<any>({});
   const [agentMap, setAgentMap] = useState<Record<string, string>>({});
+  const [pkgMap, setPkgMap] = useState<Record<string, { name: string; country: string | null }>>({});
+  const [countries, setCountries] = useState<string[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const countryFilter = searchParams.get("country") || "all";
+  const setCountryFilter = (c: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (c === "all") next.delete("country"); else next.set("country", c);
+    setSearchParams(next, { replace: true });
+  };
 
   const load = async () => {
     setLoading(true);
@@ -91,6 +101,24 @@ export default function ApplicationsManager({ serviceType }: Props) {
         setAgentMap(m);
       });
   }, []);
+
+  // Load packages for this service to enable country column / filter
+  useEffect(() => {
+    supabase
+      .from("packages")
+      .select("id, name, country")
+      .eq("type", serviceType)
+      .then(({ data }) => {
+        const m: Record<string, { name: string; country: string | null }> = {};
+        const set = new Set<string>();
+        (data || []).forEach((p: any) => {
+          m[p.id] = { name: p.name, country: p.country || null };
+          if (p.country) set.add(p.country);
+        });
+        setPkgMap(m);
+        setCountries([...set].sort());
+      });
+  }, [serviceType]);
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
@@ -147,6 +175,10 @@ export default function ApplicationsManager({ serviceType }: Props) {
 
   const filtered = rows.filter(r => {
     if (statusFilter !== "all" && r.status !== statusFilter) return false;
+    if (countryFilter !== "all") {
+      const c = pkgMap[r.package_id]?.country;
+      if (c !== countryFilter) return false;
+    }
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return [r.guest_name, r.guest_phone, r.guest_email, r.tracking_id]
@@ -202,6 +234,15 @@ export default function ApplicationsManager({ serviceType }: Props) {
             {STATUS_OPTIONS.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
           </SelectContent>
         </Select>
+        {countries.length > 0 && (
+          <Select value={countryFilter} onValueChange={setCountryFilter}>
+            <SelectTrigger className="w-[180px]"><SelectValue placeholder="All countries" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All countries</SelectItem>
+              {countries.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {/* Table */}
@@ -217,6 +258,7 @@ export default function ApplicationsManager({ serviceType }: Props) {
                 <th className="text-left p-3">Tracking ID</th>
                 <th className="text-left p-3">Applicant</th>
                 <th className="text-left p-3">Phone</th>
+                {isWP && <th className="text-left p-3">Country</th>}
                 <th className="text-left p-3">{detailHeader}</th>
                 <th className="text-left p-3">Referred By</th>
                 <th className="text-left p-3">Fee (BDT)</th>
@@ -234,6 +276,11 @@ export default function ApplicationsManager({ serviceType }: Props) {
                     <td className="p-3 font-mono text-xs text-primary">{r.tracking_id}</td>
                     <td className="p-3 font-medium">{r.guest_name || "—"}</td>
                     <td className="p-3">{r.guest_phone || "—"}</td>
+                    {isWP && (
+                      <td className="p-3 text-xs">
+                        {pkgMap[r.package_id]?.country || <span className="text-muted-foreground">—</span>}
+                      </td>
+                    )}
                     <td className="p-3">
                       {isWP
                         ? ad.position
@@ -328,6 +375,20 @@ export default function ApplicationsManager({ serviceType }: Props) {
 
                 <div className="bg-secondary/50 rounded-lg p-4 space-y-2">
                   <h4 className="font-semibold text-sm">Application Details</h4>
+                  {pkgMap[selected.package_id] && (
+                    <>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Package</span>
+                        <span className="font-medium">{pkgMap[selected.package_id].name}</span>
+                      </div>
+                      {pkgMap[selected.package_id].country && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Country</span>
+                          <span className="font-medium">{pkgMap[selected.package_id].country}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
                   {selected.supplier_agent_id && (
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Referred by</span>
