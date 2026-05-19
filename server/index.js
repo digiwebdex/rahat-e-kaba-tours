@@ -10,6 +10,7 @@ const { authenticate, requireRole, optionalAuth } = require('./middleware/auth')
 const { auditMiddleware } = require('./middleware/audit');
 const authRoutes = require('./routes/auth');
 const accounting = require('./services/accounting');
+const notifications = require('./services/notifications');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -611,6 +612,35 @@ app.get('/api/agent/stats', authenticate, resolveAgent, async (req, res) => {
 app.post('/api/payments/:id/confirm', authenticate, requireRole('admin'), async (req, res) => {
   try {
     const result = await accounting.confirmPayment(req.params.id, req.user?.id || null);
+
+    // SMS the customer that their payment was confirmed
+    try {
+      const info = await query(
+        `SELECT p.amount, a.tracking_id, a.due_amount, a.total_amount,
+                c.full_name, c.phone, c.user_id
+           FROM payments p
+           LEFT JOIN applications a ON a.id = p.application_id
+           LEFT JOIN customers c ON c.id = p.customer_id
+          WHERE p.id = $1`,
+        [req.params.id],
+      );
+      const row = info.rows[0];
+      if (row?.phone) {
+        notifications.notify('payment_received', {
+          phone: row.phone,
+          userId: row.user_id,
+          data: {
+            name: row.full_name,
+            tracking: row.tracking_id || '',
+            amount: Number(row.amount).toLocaleString(),
+            due: Number(row.due_amount || 0),
+          },
+        }).catch(() => {});
+      }
+    } catch (smsErr) {
+      console.error('payment_received SMS failed:', smsErr.message);
+    }
+
     res.json({ success: true, ...result });
   } catch (e) {
     console.error('POST /api/payments/:id/confirm error:', e.message);
@@ -1902,6 +1932,17 @@ app.post('/api/public/applications', optionalAuth, async (req, res) => {
       [app.rows[0].id]
     );
 
+    // Fire-and-forget SMS to applicant
+    notifications.notify('application_submitted', {
+      phone: normalizedPhone,
+      userId: req.user?.id || null,
+      data: {
+        name: customer.full_name,
+        tracking: app.rows[0].tracking_id,
+        service: service_code,
+      },
+    }).catch(() => {});
+
     res.json({ success: true, application: app.rows[0] });
   } catch (e) {
     console.error('POST /api/public/applications error:', e.message);
@@ -1951,6 +1992,29 @@ app.post('/api/public/payments/manual', optionalAuth, async (req, res) => {
       [appRow.id, appRow.customer_id, amount, method_code, method.rows[0].wallet_id,
         transaction_ref || null, proof_file_path || null, notes || null]
     );
+
+    // Notify customer that payment submission was received
+    try {
+      const cust = await query(
+        `SELECT full_name, phone FROM customers WHERE id = $1`,
+        [appRow.customer_id],
+      );
+      const trackR = await query(
+        `SELECT tracking_id FROM applications WHERE id = $1`,
+        [appRow.id],
+      );
+      if (cust.rows[0]?.phone) {
+        notifications.notify('payment_submitted', {
+          phone: cust.rows[0].phone,
+          data: {
+            name: cust.rows[0].full_name,
+            tracking: trackR.rows[0]?.tracking_id || '',
+            amount: Number(amount).toLocaleString(),
+          },
+        }).catch(() => {});
+      }
+    } catch {}
+
     res.json({ success: true, payment: r.rows[0] });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

@@ -1204,7 +1204,10 @@ INSERT INTO notification_settings (event_key, event_label) VALUES
   ('payment_received', 'Payment Received'),
   ('payment_reminder', 'Payment Reminder'),
   ('commission_paid', 'Commission Paid'),
-  ('supplier_payment_recorded', 'Supplier Payment Recorded')
+  ('supplier_payment_recorded', 'Supplier Payment Recorded'),
+  ('application_submitted', 'Application Submitted'),
+  ('payment_submitted', 'Payment Submitted (Pending Verification)'),
+  ('application_status_changed', 'Application Status Changed')
 ON CONFLICT DO NOTHING;
 
 -- =============================================
