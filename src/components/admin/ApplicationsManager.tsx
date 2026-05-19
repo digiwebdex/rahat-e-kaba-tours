@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/api";
 import { toast } from "sonner";
-import { Loader2, Search, Briefcase, GraduationCap, Plane, ShieldCheck, Phone, Mail, MapPin, Calendar, FileText, Plus, Trash2, Save } from "lucide-react";
+import { Loader2, Search, Briefcase, GraduationCap, Plane, ShieldCheck, Phone, Mail, MapPin, Calendar, FileText, Plus, Trash2, Save, FileDown, Printer } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -306,6 +306,11 @@ export default function ApplicationsManager({ serviceType }: Props) {
                           </SelectContent>
                         </Select>
                         <Button size="sm" variant="outline" onClick={() => openDetail(r)}>View</Button>
+                        <Link to={`/invoice?id=${r.tracking_id}`} target="_blank">
+                          <Button size="sm" variant="outline" className="text-primary">
+                            <FileDown className="h-3.5 w-3.5 mr-1" /> Invoice
+                          </Button>
+                        </Link>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
