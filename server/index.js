@@ -612,6 +612,35 @@ app.get('/api/agent/stats', authenticate, resolveAgent, async (req, res) => {
 app.post('/api/payments/:id/confirm', authenticate, requireRole('admin'), async (req, res) => {
   try {
     const result = await accounting.confirmPayment(req.params.id, req.user?.id || null);
+
+    // SMS the customer that their payment was confirmed
+    try {
+      const info = await query(
+        `SELECT p.amount, a.tracking_id, a.due_amount, a.total_amount,
+                c.full_name, c.phone, c.user_id
+           FROM payments p
+           LEFT JOIN applications a ON a.id = p.application_id
+           LEFT JOIN customers c ON c.id = p.customer_id
+          WHERE p.id = $1`,
+        [req.params.id],
+      );
+      const row = info.rows[0];
+      if (row?.phone) {
+        notifications.notify('payment_received', {
+          phone: row.phone,
+          userId: row.user_id,
+          data: {
+            name: row.full_name,
+            tracking: row.tracking_id || '',
+            amount: Number(row.amount).toLocaleString(),
+            due: Number(row.due_amount || 0),
+          },
+        }).catch(() => {});
+      }
+    } catch (smsErr) {
+      console.error('payment_received SMS failed:', smsErr.message);
+    }
+
     res.json({ success: true, ...result });
   } catch (e) {
     console.error('POST /api/payments/:id/confirm error:', e.message);
