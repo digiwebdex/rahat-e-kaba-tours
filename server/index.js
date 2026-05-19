@@ -395,23 +395,23 @@ app.use('/api/site-settings', createCrudRoutes('site_settings', { readAuth: fals
 app.use('/api/menu-items', createCrudRoutes('menu_items', { readAuth: false, writeAuth: true, adminOnly: true, orderBy: 'sort_order ASC' }));
 app.use('/api/blog-posts', createCrudRoutes('blog_posts', { readAuth: false, writeAuth: true, adminOnly: true }));
 
-// Auth required routes
-// Custom bookings GET with JOINs (must be before generic CRUD)
-app.get('/api/bookings', authenticate, async (req, res) => {
+// =============================================
+// AUTH-REQUIRED ROUTES (new recruiting schema)
+// =============================================
+// Custom applications GET with JOINs (must be before generic CRUD)
+app.get('/api/applications', authenticate, async (req, res) => {
   try {
     const { limit = 1000, offset = 0, ...filters } = req.query;
     let conditions = [];
     let params = [];
     const validColumn = (col) => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(col);
-    
     Object.entries(filters).forEach(([key, value]) => {
       if (value === undefined || value === '') return;
       const opMatch = key.match(/^(.+?)_(not_is|neq|gt|gte|lt|lte|ilike|in|is)$/);
       const column = opMatch ? opMatch[1] : key;
       const operator = opMatch ? opMatch[2] : 'eq';
       if (!validColumn(column)) return;
-      
-      const prefixedCol = `b.${column}`;
+      const prefixedCol = `a.${column}`;
       if (operator === 'is') {
         if (String(value).toLowerCase() === 'null') conditions.push(`${prefixedCol} IS NULL`);
         else { params.push(value); conditions.push(`${prefixedCol} = $${params.length}`); }
@@ -434,145 +434,41 @@ app.get('/api/bookings', authenticate, async (req, res) => {
       conditions.push(`${prefixedCol} ${sqlOp} $${params.length}`);
     });
 
-    let sql = `SELECT b.*, 
-      json_build_object('name', p.name, 'type', p.type, 'duration_days', p.duration_days, 'price', p.price, 'start_date', p.start_date) as packages,
-      CASE WHEN m.id IS NOT NULL THEN json_build_object('name', m.name, 'phone', m.phone) ELSE NULL END as moallems
-      FROM bookings b
-      LEFT JOIN packages p ON b.package_id = p.id
-      LEFT JOIN moallems m ON b.moallem_id = m.id`;
+    let sql = `SELECT a.*,
+      CASE WHEN s.id IS NOT NULL THEN json_build_object('code', s.code, 'name_en', s.name_en, 'name_bn', s.name_bn) ELSE NULL END as services,
+      CASE WHEN c.id IS NOT NULL THEN json_build_object('full_name', c.full_name, 'phone', c.phone, 'email', c.email) ELSE NULL END as customers,
+      CASE WHEN ag.id IS NOT NULL THEN json_build_object('full_name', ag.full_name, 'kind', ag.kind, 'code', ag.code) ELSE NULL END as agents
+      FROM applications a
+      LEFT JOIN services s ON a.service_id = s.id
+      LEFT JOIN customers c ON a.customer_id = c.id
+      LEFT JOIN agents ag ON a.agent_id = ag.id`;
     if (conditions.length) sql += ' WHERE ' + conditions.join(' AND ');
-    sql += ` ORDER BY b.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+    sql += ` ORDER BY a.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
     params.push(Number(limit) || 1000, Number(offset) || 0);
 
     const result = await query(sql, params);
     res.json(result.rows);
   } catch (err) {
-    console.error('GET /api/bookings error:', err.message);
+    console.error('GET /api/applications error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
-app.use('/api/bookings', createCrudRoutes('bookings', { adminOnly: true }));
+app.use('/api/applications', createCrudRoutes('applications', { adminOnly: true }));
+app.use('/api/application-documents', createCrudRoutes('application_documents', { readAuth: true, writeAuth: false }));
+app.use('/api/application-status-history', createCrudRoutes('application_status_history', { adminOnly: true, orderBy: 'created_at DESC' }));
+app.use('/api/customers', createCrudRoutes('customers', { adminOnly: true }));
+app.use('/api/agents', createCrudRoutes('agents', { adminOnly: true }));
 app.use('/api/payments', createCrudRoutes('payments', { adminOnly: true }));
-app.use('/api/expenses', createCrudRoutes('expenses', { adminOnly: true }));
-app.use('/api/transactions', createCrudRoutes('transactions', { adminOnly: true }));
+app.use('/api/payment-methods', createCrudRoutes('payment_methods', { readAuth: false, writeAuth: true, adminOnly: true, orderBy: 'sort_order ASC' }));
+app.use('/api/wallets', createCrudRoutes('wallets', { adminOnly: true, orderBy: 'name ASC' }));
+app.use('/api/chart-of-accounts', createCrudRoutes('chart_of_accounts', { adminOnly: true, orderBy: 'code ASC' }));
+app.use('/api/journal-entries', createCrudRoutes('journal_entries', { adminOnly: true, orderBy: 'entry_date DESC' }));
+app.use('/api/journal-lines', createCrudRoutes('journal_lines', { adminOnly: true }));
+app.use('/api/expenses', createCrudRoutes('expenses', { adminOnly: true, orderBy: 'expense_date DESC' }));
+app.use('/api/agent-commissions', createCrudRoutes('agent_commissions', { adminOnly: true }));
+app.use('/api/supplier-payables', createCrudRoutes('supplier_payables', { adminOnly: true }));
+app.use('/api/supplier-settlements', createCrudRoutes('supplier_settlements', { adminOnly: true }));
 app.use('/api/profiles', createCrudRoutes('profiles', { adminOnly: true }));
-app.use('/api/accounts', createCrudRoutes('accounts', { adminOnly: true }));
-app.use('/api/moallems', createCrudRoutes('moallems', { adminOnly: true }));
-// Custom moallem_payments GET with JOINs
-app.get('/api/moallem-payments', authenticate, async (req, res) => {
-  try {
-    const { limit = 1000, offset = 0, ...filters } = req.query;
-    let conditions = [];
-    let params = [];
-    const validColumn = (col) => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(col);
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value === undefined || value === '') return;
-      const opMatch = key.match(/^(.+?)_(not_is|neq|gt|gte|lt|lte|ilike|in|is)$/);
-      const column = opMatch ? opMatch[1] : key;
-      const operator = opMatch ? opMatch[2] : 'eq';
-      if (!validColumn(column)) return;
-      const prefixedCol = `mp.${column}`;
-      if (operator === 'is') {
-        if (String(value).toLowerCase() === 'null') conditions.push(`${prefixedCol} IS NULL`);
-        else { params.push(value); conditions.push(`${prefixedCol} = $${params.length}`); }
-        return;
-      }
-      if (operator === 'not_is') {
-        if (String(value).toLowerCase() === 'null') conditions.push(`${prefixedCol} IS NOT NULL`);
-        else { params.push(value); conditions.push(`${prefixedCol} <> $${params.length}`); }
-        return;
-      }
-      if (operator === 'in') {
-        const arr = String(value).split(',').filter(Boolean);
-        if (!arr.length) return;
-        params.push(arr);
-        conditions.push(`${prefixedCol} = ANY($${params.length})`);
-        return;
-      }
-      const sqlOp = { eq: '=', neq: '<>', gt: '>', gte: '>=', lt: '<', lte: '<=', ilike: 'ILIKE' }[operator] || '=';
-      params.push(operator === 'ilike' ? `%${String(value).replace(/%/g, '')}%` : value);
-      conditions.push(`${prefixedCol} ${sqlOp} $${params.length}`);
-    });
-    let sql = `SELECT mp.*,
-      CASE WHEN m.id IS NOT NULL THEN json_build_object('name', m.name, 'phone', m.phone) ELSE NULL END as moallems,
-      CASE WHEN b.id IS NOT NULL THEN json_build_object('tracking_id', b.tracking_id, 'total_amount', b.total_amount, 'paid_amount', b.paid_amount, 'due_amount', b.due_amount, 'paid_by_moallem', b.paid_by_moallem, 'moallem_due', b.moallem_due, 'guest_name', b.guest_name, 'packages', json_build_object('name', p.name, 'type', p.type)) ELSE NULL END as bookings
-      FROM moallem_payments mp
-      LEFT JOIN moallems m ON mp.moallem_id = m.id
-      LEFT JOIN bookings b ON mp.booking_id = b.id
-      LEFT JOIN packages p ON b.package_id = p.id`;
-    if (conditions.length) sql += ' WHERE ' + conditions.join(' AND ');
-    sql += ` ORDER BY mp.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-    params.push(Number(limit) || 1000, Number(offset) || 0);
-    const result = await query(sql, params);
-    res.json(result.rows);
-  } catch (err) {
-    console.error('GET /api/moallem-payments error:', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-app.use('/api/moallem-payments', createCrudRoutes('moallem_payments', { adminOnly: true }));
-app.use('/api/moallem-commission-payments', createCrudRoutes('moallem_commission_payments', { adminOnly: true }));
-app.use('/api/moallem-items', createCrudRoutes('moallem_items', { adminOnly: true }));
-app.use('/api/supplier-agents', createCrudRoutes('supplier_agents', { adminOnly: true }));
-// Custom supplier_agent_payments GET with JOINs
-app.get('/api/supplier-agent-payments', authenticate, async (req, res) => {
-  try {
-    const { limit = 1000, offset = 0, ...filters } = req.query;
-    let conditions = [];
-    let params = [];
-    const validColumn = (col) => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(col);
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value === undefined || value === '') return;
-      const opMatch = key.match(/^(.+?)_(not_is|neq|gt|gte|lt|lte|ilike|in|is)$/);
-      const column = opMatch ? opMatch[1] : key;
-      const operator = opMatch ? opMatch[2] : 'eq';
-      if (!validColumn(column)) return;
-      const prefixedCol = `sp.${column}`;
-      if (operator === 'is') {
-        if (String(value).toLowerCase() === 'null') conditions.push(`${prefixedCol} IS NULL`);
-        else { params.push(value); conditions.push(`${prefixedCol} = $${params.length}`); }
-        return;
-      }
-      if (operator === 'not_is') {
-        if (String(value).toLowerCase() === 'null') conditions.push(`${prefixedCol} IS NOT NULL`);
-        else { params.push(value); conditions.push(`${prefixedCol} <> $${params.length}`); }
-        return;
-      }
-      if (operator === 'in') {
-        const arr = String(value).split(',').filter(Boolean);
-        if (!arr.length) return;
-        params.push(arr);
-        conditions.push(`${prefixedCol} = ANY($${params.length})`);
-        return;
-      }
-      const sqlOp = { eq: '=', neq: '<>', gt: '>', gte: '>=', lt: '<', lte: '<=', ilike: 'ILIKE' }[operator] || '=';
-      params.push(operator === 'ilike' ? `%${String(value).replace(/%/g, '')}%` : value);
-      conditions.push(`${prefixedCol} ${sqlOp} $${params.length}`);
-    });
-    let sql = `SELECT sp.*,
-      CASE WHEN sa.id IS NOT NULL THEN json_build_object('agent_name', sa.agent_name, 'company_name', sa.company_name) ELSE NULL END as supplier_agents,
-      CASE WHEN b.id IS NOT NULL THEN json_build_object('tracking_id', b.tracking_id, 'total_amount', b.total_amount, 'total_cost', b.total_cost, 'paid_to_supplier', b.paid_to_supplier, 'supplier_due', b.supplier_due, 'guest_name', b.guest_name, 'packages', json_build_object('name', p.name, 'type', p.type)) ELSE NULL END as bookings
-      FROM supplier_agent_payments sp
-      LEFT JOIN supplier_agents sa ON sp.supplier_agent_id = sa.id
-      LEFT JOIN bookings b ON sp.booking_id = b.id
-      LEFT JOIN packages p ON b.package_id = p.id`;
-    if (conditions.length) sql += ' WHERE ' + conditions.join(' AND ');
-    sql += ` ORDER BY sp.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-    params.push(Number(limit) || 1000, Number(offset) || 0);
-    const result = await query(sql, params);
-    res.json(result.rows);
-  } catch (err) {
-    console.error('GET /api/supplier-agent-payments error:', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-app.use('/api/supplier-agent-payments', createCrudRoutes('supplier_agent_payments', { adminOnly: true }));
-app.use('/api/supplier-agent-items', createCrudRoutes('supplier_agent_items', { adminOnly: true }));
-app.use('/api/supplier-contracts', createCrudRoutes('supplier_contracts', { adminOnly: true }));
-app.use('/api/supplier-contract-payments', createCrudRoutes('supplier_contract_payments', { adminOnly: true }));
-app.use('/api/booking-members', createCrudRoutes('booking_members', { adminOnly: true }));
-app.use('/api/booking-documents', createCrudRoutes('booking_documents', { readAuth: true, writeAuth: false }));
-app.use('/api/hotel-bookings', createCrudRoutes('hotel_bookings'));
 app.use('/api/notification-logs', createCrudRoutes('notification_logs', { adminOnly: true }));
 app.use('/api/notification-settings', createCrudRoutes('notification_settings', { adminOnly: true, orderBy: 'event_key ASC' }));
 app.use('/api/company-settings', createCrudRoutes('company_settings', { adminOnly: true }));
@@ -591,10 +487,6 @@ app.use('/api/user-roles', createCrudRoutes('user_roles', { adminOnly: true }));
 
 // (admin role protection middleware moved before route registration)
 
-app.use('/api/financial-summary', createCrudRoutes('financial_summary', { adminOnly: true }));
-app.use('/api/daily-cashbook', createCrudRoutes('daily_cashbook', { adminOnly: true }));
-app.use('/api/refunds', createCrudRoutes('refunds', { adminOnly: true }));
-app.use('/api/cancellation-policies', createCrudRoutes('cancellation_policies', { readAuth: false, writeAuth: true, adminOnly: true }));
 app.use('/api/audit-logs', createCrudRoutes('audit_logs', { adminOnly: true, orderBy: 'created_at DESC' }));
 
 // ==============================================
