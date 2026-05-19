@@ -46,6 +46,7 @@ const AdminWalletsPage = lazy(() => import("./pages/admin/AdminWalletsPage"));
 const AdminPaymentMethodsPage = lazy(() => import("./pages/admin/AdminPaymentMethodsNewPage"));
 const AdminExpensesPage = lazy(() => import("./pages/admin/AdminExpensesPage"));
 const AdminChartOfAccountsPage = lazy(() => import("./pages/admin/AdminChartOfAccountsNewPage"));
+const AdminAccountingPage = lazy(() => import("./pages/admin/AdminAccountingPage"));
 const AdminCmsPage = lazy(() => import("./pages/admin/AdminCmsNewPage"));
 const AdminPlaceholderPage = lazy(() => import("./pages/admin/AdminPlaceholderPage"));
 const AdminSettingsPage = lazy(() => import("./pages/admin/AdminSettingsPage"));
@@ -117,7 +118,7 @@ const App = () => (
               <Route path="wallets" element={<AdminWalletsPage />} />
               <Route path="payment-methods" element={<AdminPaymentMethodsPage />} />
               <Route path="expenses" element={<AdminExpensesPage />} />
-              <Route path="accounting" element={<AdminPlaceholderPage title="Accounting" description="Double-entry journal, P&L and trial balance arrive in Phase 3." />} />
+              <Route path="accounting" element={<AdminAccountingPage />} />
               <Route path="chart-of-accounts" element={<AdminChartOfAccountsPage />} />
               <Route path="reports" element={<AdminPlaceholderPage title="Reports" description="Cashbook, P&L, agent statements and pipeline reports arrive in Phase 5." />} />
               <Route path="notifications" element={<AdminNotificationsPage />} />
