@@ -435,13 +435,15 @@ app.get('/api/applications', authenticate, async (req, res) => {
     });
 
     let sql = `SELECT a.*,
-      CASE WHEN s.id IS NOT NULL THEN json_build_object('code', s.code, 'name_en', s.name_en, 'name_bn', s.name_bn) ELSE NULL END as services,
-      CASE WHEN c.id IS NOT NULL THEN json_build_object('full_name', c.full_name, 'phone', c.phone, 'email', c.email) ELSE NULL END as customers,
-      CASE WHEN ag.id IS NOT NULL THEN json_build_object('full_name', ag.full_name, 'kind', ag.kind, 'code', ag.code) ELSE NULL END as agents
+      CASE WHEN s.code IS NOT NULL THEN json_build_object('code', s.code, 'name_en', s.name_en, 'name_bn', s.name_bn) ELSE NULL END as service,
+      CASE WHEN c.id IS NOT NULL THEN json_build_object('full_name', c.full_name, 'phone', c.phone, 'email', c.email) ELSE NULL END as customer,
+      CASE WHEN ra.id IS NOT NULL THEN json_build_object('name', ra.name, 'kind', ra.kind) ELSE NULL END as referral_agent,
+      CASE WHEN sa.id IS NOT NULL THEN json_build_object('name', sa.name, 'kind', sa.kind, 'country', sa.country) ELSE NULL END as supplier_agent
       FROM applications a
-      LEFT JOIN services s ON a.service_id = s.id
+      LEFT JOIN services s ON a.service_code = s.code
       LEFT JOIN customers c ON a.customer_id = c.id
-      LEFT JOIN agents ag ON a.agent_id = ag.id`;
+      LEFT JOIN agents ra ON a.referral_agent_id = ra.id
+      LEFT JOIN agents sa ON a.supplier_agent_id = sa.id`;
     if (conditions.length) sql += ' WHERE ' + conditions.join(' AND ');
     sql += ` ORDER BY a.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
     params.push(Number(limit) || 1000, Number(offset) || 0);
