@@ -4,7 +4,7 @@ import { FileText } from "lucide-react";
 import { downloadApplicationInvoice } from "@/lib/applicationInvoicePdf";
 import { toast } from "sonner";
 import { useState } from "react";
-import { api } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
@@ -19,7 +19,7 @@ function StatusChanger({ row, onChanged }: { row: any; onChanged: () => void }) 
     if (status === row.status) return;
     setBusy(true);
     try {
-      await api.post(`/applications/${row.id}/status`, { status });
+      await apiClient.post(`/applications/${row.id}/status`, { status });
       toast.success(`Status updated to ${status}`);
       onChanged();
     } catch (e: any) {
