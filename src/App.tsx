@@ -32,41 +32,25 @@ const Visa = lazy(() => import("./pages/Visa"));
 
 // Lazy load admin pages (heavy: recharts, xlsx, jspdf)
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
-const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
-const AdminCustomersPage = lazy(() => import("./pages/admin/AdminCustomersPage"));
-const AdminPackagesPage = lazy(() => import("./pages/admin/AdminPackagesPage"));
-const AdminPaymentsPage = lazy(() => import("./pages/admin/AdminPaymentsPage"));
-const AdminAccountingPage = lazy(() => import("./pages/admin/AdminAccountingPage"));
-const AdminLedgerPage = lazy(() => import("./pages/admin/AdminLedgerPage"));
-const AdminReportsPage = lazy(() => import("./pages/admin/AdminReportsPage"));
-const AdminCmsPage = lazy(() => import("./pages/admin/AdminCmsPage"));
+// New recruiting-platform admin pages (Phase 1 foundation)
+const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardNewPage"));
+const AdminApplicationsPage = lazy(() => import("./pages/admin/AdminApplicationsPage"));
+const AdminCustomersPage = lazy(() => import("./pages/admin/AdminCustomersNewPage"));
+const AdminAgentsPage = lazy(() => import("./pages/admin/AdminAgentsPage"));
+const AdminServicesPage = lazy(() => import("./pages/admin/AdminServicesPage"));
+const AdminPaymentsPage = lazy(() => import("./pages/admin/AdminPaymentsNewPage"));
+const AdminWalletsPage = lazy(() => import("./pages/admin/AdminWalletsPage"));
+const AdminPaymentMethodsPage = lazy(() => import("./pages/admin/AdminPaymentMethodsNewPage"));
+const AdminExpensesPage = lazy(() => import("./pages/admin/AdminExpensesPage"));
+const AdminChartOfAccountsPage = lazy(() => import("./pages/admin/AdminChartOfAccountsNewPage"));
+const AdminCmsPage = lazy(() => import("./pages/admin/AdminCmsNewPage"));
+const AdminPlaceholderPage = lazy(() => import("./pages/admin/AdminPlaceholderPage"));
 const AdminSettingsPage = lazy(() => import("./pages/admin/AdminSettingsPage"));
-const AdminMoallemsPage = lazy(() => import("./pages/admin/AdminMoallemsPage"));
-const AdminMoallemProfilePage = lazy(() => import("./pages/admin/AdminMoallemProfilePage"));
-const AdminSupplierAgentsPage = lazy(() => import("./pages/admin/AdminSupplierAgentsPage"));
-const AdminSupplierAgentProfilePage = lazy(() => import("./pages/admin/AdminSupplierAgentProfilePage"));
-const AdminCalculatorPage = lazy(() => import("./pages/admin/AdminCalculatorPage"));
-const AdminHotelsPage = lazy(() => import("./pages/admin/AdminHotelsPage"));
 const AdminNotificationsPage = lazy(() => import("./pages/admin/AdminNotificationsPage"));
-const AdminDueAlertsPage = lazy(() => import("./pages/admin/AdminDueAlertsPage"));
-const AdminChartOfAccountsPage = lazy(() => import("./pages/admin/AdminChartOfAccountsPage"));
-const AdminReceivablesPage = lazy(() => import("./pages/admin/AdminReceivablesPage"));
-const AdminRefundsPage = lazy(() => import("./pages/admin/AdminRefundsPage"));
-const AdminAnalyticsPage = lazy(() => import("./pages/admin/AdminAnalyticsPage"));
-const AdminSeoPage = lazy(() => import("./pages/admin/AdminSeoPage"));
-const AdminPaymentMethodsPage = lazy(() => import("./pages/admin/AdminPaymentMethodsPage"));
-const AdminTicketsPage = lazy(() => import("./pages/admin/AdminTicketsPage"));
-const AdminVisaPage = lazy(() => import("./pages/admin/AdminVisaPage"));
-const AdminTicketRefundsPage = lazy(() => import("./pages/admin/AdminTicketRefundsPage"));
-const AdminSettlementsPage = lazy(() => import("./pages/admin/AdminSettlementsPage"));
-const AdminBulkImportPage = lazy(() => import("./pages/admin/AdminBulkImportPage"));
 const AdminAuditLogsPage = lazy(() => import("./pages/admin/AdminAuditLogsPage"));
 const AdminSecurityPage = lazy(() => import("./pages/admin/AdminSecurityPage"));
 const AdminGuidePage = lazy(() => import("./pages/admin/AdminGuidePage"));
-const AdminWorkPermitPage = lazy(() => import("./pages/admin/AdminWorkPermitPage"));
-const AdminStudentConsultancyPage = lazy(() => import("./pages/admin/AdminStudentConsultancyPage"));
-const AdminAirTicketInquiriesPage = lazy(() => import("./pages/admin/AdminAirTicketInquiriesPage"));
-const AdminVisaInquiriesPage = lazy(() => import("./pages/admin/AdminVisaInquiriesPage"));
+const AdminUserManager = lazy(() => import("./components/admin/AdminUserManager"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -119,37 +103,24 @@ const App = () => (
 
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboardPage />} />
+              <Route path="applications" element={<AdminApplicationsPage />} />
               <Route path="customers" element={<AdminCustomersPage />} />
-              <Route path="moallems" element={<AdminMoallemsPage />} />
-              <Route path="moallems/:id" element={<AdminMoallemProfilePage />} />
-              <Route path="supplier-agents" element={<AdminSupplierAgentsPage />} />
-              <Route path="supplier-agents/:id" element={<AdminSupplierAgentProfilePage />} />
-              <Route path="work-permit" element={<AdminWorkPermitPage />} />
-              <Route path="tickets" element={<AdminTicketsPage />} />
-              <Route path="ticket-inquiries" element={<AdminAirTicketInquiriesPage />} />
-              <Route path="visa" element={<AdminVisaPage />} />
-              <Route path="visa-inquiries" element={<AdminVisaInquiriesPage />} />
+              <Route path="agents" element={<AdminAgentsPage />} />
+              <Route path="services" element={<AdminServicesPage />} />
               <Route path="payments" element={<AdminPaymentsPage />} />
-              <Route path="settlements" element={<AdminSettlementsPage />} />
-              <Route path="accounting" element={<AdminAccountingPage />} />
-              <Route path="ledger" element={<AdminLedgerPage />} />
-              <Route path="receivables" element={<AdminReceivablesPage />} />
-              <Route path="due-alerts" element={<AdminDueAlertsPage />} />
-              <Route path="refunds" element={<AdminRefundsPage />} />
-              <Route path="reports" element={<AdminReportsPage />} />
-              <Route path="analytics" element={<AdminAnalyticsPage />} />
-              <Route path="calculator" element={<AdminCalculatorPage />} />
-              <Route path="notifications" element={<AdminNotificationsPage />} />
-              <Route path="chart-of-accounts" element={<AdminChartOfAccountsPage />} />
-              <Route path="cms" element={<AdminCmsPage />} />
-              <Route path="seo" element={<AdminSeoPage />} />
+              <Route path="wallets" element={<AdminWalletsPage />} />
               <Route path="payment-methods" element={<AdminPaymentMethodsPage />} />
-              <Route path="bulk-import" element={<AdminBulkImportPage />} />
+              <Route path="expenses" element={<AdminExpensesPage />} />
+              <Route path="accounting" element={<AdminPlaceholderPage title="Accounting" description="Double-entry journal, P&L and trial balance arrive in Phase 3." />} />
+              <Route path="chart-of-accounts" element={<AdminChartOfAccountsPage />} />
+              <Route path="reports" element={<AdminPlaceholderPage title="Reports" description="Cashbook, P&L, agent statements and pipeline reports arrive in Phase 5." />} />
+              <Route path="notifications" element={<AdminNotificationsPage />} />
+              <Route path="cms" element={<AdminCmsPage />} />
+              <Route path="users" element={<AdminUserManager />} />
               <Route path="audit-logs" element={<AdminAuditLogsPage />} />
               <Route path="security" element={<AdminSecurityPage />} />
               <Route path="guide" element={<AdminGuidePage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
-              <Route path="packages" element={<AdminPackagesPage />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
