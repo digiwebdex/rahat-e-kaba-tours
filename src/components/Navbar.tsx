@@ -22,11 +22,13 @@ const Navbar = () => {
 
   const allNavLinks = [
     { key: "home", label: t("nav.home"), href: "#hero" },
-    { key: "services", label: t("nav.services"), href: "#services" },
+    { key: "services", label: t("nav.services"), href: "/services" },
+    { key: "apply", label: language === "bn" ? "আবেদন করুন" : "Apply Now", href: "/apply/work-permit" },
     { key: "positions", label: language === "bn" ? "ওপেন পজিশন" : "Open Positions", href: "#positions" },
     { key: "about", label: t("nav.about"), href: "#about" },
     { key: "contact", label: t("nav.contact"), href: "#contact" },
     { key: "track", label: t("nav.track"), href: "/track" },
+    { key: "my", label: language === "bn" ? "আমার আবেদন" : "My Applications", href: "/my" },
   ];
 
   const navLinks = allNavLinks.filter((link) => menuVisibility[link.key] !== false);
@@ -55,6 +57,10 @@ const Navbar = () => {
           document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
         }
       }
+      setOpen(false);
+    } else if (href.startsWith("/")) {
+      e.preventDefault();
+      navigate(href);
       setOpen(false);
     }
   };
