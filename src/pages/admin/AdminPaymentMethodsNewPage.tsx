@@ -7,10 +7,11 @@ export default function AdminPaymentMethodsNewPage() {
       subtitle="Configure online and manual payment methods"
       endpoint="/payment-methods"
       columns={[
+        { key: "code", label: "Code" },
         { key: "name", label: "Name" },
-        { key: "kind", label: "Kind" },
-        { key: "provider", label: "Provider" },
-        { key: "instructions", label: "Instructions" },
+        { key: "type", label: "Type" },
+        { key: "requires_proof", label: "Needs Proof", render: (r) => (r.requires_proof ? "Yes" : "No") },
+        { key: "is_online", label: "Online", render: (r) => (r.is_online ? "Yes" : "No") },
         { key: "is_active", label: "Active", render: (r) => (r.is_active ? "Yes" : "No") },
       ]}
     />

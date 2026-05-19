@@ -10,7 +10,7 @@ export default function AdminCmsNewPage() {
         { key: "page", label: "Page" },
         { key: "section_key", label: "Section" },
         { key: "title", label: "Title" },
-        { key: "is_published", label: "Published", render: (r) => (r.is_published ? "Yes" : "No") },
+        { key: "is_active", label: "Active", render: (r) => (r.is_active !== false ? "Yes" : "No") },
       ]}
     />
   );

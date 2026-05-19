@@ -8,14 +8,14 @@ export default function AdminAgentsPage() {
       endpoint="/agents"
       emptyMessage="No agents yet."
       columns={[
-        { key: "code", label: "Code" },
-        { key: "full_name", label: "Name" },
+        { key: "name", label: "Name" },
+        { key: "company_name", label: "Company" },
         { key: "kind", label: "Type", render: (r) => (
           <span className="capitalize text-xs px-2 py-0.5 rounded bg-muted">{r.kind}</span>
         ) },
         { key: "phone", label: "Phone" },
         { key: "email", label: "Email" },
-        { key: "commission_rate", label: "Commission %", render: (r) => r.commission_rate ?? "—" },
+        { key: "commission", label: "Commission", render: (r) => `${r.commission_value ?? 0} ${r.commission_type === 'percent' ? '%' : 'BDT'}` },
         { key: "status", label: "Status" },
       ]}
     />

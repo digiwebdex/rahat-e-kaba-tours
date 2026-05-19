@@ -10,7 +10,7 @@ export default function AdminChartOfAccountsNewPage() {
         { key: "code", label: "Code" },
         { key: "name", label: "Account Name" },
         { key: "type", label: "Type" },
-        { key: "normal_balance", label: "Normal" },
+        { key: "parent_id", label: "Parent" },
       ]}
     />
   );
