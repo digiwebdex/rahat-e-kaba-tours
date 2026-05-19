@@ -9,6 +9,7 @@ const { query } = require('./config/database');
 const { authenticate, requireRole, optionalAuth } = require('./middleware/auth');
 const { auditMiddleware } = require('./middleware/audit');
 const authRoutes = require('./routes/auth');
+const accounting = require('./services/accounting');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -490,6 +491,125 @@ app.use('/api/user-roles', createCrudRoutes('user_roles', { adminOnly: true }));
 // (admin role protection middleware moved before route registration)
 
 app.use('/api/audit-logs', createCrudRoutes('audit_logs', { adminOnly: true, orderBy: 'created_at DESC' }));
+
+// =============================================
+// ACCOUNTING ENGINE (Phase 3)
+// =============================================
+
+// Confirm payment -> mark paid + post journal entry (Dr wallet / Cr revenue)
+app.post('/api/payments/:id/confirm', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const result = await accounting.confirmPayment(req.params.id, req.user?.id || null);
+    res.json({ success: true, ...result });
+  } catch (e) {
+    console.error('POST /api/payments/:id/confirm error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Post manual journal entry
+app.post('/api/accounting/journal', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const entry = await accounting.postJournalEntry({
+      ...req.body,
+      created_by: req.user?.id || null,
+    });
+    res.json({ success: true, entry });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// Trial balance: Dr/Cr per account
+app.get('/api/accounting/trial-balance', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    const params = [];
+    let where = '';
+    if (from) { params.push(from); where += ` AND je.entry_date >= $${params.length}`; }
+    if (to)   { params.push(to);   where += ` AND je.entry_date <= $${params.length}`; }
+    const r = await query(`
+      SELECT coa.id, coa.code, coa.name, coa.type,
+             COALESCE(SUM(jl.debit), 0)  AS total_debit,
+             COALESCE(SUM(jl.credit), 0) AS total_credit,
+             COALESCE(SUM(jl.debit - jl.credit), 0) AS balance
+        FROM chart_of_accounts coa
+        LEFT JOIN journal_lines jl   ON jl.account_id = coa.id
+        LEFT JOIN journal_entries je ON je.id = jl.entry_id ${where ? ' AND TRUE' + where : ''}
+       GROUP BY coa.id, coa.code, coa.name, coa.type
+       ORDER BY coa.code ASC
+    `, params);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Profit & Loss
+app.get('/api/accounting/profit-loss', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    const params = [];
+    let where = `WHERE coa.type IN ('income','expense')`;
+    if (from) { params.push(from); where += ` AND je.entry_date >= $${params.length}`; }
+    if (to)   { params.push(to);   where += ` AND je.entry_date <= $${params.length}`; }
+    const r = await query(`
+      SELECT coa.code, coa.name, coa.type,
+             COALESCE(SUM(jl.credit - jl.debit), 0) AS income_amount,
+             COALESCE(SUM(jl.debit - jl.credit), 0) AS expense_amount
+        FROM chart_of_accounts coa
+        LEFT JOIN journal_lines jl   ON jl.account_id = coa.id
+        LEFT JOIN journal_entries je ON je.id = jl.entry_id
+       ${where}
+       GROUP BY coa.code, coa.name, coa.type
+       ORDER BY coa.type DESC, coa.code ASC
+    `, params);
+    const income = r.rows.filter(x => x.type === 'income').reduce((s, x) => s + Number(x.income_amount), 0);
+    const expense = r.rows.filter(x => x.type === 'expense').reduce((s, x) => s + Number(x.expense_amount), 0);
+    res.json({ rows: r.rows, totals: { income, expense, net_profit: income - expense } });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Cashbook: ledger of a single wallet
+app.get('/api/accounting/cashbook', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const { wallet_id, from, to } = req.query;
+    if (!wallet_id) return res.status(400).json({ error: 'wallet_id required' });
+    const params = [wallet_id];
+    let where = 'WHERE jl.wallet_id = $1';
+    if (from) { params.push(from); where += ` AND je.entry_date >= $${params.length}`; }
+    if (to)   { params.push(to);   where += ` AND je.entry_date <= $${params.length}`; }
+    const r = await query(`
+      SELECT je.entry_date, je.description, je.ref_type, je.ref_id,
+             jl.debit, jl.credit, coa.code AS account_code, coa.name AS account_name
+        FROM journal_lines jl
+        JOIN journal_entries je ON je.id = jl.entry_id
+        JOIN chart_of_accounts coa ON coa.id = jl.account_id
+       ${where}
+       ORDER BY je.entry_date DESC, je.created_at DESC
+    `, params);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Auto-post journal when an expense is created
+app.post('/api/expenses/with-posting', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const { expense_date, category, amount, wallet_id, vendor, note, attachment_path } = req.body || {};
+    if (!amount || !category || !wallet_id) {
+      return res.status(400).json({ error: 'amount, category, wallet_id required' });
+    }
+    const ins = await query(
+      `INSERT INTO expenses (expense_date, category, amount, wallet_id, vendor, note, attachment_path, created_by)
+       VALUES (COALESCE($1,CURRENT_DATE),$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [expense_date || null, category, amount, wallet_id, vendor || null, note || null, attachment_path || null, req.user?.id || null],
+    );
+    const expense = ins.rows[0];
+    const entry = await accounting.postExpenseEntry(expense, req.user?.id || null);
+    res.json({ success: true, expense, entry });
+  } catch (e) {
+    console.error('POST /api/expenses/with-posting error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // ==============================================
 // BACKUP / RESTORE ROUTES
