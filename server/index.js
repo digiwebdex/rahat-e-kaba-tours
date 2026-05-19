@@ -476,10 +476,13 @@ app.get('/api/applications/:idOrTracking/invoice', authenticate, async (req, res
     const application = r.rows[0];
     if (!application) return res.status(404).json({ error: 'Not found' });
 
-    const isAdmin = req.user?.roles?.includes('admin') || req.user?.role === 'admin';
+    const roleRes = await query(`SELECT role FROM user_roles WHERE user_id = $1`, [req.user.id]);
+    const isAdmin = roleRes.rows.some(r => ['admin','manager','accountant','staff'].includes(r.role));
+    const userRes = await query(`SELECT phone FROM users WHERE id = $1`, [req.user.id]);
+    const userPhone = userRes.rows[0]?.phone || '';
     const ownsByUser = application.customer?.user_id && application.customer.user_id === req.user.id;
-    const ownsByPhone = application.customer?.phone && req.user.phone &&
-      String(application.customer.phone).replace(/\D/g, '').slice(-9) === String(req.user.phone).replace(/\D/g, '').slice(-9);
+    const ownsByPhone = application.customer?.phone && userPhone &&
+      String(application.customer.phone).replace(/\D/g, '').slice(-9) === String(userPhone).replace(/\D/g, '').slice(-9);
     if (!isAdmin && !ownsByUser && !ownsByPhone) return res.status(403).json({ error: 'Forbidden' });
 
     const payments = await query(
