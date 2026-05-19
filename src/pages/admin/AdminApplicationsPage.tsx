@@ -1,4 +1,8 @@
 import DataListPage from "@/components/admin/DataListPage";
+import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
+import { downloadApplicationInvoice } from "@/lib/applicationInvoicePdf";
+import { toast } from "sonner";
 
 const statusBadge = (s: string) => {
   const map: Record<string, string> = {
@@ -27,6 +31,25 @@ export default function AdminApplicationsPage() {
         { key: "due_amount", label: "Due (BDT)", render: (r) => Number(r.due_amount || 0).toLocaleString("en-IN") },
         { key: "status", label: "Status", render: (r) => statusBadge(r.status) },
         { key: "created_at", label: "Created", render: (r) => new Date(r.created_at).toLocaleDateString() },
+        {
+          key: "_actions",
+          label: "",
+          render: (r) => (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  await downloadApplicationInvoice(r.id);
+                } catch (e: any) {
+                  toast.error(e?.message || "Failed to generate invoice");
+                }
+              }}
+            >
+              <FileText className="h-3.5 w-3.5 mr-1" /> Invoice
+            </Button>
+          ),
+        },
       ]}
     />
   );

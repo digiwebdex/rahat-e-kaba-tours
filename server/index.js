@@ -457,6 +457,51 @@ app.get('/api/applications', authenticate, async (req, res) => {
   }
 });
 app.use('/api/applications', createCrudRoutes('applications', { adminOnly: true }));
+
+// Full application data for invoice rendering (admin or owning customer)
+app.get('/api/applications/:idOrTracking/invoice', authenticate, async (req, res) => {
+  try {
+    const { idOrTracking } = req.params;
+    const isUuid = /^[0-9a-f-]{36}$/i.test(idOrTracking);
+    const col = isUuid ? 'a.id' : 'a.tracking_id';
+    const r = await query(`
+      SELECT a.*, 
+        json_build_object('code', s.code, 'name_en', s.name_en, 'name_bn', s.name_bn) AS service,
+        json_build_object('id', c.id, 'user_id', c.user_id, 'full_name', c.full_name, 'phone', c.phone, 'email', c.email, 'address', c.address) AS customer
+      FROM applications a
+      LEFT JOIN services s ON a.service_code = s.code
+      LEFT JOIN customers c ON a.customer_id = c.id
+      WHERE ${col} = $1
+    `, [idOrTracking]);
+    const application = r.rows[0];
+    if (!application) return res.status(404).json({ error: 'Not found' });
+
+    const roleRes = await query(`SELECT role FROM user_roles WHERE user_id = $1`, [req.user.id]);
+    const isAdmin = roleRes.rows.some(r => ['admin','manager','accountant','staff'].includes(r.role));
+    const userRes = await query(`SELECT phone FROM users WHERE id = $1`, [req.user.id]);
+    const userPhone = userRes.rows[0]?.phone || '';
+    const ownsByUser = application.customer?.user_id && application.customer.user_id === req.user.id;
+    const ownsByPhone = application.customer?.phone && userPhone &&
+      String(application.customer.phone).replace(/\D/g, '').slice(-9) === String(userPhone).replace(/\D/g, '').slice(-9);
+    if (!isAdmin && !ownsByUser && !ownsByPhone) return res.status(403).json({ error: 'Forbidden' });
+
+    const payments = await query(
+      `SELECT id, amount, method_code, status, transaction_ref, paid_at, created_at
+         FROM payments WHERE application_id = $1 ORDER BY created_at ASC`,
+      [application.id]
+    );
+    const company = await query(`SELECT setting_value FROM company_settings WHERE setting_key = 'pdf_company' LIMIT 1`);
+    res.json({
+      application,
+      payments: payments.rows,
+      company: company.rows[0]?.setting_value || null,
+    });
+  } catch (e) {
+    console.error('GET /api/applications/:idOrTracking/invoice error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.use('/api/application-documents', createCrudRoutes('application_documents', { readAuth: true, writeAuth: false }));
 app.use('/api/application-status-history', createCrudRoutes('application_status_history', { adminOnly: true, orderBy: 'created_at DESC' }));
 app.use('/api/customers', createCrudRoutes('customers', { adminOnly: true }));
