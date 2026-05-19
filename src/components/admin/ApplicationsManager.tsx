@@ -440,6 +440,16 @@ export default function ApplicationsManager({ serviceType }: Props) {
                   <Button onClick={saveEdit} className="bg-gradient-ocean text-white hover:opacity-90">
                     <Save className="h-4 w-4 mr-1" /> Save Changes
                   </Button>
+                  <Link to={`/invoice?id=${selected.tracking_id}`} target="_blank">
+                    <Button variant="outline" className="bg-primary/5 border-primary/30 text-primary hover:bg-primary/10">
+                      <FileDown className="h-4 w-4 mr-1" /> View / Download Invoice
+                    </Button>
+                  </Link>
+                  <a href={`/invoice?id=${selected.tracking_id}&autoprint=1`} target="_blank" rel="noreferrer">
+                    <Button variant="outline">
+                      <Printer className="h-4 w-4 mr-1" /> Print
+                    </Button>
+                  </a>
                   <Link
                     to={`/admin/payments?application_id=${selected.id}&application_type=${serviceType}`}
                     className="flex-1"
