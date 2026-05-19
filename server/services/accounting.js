@@ -71,7 +71,8 @@ async function postJournalEntry(opts) {
 // Confirm a payment: mark paid + post Dr Wallet/Cash, Cr Revenue (by service).
 async function confirmPayment(paymentId, actorId = null) {
   const p = await query(
-    `SELECT p.*, a.service_code, a.tracking_id
+    `SELECT p.*, a.id AS app_id, a.service_code, a.tracking_id,
+            a.referral_agent_id, a.total_amount AS app_total
        FROM payments p
        LEFT JOIN applications a ON a.id = p.application_id
       WHERE p.id = $1`,
@@ -108,7 +109,47 @@ async function confirmPayment(paymentId, actorId = null) {
     ],
   });
 
-  return { payment: { ...payment, status: 'paid' }, entry };
+  // Accrue agent commission once per application
+  let commission = null;
+  if (payment.referral_agent_id && payment.app_id) {
+    const existing = await query(
+      `SELECT id FROM agent_commissions WHERE application_id = $1`,
+      [payment.app_id],
+    );
+    if (!existing.rows[0]) {
+      const agent = await query(
+        `SELECT commission_type, commission_value FROM agents WHERE id = $1`,
+        [payment.referral_agent_id],
+      );
+      const a = agent.rows[0];
+      if (a && Number(a.commission_value) > 0) {
+        const amount = a.commission_type === 'percent'
+          ? Number(payment.app_total || 0) * Number(a.commission_value) / 100
+          : Number(a.commission_value);
+        if (amount > 0) {
+          const cm = await query(
+            `INSERT INTO agent_commissions (agent_id, application_id, amount, status)
+             VALUES ($1,$2,$3,'accrued') RETURNING *`,
+            [payment.referral_agent_id, payment.app_id, amount],
+          );
+          commission = cm.rows[0];
+          // Dr Commission Expense, Cr Commission Payable
+          await postJournalEntry({
+            ref_type: 'commission',
+            ref_id: commission.id,
+            description: `Commission accrued — application ${payment.tracking_id || ''}`,
+            created_by: actorId,
+            lines: [
+              { account_code: '5100', debit: amount, description: 'Agent commission expense' },
+              { account_code: '2100', credit: amount, description: 'Commission payable' },
+            ],
+          });
+        }
+      }
+    }
+  }
+
+  return { payment: { ...payment, status: 'paid' }, entry, commission };
 }
 
 // Post an expense entry: Dr Operating Expenses, Cr Wallet

@@ -493,6 +493,72 @@ app.use('/api/user-roles', createCrudRoutes('user_roles', { adminOnly: true }));
 app.use('/api/audit-logs', createCrudRoutes('audit_logs', { adminOnly: true, orderBy: 'created_at DESC' }));
 
 // =============================================
+// AGENT PANEL ROUTES (Phase 4)
+// =============================================
+const resolveAgent = async (req, res, next) => {
+  if (!req.user?.id) return res.status(401).json({ error: 'Not authenticated' });
+  const r = await query(`SELECT * FROM agents WHERE user_id = $1 AND status = 'active'`, [req.user.id]);
+  if (!r.rows[0]) return res.status(403).json({ error: 'Agent profile not found for this user' });
+  req.agent = r.rows[0];
+  next();
+};
+
+app.get('/api/agent/me', authenticate, resolveAgent, (req, res) => {
+  res.json(req.agent);
+});
+
+app.get('/api/agent/applications', authenticate, resolveAgent, async (req, res) => {
+  try {
+    const col = req.agent.kind === 'supplier' ? 'supplier_agent_id' : 'referral_agent_id';
+    const r = await query(`
+      SELECT a.id, a.tracking_id, a.status, a.total_amount, a.paid_amount, a.due_amount,
+             a.created_at, s.name_en AS service_name, c.full_name AS customer_name, c.phone AS customer_phone
+        FROM applications a
+        LEFT JOIN services s ON a.service_code = s.code
+        LEFT JOIN customers c ON a.customer_id = c.id
+       WHERE a.${col} = $1
+       ORDER BY a.created_at DESC
+    `, [req.agent.id]);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/agent/commissions', authenticate, resolveAgent, async (req, res) => {
+  try {
+    const r = await query(`
+      SELECT ac.id, ac.amount, ac.status, ac.paid_at, ac.created_at,
+             a.tracking_id, s.name_en AS service_name
+        FROM agent_commissions ac
+        LEFT JOIN applications a ON ac.application_id = a.id
+        LEFT JOIN services s ON a.service_code = s.code
+       WHERE ac.agent_id = $1
+       ORDER BY ac.created_at DESC
+    `, [req.agent.id]);
+    const totals = r.rows.reduce((acc, c) => {
+      acc.total += Number(c.amount);
+      if (c.status === 'paid') acc.paid += Number(c.amount);
+      else if (c.status === 'accrued') acc.pending += Number(c.amount);
+      return acc;
+    }, { total: 0, paid: 0, pending: 0 });
+    res.json({ commissions: r.rows, totals });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/agent/stats', authenticate, resolveAgent, async (req, res) => {
+  try {
+    const col = req.agent.kind === 'supplier' ? 'supplier_agent_id' : 'referral_agent_id';
+    const r = await query(`
+      SELECT
+        COUNT(*) FILTER (WHERE status NOT IN ('cancelled','rejected')) AS total_apps,
+        COUNT(*) FILTER (WHERE status IN ('completed','deployed')) AS completed_apps,
+        COALESCE(SUM(total_amount) FILTER (WHERE status NOT IN ('cancelled','rejected')),0) AS total_value
+      FROM applications WHERE ${col} = $1
+    `, [req.agent.id]);
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// =============================================
 // ACCOUNTING ENGINE (Phase 3)
 // =============================================
 
