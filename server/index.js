@@ -385,12 +385,15 @@ app.post('/api/track-booking', async (req, res) => {
   }
 });
 
-app.use('/api/packages', createCrudRoutes('packages', { readAuth: false, writeAuth: true, adminOnly: true }));
-app.use('/api/hotels', createCrudRoutes('hotels', { readAuth: false, writeAuth: true, adminOnly: true }));
-app.use('/api/hotel-rooms', createCrudRoutes('hotel_rooms', { readAuth: false, writeAuth: true, adminOnly: true }));
-app.use('/api/site-content', createCrudRoutes('site_content', { readAuth: false, writeAuth: true, adminOnly: true }));
+// =============================================
+// PUBLIC READ ROUTES (new recruiting schema)
+// =============================================
+app.use('/api/services', createCrudRoutes('services', { readAuth: false, writeAuth: true, adminOnly: true, orderBy: 'sort_order ASC' }));
+app.use('/api/service-packages', createCrudRoutes('service_packages', { readAuth: false, writeAuth: true, adminOnly: true, orderBy: 'sort_order ASC' }));
+app.use('/api/cms-sections', createCrudRoutes('cms_sections', { readAuth: false, writeAuth: true, adminOnly: true, orderBy: 'sort_order ASC' }));
+app.use('/api/site-settings', createCrudRoutes('site_settings', { readAuth: false, writeAuth: true, adminOnly: true, orderBy: 'key ASC' }));
+app.use('/api/menu-items', createCrudRoutes('menu_items', { readAuth: false, writeAuth: true, adminOnly: true, orderBy: 'sort_order ASC' }));
 app.use('/api/blog-posts', createCrudRoutes('blog_posts', { readAuth: false, writeAuth: true, adminOnly: true }));
-app.use('/api/installment-plans', createCrudRoutes('installment_plans', { readAuth: false, writeAuth: true, adminOnly: true }));
 
 // Auth required routes
 // Custom bookings GET with JOINs (must be before generic CRUD)
