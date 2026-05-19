@@ -263,6 +263,7 @@ export default function ApplicationsManager({ serviceType }: Props) {
                 <th className="text-left p-3">Referred By</th>
                 <th className="text-left p-3">Fee (BDT)</th>
                 <th className="text-left p-3">Paid</th>
+                <th className="text-left p-3">Due</th>
                 <th className="text-left p-3">Status</th>
                 <th className="text-left p-3">Created</th>
                 <th className="text-right p-3">Action</th>
@@ -293,6 +294,7 @@ export default function ApplicationsManager({ serviceType }: Props) {
                     <td className="p-3 text-xs">{r.supplier_agent_id ? (agentMap[r.supplier_agent_id] || "—") : <span className="text-muted-foreground">—</span>}</td>
                     <td className="p-3 tabular-nums">{Number(r.total_amount || 0).toLocaleString()}</td>
                     <td className="p-3 tabular-nums text-emerald-600">{Number(r.paid_amount || 0).toLocaleString()}</td>
+                    <td className="p-3 tabular-nums text-red-600">{Math.max(0, Number(r.total_amount || 0) - Number(r.paid_amount || 0)).toLocaleString()}</td>
                     <td className="p-3">{statusBadge(r.status)}</td>
                     <td className="p-3 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
                     <td className="p-3 text-right">
