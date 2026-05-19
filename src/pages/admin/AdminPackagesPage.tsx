@@ -15,7 +15,7 @@ const EMPTY_FORM = {
   name: "", type: "umrah", description: "", price: "", duration_days: "",
   image_url: "", start_date: "", expiry_date: "", services: "", features: "",
   is_active: true, status: "active", show_on_website: true,
-  rating: "4.9", highlight_tag: "",
+  rating: "4.9", highlight_tag: "", country: "",
 };
 
 export default function AdminPackagesPage() {
@@ -73,12 +73,19 @@ export default function AdminPackagesPage() {
     const featuresList = parseFeatures(f.features);
     const servicesList = f.services ? f.services.split(",").map(s => s.trim()).filter(Boolean) : [];
     const ratingNum = parseFloat(f.rating);
+    // Persist country inside services jsonb so we don't need a schema change.
+    // We store services as either a list (legacy) or an object { items, country, iso, ... }
+    const country = f.country.trim();
+    const servicesPayload: any =
+      country
+        ? { items: servicesList, country }
+        : servicesList;
     return {
       name: f.name.trim(), type: f.type, description: f.description.trim() || null,
       price: parseFloat(f.price), duration_days: f.duration_days ? parseInt(f.duration_days) : null,
       image_url: f.image_url || null, start_date: f.start_date || null,
       expiry_date: f.expiry_date || null,
-      services: servicesList,
+      services: servicesPayload,
       features: featuresList,
       is_active: f.status === "active",
       status: f.status,
@@ -100,7 +107,14 @@ export default function AdminPackagesPage() {
 
   const openEdit = (p: any) => {
     setEditingId(p.id);
-    const svc = Array.isArray(p.services) ? p.services.join(", ") : "";
+    const rawSvc = p.services;
+    const svc = Array.isArray(rawSvc)
+      ? rawSvc.join(", ")
+      : Array.isArray(rawSvc?.items)
+        ? rawSvc.items.join(", ")
+        : "";
+    const existingCountry =
+      (rawSvc && !Array.isArray(rawSvc) && typeof rawSvc === "object" ? rawSvc.country : "") || "";
     const feat = Array.isArray(p.features) ? p.features.join("\n") : "";
     setForm({
       name: p.name, type: p.type, description: p.description || "", price: String(p.price),
@@ -112,6 +126,7 @@ export default function AdminPackagesPage() {
       show_on_website: p.show_on_website !== false,
       rating: p.rating != null ? String(p.rating) : "4.9",
       highlight_tag: p.highlight_tag || "",
+      country: existingCountry,
     });
     setShowForm(true);
   };
@@ -207,6 +222,16 @@ export default function AdminPackagesPage() {
           <input className={inputClass} placeholder="Visa, Hotel, Transport, Food"
             value={form.services} onChange={(e) => setForm({ ...form, services: e.target.value })} />
         </div>
+        {(form.type === "work_permit" || form.type === "student_consultancy" || form.type === "visa") && (
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">
+              Country {form.type === "work_permit" && <span className="text-primary">*</span>}
+            </label>
+            <input className={inputClass} placeholder="e.g. Vietnam, Kuwait, Romania"
+              value={form.country}
+              onChange={(e) => setForm({ ...form, country: e.target.value })} />
+          </div>
+        )}
         <div>
           <label className="text-xs text-muted-foreground block mb-1">Rating (0–5)</label>
           <input className={inputClass} type="number" step="0.1" min="0" max="5" placeholder="4.9"
