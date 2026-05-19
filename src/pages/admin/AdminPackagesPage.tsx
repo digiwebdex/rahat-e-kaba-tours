@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import AdminActionMenu from "@/components/admin/AdminActionMenu";
 
 const inputClass = "w-full bg-secondary border border-border rounded-md px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40";
-const TYPES = ["hajj", "umrah", "tour", "visa", "air_ticket", "hotel", "transport", "ziyara"];
+const TYPES = ["hajj", "umrah", "tour", "visa", "air_ticket", "hotel", "transport", "ziyara", "work_permit", "student_consultancy"];
 
 const EMPTY_FORM = {
   name: "", type: "umrah", description: "", price: "", duration_days: "",
