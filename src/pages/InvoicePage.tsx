@@ -42,7 +42,7 @@ export default function InvoicePage() {
       .single();
 
     if (bk && bk.package_id) {
-      const { data: pkgData } = await supabase.from("packages").select("name, type, duration_days, start_date, price").eq("id", bk.package_id).maybeSingle();
+      const { data: pkgData } = await supabase.from("packages").select("name, type, duration_days, start_date, price, country").eq("id", bk.package_id).maybeSingle();
       if (pkgData) (bk as any).packages = pkgData;
     }
 
@@ -76,6 +76,14 @@ export default function InvoicePage() {
   useEffect(() => {
     if (trackingId) search();
   }, []);
+
+  // Auto-print when ?autoprint=1 is set
+  useEffect(() => {
+    if (booking && searchParams.get("autoprint") === "1") {
+      const t = setTimeout(() => window.print(), 600);
+      return () => clearTimeout(t);
+    }
+  }, [booking, searchParams]);
 
   const handlePrint = () => {
     window.print();
@@ -232,10 +240,25 @@ export default function InvoicePage() {
               <h3 className="font-bold text-sm text-gray-700 mb-2">{t("invoice.packageDetails")}</h3>
               <div className="grid grid-cols-4 gap-3 text-sm">
                 <div className="bg-gray-50 p-2 rounded"><span className="text-gray-500 block text-xs">{t("track.package")}</span>{booking.packages?.name || "N/A"}</div>
-                <div className="bg-gray-50 p-2 rounded"><span className="text-gray-500 block text-xs">{t("invoice.type")}</span>{booking.packages?.type || "N/A"}</div>
+                <div className="bg-gray-50 p-2 rounded"><span className="text-gray-500 block text-xs">{t("invoice.type")}</span>{String(booking.packages?.type || "N/A").replace(/_/g, " ")}</div>
+                {booking.packages?.country && (
+                  <div className="bg-gray-50 p-2 rounded"><span className="text-gray-500 block text-xs">Country</span>{booking.packages.country}</div>
+                )}
                 <div className="bg-gray-50 p-2 rounded"><span className="text-gray-500 block text-xs">{t("invoice.duration")}</span>{booking.packages?.duration_days ? `${booking.packages.duration_days} ${t("invoice.days")}` : "N/A"}</div>
                 <div className="bg-gray-50 p-2 rounded"><span className="text-gray-500 block text-xs">{t("invoice.travelers")}</span>{booking.num_travelers}</div>
               </div>
+              {booking.application_data && Object.keys(booking.application_data).length > 0 && (
+                <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                  {Object.entries(booking.application_data).map(([k, v]) => (
+                    v ? (
+                      <div key={k} className="bg-gray-50 p-2 rounded">
+                        <span className="text-gray-500 block text-xs capitalize">{k.replace(/_/g, " ")}</span>
+                        {String(v)}
+                      </div>
+                    ) : null
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Payment Schedule */}
