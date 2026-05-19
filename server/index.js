@@ -493,28 +493,28 @@ app.use('/api/audit-logs', createCrudRoutes('audit_logs', { adminOnly: true, ord
 // BACKUP / RESTORE ROUTES
 // =============================================
 const BACKUP_TABLES = [
-  'profiles', 'bookings', 'booking_members', 'booking_documents',
-  'payments', 'packages', 'installment_plans',
-  'hotels', 'hotel_rooms', 'hotel_bookings',
-  'moallems', 'moallem_payments', 'moallem_commission_payments', 'moallem_items',
-  'supplier_agents', 'supplier_agent_payments', 'supplier_agent_items',
-  'supplier_contracts', 'supplier_contract_payments',
-  'expenses', 'transactions', 'accounts', 'financial_summary',
-  'notification_logs', 'notification_settings',
-  'user_roles', 'site_content', 'company_settings',
-  'blog_posts', 'cms_versions', 'daily_cashbook',
-  'cancellation_policies', 'refunds',
+  'profiles', 'user_roles', 'company_settings', 'notification_settings',
+  'services', 'service_packages', 'menu_items', 'site_settings',
+  'cms_sections', 'cms_versions', 'blog_posts',
+  'customers', 'agents',
+  'applications', 'application_documents', 'application_status_history',
+  'wallets', 'payment_methods', 'payments', 'online_payment_sessions',
+  'chart_of_accounts', 'journal_entries', 'journal_lines',
+  'expenses', 'agent_commissions', 'supplier_payables', 'supplier_settlements',
+  'notification_logs',
 ];
 
 const RESTORE_ORDER = [
-  'accounts', 'packages', 'installment_plans', 'hotels', 'hotel_rooms',
-  'moallems', 'supplier_agents', 'supplier_contracts',
-  'profiles', 'site_content', 'company_settings', 'blog_posts', 'notification_settings',
-  'bookings', 'hotel_bookings', 'booking_members', 'booking_documents',
-  'payments', 'expenses', 'transactions',
-  'moallem_items', 'supplier_agent_items',
-  'moallem_payments', 'moallem_commission_payments', 'supplier_agent_payments', 'supplier_contract_payments',
-  'notification_logs', 'cms_versions', 'user_roles', 'financial_summary', 'daily_cashbook',
+  'profiles', 'user_roles', 'company_settings', 'notification_settings',
+  'services', 'service_packages', 'menu_items', 'site_settings',
+  'cms_sections', 'cms_versions', 'blog_posts',
+  'wallets', 'payment_methods', 'chart_of_accounts',
+  'customers', 'agents',
+  'applications', 'application_documents', 'application_status_history',
+  'payments', 'online_payment_sessions',
+  'journal_entries', 'journal_lines',
+  'expenses', 'agent_commissions', 'supplier_payables', 'supplier_settlements',
+  'notification_logs',
 ];
 
 const backupsDir = path.join(__dirname, 'backups');
