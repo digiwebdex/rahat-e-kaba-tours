@@ -57,23 +57,15 @@ async function validateTransaction(val_id) {
   return data;
 }
 
-// Mark session paid + create payments row + auto-trigger updates booking via existing trigger
+// Mark session paid + create payments row (status=verified → trigger recalcs application paid/due)
 async function markSessionPaid(session, gatewayData) {
-  // Create payments row (status=completed → triggers update bookings paid_amount, due_amount, accounts)
-  const paymentMethod = (gatewayData.card_type || 'online').toString().toLowerCase().includes('bkash')
-    ? 'bkash'
-    : (gatewayData.card_type || '').toLowerCase().includes('nagad')
-      ? 'nagad'
-      : 'online';
-
   const paymentRes = await query(
-    `INSERT INTO payments (booking_id, user_id, customer_id, amount, payment_method, status, paid_at, transaction_id, notes)
-     VALUES ($1, $2, NULL, $3, $4, 'completed', now(), $5, $6) RETURNING id`,
+    `INSERT INTO payments (application_id, customer_id, amount, method_code, status, paid_at, transaction_ref, notes)
+     VALUES ($1, $2, $3, 'sslcommerz', 'verified', now(), $4, $5) RETURNING id`,
     [
-      session.booking_id,
-      session.user_id || '00000000-0000-0000-0000-000000000000',
+      session.application_id,
+      session.customer_id,
       session.amount,
-      paymentMethod,
       gatewayData.bank_tran_id || gatewayData.tran_id || session.tran_id,
       `Online payment via SSLCommerz (${gatewayData.card_issuer || gatewayData.card_type || 'gateway'})`,
     ]

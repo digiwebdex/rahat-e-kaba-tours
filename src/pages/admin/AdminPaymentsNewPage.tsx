@@ -8,11 +8,11 @@ export default function AdminPaymentsNewPage() {
       endpoint="/payments"
       emptyMessage="No payments yet."
       columns={[
-        { key: "payment_date", label: "Date", render: (r) => new Date(r.payment_date || r.created_at).toLocaleDateString() },
+        { key: "paid_at", label: "Date", render: (r) => new Date(r.paid_at || r.created_at).toLocaleDateString() },
         { key: "amount", label: "Amount (BDT)", render: (r) => Number(r.amount || 0).toLocaleString("en-IN") },
-        { key: "method", label: "Method" },
+        { key: "method_code", label: "Method" },
         { key: "status", label: "Status" },
-        { key: "reference", label: "Reference" },
+        { key: "transaction_ref", label: "Reference" },
       ]}
     />
   );

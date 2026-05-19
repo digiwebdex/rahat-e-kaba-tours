@@ -435,13 +435,15 @@ app.get('/api/applications', authenticate, async (req, res) => {
     });
 
     let sql = `SELECT a.*,
-      CASE WHEN s.id IS NOT NULL THEN json_build_object('code', s.code, 'name_en', s.name_en, 'name_bn', s.name_bn) ELSE NULL END as services,
-      CASE WHEN c.id IS NOT NULL THEN json_build_object('full_name', c.full_name, 'phone', c.phone, 'email', c.email) ELSE NULL END as customers,
-      CASE WHEN ag.id IS NOT NULL THEN json_build_object('full_name', ag.full_name, 'kind', ag.kind, 'code', ag.code) ELSE NULL END as agents
+      CASE WHEN s.code IS NOT NULL THEN json_build_object('code', s.code, 'name_en', s.name_en, 'name_bn', s.name_bn) ELSE NULL END as service,
+      CASE WHEN c.id IS NOT NULL THEN json_build_object('full_name', c.full_name, 'phone', c.phone, 'email', c.email) ELSE NULL END as customer,
+      CASE WHEN ra.id IS NOT NULL THEN json_build_object('name', ra.name, 'kind', ra.kind) ELSE NULL END as referral_agent,
+      CASE WHEN sa.id IS NOT NULL THEN json_build_object('name', sa.name, 'kind', sa.kind, 'country', sa.country) ELSE NULL END as supplier_agent
       FROM applications a
-      LEFT JOIN services s ON a.service_id = s.id
+      LEFT JOIN services s ON a.service_code = s.code
       LEFT JOIN customers c ON a.customer_id = c.id
-      LEFT JOIN agents ag ON a.agent_id = ag.id`;
+      LEFT JOIN agents ra ON a.referral_agent_id = ra.id
+      LEFT JOIN agents sa ON a.supplier_agent_id = sa.id`;
     if (conditions.length) sql += ' WHERE ' + conditions.join(' AND ');
     sql += ` ORDER BY a.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
     params.push(Number(limit) || 1000, Number(offset) || 0);
@@ -1500,30 +1502,270 @@ const sslcz = require('./services/sslcommerz');
 
 const getBaseUrl = (req) => process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
 
-// Initiate payment session — works for logged-in user OR guest with tracking_id
+// =============================================
+// PUBLIC BOOKING ENDPOINTS (Phase 2)
+// =============================================
+
+app.get('/api/public/services', async (req, res) => {
+  try {
+    const r = await query(`SELECT code, name_en, name_bn, description, icon, sort_order
+      FROM services WHERE is_active = true ORDER BY sort_order ASC`);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/public/services/:code/packages', async (req, res) => {
+  try {
+    const { code } = req.params;
+    const { country } = req.query;
+    const params = [code];
+    let sql = `SELECT * FROM service_packages
+      WHERE service_code = $1 AND status = 'active' AND show_on_website = true`;
+    if (country) { params.push(country); sql += ` AND country = $${params.length}`; }
+    sql += ` ORDER BY sort_order ASC, created_at DESC`;
+    const r = await query(sql, params);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/public/payment-methods', async (req, res) => {
+  try {
+    const r = await query(`SELECT pm.code, pm.name, pm.type, pm.requires_proof, pm.is_online,
+        pm.config, w.account_no, w.name as wallet_name
+      FROM payment_methods pm
+      LEFT JOIN wallets w ON pm.wallet_id = w.id
+      WHERE pm.is_active = true ORDER BY pm.sort_order ASC`);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/public/cms/:page', async (req, res) => {
+  try {
+    const r = await query(`SELECT section_key, content, sort_order FROM cms_sections
+      WHERE page = $1 AND is_visible = true ORDER BY sort_order ASC`, [req.params.page]);
+    const map = {};
+    r.rows.forEach((row) => { map[row.section_key] = row.content; });
+    res.json(map);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/public/site-settings', async (req, res) => {
+  try {
+    const r = await query(`SELECT key, value FROM site_settings`);
+    const map = {};
+    r.rows.forEach((row) => { map[row.key] = row.value; });
+    res.json(map);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/public/menu', async (req, res) => {
+  try {
+    const r = await query(`SELECT id, label_en, label_bn, href, parent_id, target, sort_order
+      FROM menu_items WHERE is_visible = true ORDER BY sort_order ASC`);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Create a new application
+app.post('/api/public/applications', optionalAuth, async (req, res) => {
+  try {
+    const {
+      service_code, package_id,
+      customer = {},
+      application_data = {},
+      total_amount = 0,
+    } = req.body || {};
+
+    if (!service_code || !customer.full_name || !customer.phone) {
+      return res.status(400).json({ error: 'service_code, customer name and phone are required' });
+    }
+
+    const svc = await query('SELECT code FROM services WHERE code=$1 AND is_active=true', [service_code]);
+    if (!svc.rows[0]) return res.status(400).json({ error: 'Invalid service' });
+
+    const normalizedPhone = String(customer.phone).trim();
+    let customerId;
+    const existing = await query(
+      `SELECT id FROM customers WHERE phone=$1 AND status <> 'deleted' LIMIT 1`,
+      [normalizedPhone]
+    );
+    if (existing.rows[0]) {
+      customerId = existing.rows[0].id;
+      await query(
+        `UPDATE customers SET
+           full_name = COALESCE(NULLIF($2,''), full_name),
+           email     = COALESCE(NULLIF($3,''), email),
+           nid_number = COALESCE(NULLIF($4,''), nid_number),
+           passport_number = COALESCE(NULLIF($5,''), passport_number),
+           address   = COALESCE(NULLIF($6,''), address),
+           city      = COALESCE(NULLIF($7,''), city),
+           updated_at = now()
+         WHERE id=$1`,
+        [customerId, customer.full_name, customer.email || '', customer.nid_number || '',
+          customer.passport_number || '', customer.address || '', customer.city || '']
+      );
+    } else {
+      const ins = await query(
+        `INSERT INTO customers (user_id, full_name, phone, email, nid_number, passport_number,
+            date_of_birth, address, city, emergency_contact)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
+        [
+          req.user?.id || null, customer.full_name, normalizedPhone,
+          customer.email || null, customer.nid_number || null, customer.passport_number || null,
+          customer.date_of_birth || null, customer.address || null, customer.city || null,
+          customer.emergency_contact || null,
+        ]
+      );
+      customerId = ins.rows[0].id;
+    }
+
+    let finalAmount = Number(total_amount) || 0;
+    if (package_id) {
+      const pk = await query('SELECT base_price FROM service_packages WHERE id=$1', [package_id]);
+      if (pk.rows[0]) finalAmount = Number(pk.rows[0].base_price);
+    }
+
+    const app = await query(
+      `INSERT INTO applications (service_code, package_id, customer_id, application_data,
+          total_amount, due_amount, source)
+       VALUES ($1,$2,$3,$4::jsonb,$5,$5,'website') RETURNING *`,
+      [service_code, package_id || null, customerId, JSON.stringify(application_data || {}), finalAmount]
+    );
+
+    await query(
+      `INSERT INTO application_status_history (application_id, to_status, note)
+       VALUES ($1, 'submitted', 'Submitted via website')`,
+      [app.rows[0].id]
+    );
+
+    res.json({ success: true, application: app.rows[0] });
+  } catch (e) {
+    console.error('POST /api/public/applications error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/public/applications/:id/documents', optionalAuth, async (req, res) => {
+  try {
+    const { doc_type, file_name, file_path, file_size, mime_type } = req.body || {};
+    if (!doc_type || !file_path) return res.status(400).json({ error: 'doc_type and file_path required' });
+    const r = await query(
+      `INSERT INTO application_documents (application_id, doc_type, file_name, file_path, file_size, mime_type, uploaded_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      [req.params.id, doc_type, file_name || 'document', file_path, file_size || null, mime_type || null, req.user?.id || null]
+    );
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/public/payments/manual', optionalAuth, async (req, res) => {
+  try {
+    const { application_id, tracking_id, amount, method_code, transaction_ref, proof_file_path, notes } = req.body || {};
+    if (!amount || Number(amount) <= 0) return res.status(400).json({ error: 'Invalid amount' });
+    if (!method_code) return res.status(400).json({ error: 'method_code required' });
+
+    let appRow;
+    if (application_id) {
+      const r = await query('SELECT id, customer_id, due_amount FROM applications WHERE id=$1', [application_id]);
+      appRow = r.rows[0];
+    } else if (tracking_id) {
+      const r = await query('SELECT id, customer_id, due_amount FROM applications WHERE tracking_id=$1', [tracking_id]);
+      appRow = r.rows[0];
+    }
+    if (!appRow) return res.status(404).json({ error: 'Application not found' });
+
+    const method = await query('SELECT code, wallet_id, requires_proof FROM payment_methods WHERE code=$1 AND is_active=true', [method_code]);
+    if (!method.rows[0]) return res.status(400).json({ error: 'Invalid payment method' });
+    if (method.rows[0].requires_proof && !proof_file_path) {
+      return res.status(400).json({ error: 'Payment proof is required for this method' });
+    }
+
+    const r = await query(
+      `INSERT INTO payments (application_id, customer_id, amount, method_code, wallet_id,
+          transaction_ref, proof_file_path, status, notes)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,'pending',$8) RETURNING *`,
+      [appRow.id, appRow.customer_id, amount, method_code, method.rows[0].wallet_id,
+        transaction_ref || null, proof_file_path || null, notes || null]
+    );
+    res.json({ success: true, payment: r.rows[0] });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/public/track/:tracking_id', async (req, res) => {
+  try {
+    const { tracking_id } = req.params;
+    const { phone } = req.query;
+
+    const r = await query(`
+      SELECT a.id, a.tracking_id, a.status, a.total_amount, a.paid_amount, a.due_amount,
+             a.application_data, a.created_at, a.updated_at,
+             s.name_en as service_name, s.code as service_code,
+             c.full_name, c.phone, c.email
+      FROM applications a
+      JOIN customers c ON a.customer_id = c.id
+      LEFT JOIN services s ON a.service_code = s.code
+      WHERE a.tracking_id = $1
+    `, [tracking_id]);
+
+    if (!r.rows[0]) return res.status(404).json({ error: 'Application not found' });
+    const application = r.rows[0];
+
+    if (phone && String(application.phone).replace(/\D/g, '').slice(-9) !== String(phone).replace(/\D/g, '').slice(-9)) {
+      return res.status(403).json({ error: 'Phone does not match' });
+    }
+
+    const docs = await query('SELECT id, doc_type, file_name, file_path, verified, created_at FROM application_documents WHERE application_id=$1 ORDER BY created_at DESC', [application.id]);
+    const pays = await query('SELECT id, amount, method_code, status, transaction_ref, paid_at, created_at FROM payments WHERE application_id=$1 ORDER BY created_at DESC', [application.id]);
+    const hist = await query('SELECT to_status, note, changed_at FROM application_status_history WHERE application_id=$1 ORDER BY changed_at DESC', [application.id]);
+
+    res.json({ application, documents: docs.rows, payments: pays.rows, history: hist.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/my/applications', authenticate, async (req, res) => {
+  try {
+    let cust = await query('SELECT id FROM customers WHERE user_id=$1', [req.user.id]);
+    if (!cust.rows[0] && req.user.phone) {
+      cust = await query('SELECT id FROM customers WHERE phone=$1', [req.user.phone]);
+    }
+    if (!cust.rows[0]) return res.json([]);
+
+    const r = await query(`
+      SELECT a.id, a.tracking_id, a.status, a.total_amount, a.paid_amount, a.due_amount,
+             a.created_at, s.name_en as service_name, s.code as service_code
+      FROM applications a
+      LEFT JOIN services s ON a.service_code = s.code
+      WHERE a.customer_id = $1
+      ORDER BY a.created_at DESC
+    `, [cust.rows[0].id]);
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Initiate online payment session — works for guest (tracking_id) or logged-in customer
 app.post('/api/payments/online/initiate', optionalAuth, async (req, res) => {
   try {
-    const { booking_id, tracking_id, amount, customer } = req.body || {};
+    const { application_id, tracking_id, amount, customer } = req.body || {};
     if (!amount || Number(amount) <= 0) return res.status(400).json({ error: 'Invalid amount' });
 
-    let booking;
-    if (booking_id) {
-      const r = await query('SELECT id, user_id, tracking_id, due_amount FROM bookings WHERE id=$1', [booking_id]);
-      booking = r.rows[0];
+    let app;
+    if (application_id) {
+      const r = await query('SELECT id, customer_id, tracking_id, due_amount FROM applications WHERE id=$1', [application_id]);
+      app = r.rows[0];
     } else if (tracking_id) {
-      const r = await query('SELECT id, user_id, tracking_id, due_amount FROM bookings WHERE tracking_id=$1', [tracking_id]);
-      booking = r.rows[0];
+      const r = await query('SELECT id, customer_id, tracking_id, due_amount FROM applications WHERE tracking_id=$1', [tracking_id]);
+      app = r.rows[0];
     }
-    if (!booking) return res.status(404).json({ error: 'Booking not found' });
-    if (Number(amount) > Number(booking.due_amount || 0) + 0.01) {
-      return res.status(400).json({ error: `Amount exceeds due (৳${booking.due_amount})` });
+    if (!app) return res.status(404).json({ error: 'Application not found' });
+    if (Number(amount) > Number(app.due_amount || 0) + 0.01) {
+      return res.status(400).json({ error: `Amount exceeds due (৳${app.due_amount})` });
     }
 
-    const tran_id = `TT-${booking.tracking_id}-${Date.now()}`;
+    const tran_id = `${app.tracking_id}-${Date.now()}`;
     const sessionRes = await query(
-      `INSERT INTO online_payment_sessions (tran_id, booking_id, user_id, customer_phone, amount)
-       VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-      [tran_id, booking.id, req.user?.id || booking.user_id, customer?.phone || null, amount]
+      `INSERT INTO online_payment_sessions (tran_id, application_id, customer_id, amount)
+       VALUES ($1, $2, $3, $4) RETURNING id`,
+      [tran_id, app.id, app.customer_id, amount]
     );
 
     const baseUrl = getBaseUrl(req);
@@ -1531,7 +1773,7 @@ app.post('/api/payments/online/initiate', optionalAuth, async (req, res) => {
       tran_id,
       amount,
       customer: customer || {},
-      productName: `Hasan Travels Booking ${booking.tracking_id}`,
+      productName: `Al Rawsha Application ${app.tracking_id}`,
       urls: {
         success: `${baseUrl}/api/payments/online/callback/success`,
         fail: `${baseUrl}/api/payments/online/callback/fail`,
@@ -1608,8 +1850,8 @@ app.post('/api/payments/online/ipn', express.urlencoded({ extended: true }), asy
 app.get('/api/payments/online/session/:tran_id', async (req, res) => {
   try {
     const r = await query(
-      `SELECT ops.tran_id, ops.status, ops.amount, ops.created_at, b.tracking_id
-       FROM online_payment_sessions ops LEFT JOIN bookings b ON b.id=ops.booking_id
+      `SELECT ops.tran_id, ops.status, ops.amount, ops.created_at, a.tracking_id
+       FROM online_payment_sessions ops LEFT JOIN applications a ON a.id=ops.application_id
        WHERE ops.tran_id=$1`, [req.params.tran_id]
     );
     if (!r.rows[0]) return res.status(404).json({ error: 'Not found' });

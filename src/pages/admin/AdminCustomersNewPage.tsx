@@ -11,8 +11,8 @@ export default function AdminCustomersNewPage() {
         { key: "full_name", label: "Name" },
         { key: "phone", label: "Phone" },
         { key: "email", label: "Email" },
-        { key: "nid", label: "NID" },
-        { key: "passport_no", label: "Passport" },
+        { key: "nid_number", label: "NID" },
+        { key: "passport_number", label: "Passport" },
         { key: "created_at", label: "Joined", render: (r) => new Date(r.created_at).toLocaleDateString() },
       ]}
     />

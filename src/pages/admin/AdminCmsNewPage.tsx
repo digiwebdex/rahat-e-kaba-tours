@@ -9,8 +9,15 @@ export default function AdminCmsNewPage() {
       columns={[
         { key: "page", label: "Page" },
         { key: "section_key", label: "Section" },
-        { key: "title", label: "Title" },
-        { key: "is_published", label: "Published", render: (r) => (r.is_published ? "Yes" : "No") },
+        { key: "content", label: "Content Preview", render: (r) => {
+          try {
+            const c = typeof r.content === 'string' ? JSON.parse(r.content) : r.content;
+            const txt = c?.title || c?.heading || c?.text || JSON.stringify(c || {});
+            return <span className="text-xs text-muted-foreground line-clamp-1 max-w-xs inline-block">{String(txt).slice(0, 80)}</span>;
+          } catch { return "—"; }
+        } },
+        { key: "is_visible", label: "Visible", render: (r) => (r.is_visible ? "Yes" : "No") },
+        { key: "updated_at", label: "Updated", render: (r) => new Date(r.updated_at).toLocaleDateString() },
       ]}
     />
   );
