@@ -1610,8 +1610,8 @@ app.post('/api/payments/online/ipn', express.urlencoded({ extended: true }), asy
 app.get('/api/payments/online/session/:tran_id', async (req, res) => {
   try {
     const r = await query(
-      `SELECT ops.tran_id, ops.status, ops.amount, ops.created_at, b.tracking_id
-       FROM online_payment_sessions ops LEFT JOIN bookings b ON b.id=ops.booking_id
+      `SELECT ops.tran_id, ops.status, ops.amount, ops.created_at, a.tracking_id
+       FROM online_payment_sessions ops LEFT JOIN applications a ON a.id=ops.application_id
        WHERE ops.tran_id=$1`, [req.params.tran_id]
     );
     if (!r.rows[0]) return res.status(404).json({ error: 'Not found' });
