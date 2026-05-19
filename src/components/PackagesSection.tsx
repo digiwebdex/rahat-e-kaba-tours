@@ -7,7 +7,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { useActivePackages } from "@/hooks/usePackagesData";
 import PackageCard from "@/components/PackageCard";
 
-const TYPE_ORDER = ["hajj", "umrah", "tour", "visa", "air_ticket", "hotel", "transport", "ziyara"];
+const TYPE_ORDER = ["hajj", "umrah", "tour", "visa", "air_ticket", "hotel", "transport", "ziyara", "work_permit", "student_consultancy"];
 const TYPE_LABELS: Record<string, { en: string; bn: string }> = {
   hajj: { en: "Hajj Packages", bn: "হজ্জ প্যাকেজ" },
   umrah: { en: "Umrah Packages", bn: "উমরাহ প্যাকেজ" },
@@ -17,6 +17,8 @@ const TYPE_LABELS: Record<string, { en: string; bn: string }> = {
   hotel: { en: "Hotel Packages", bn: "হোটেল প্যাকেজ" },
   transport: { en: "Transport Packages", bn: "পরিবহন প্যাকেজ" },
   ziyara: { en: "Ziyara Packages", bn: "জিয়ারত প্যাকেজ" },
+  work_permit: { en: "Overseas Work Permit", bn: "ওভারসিজ ওয়ার্ক পারমিট" },
+  student_consultancy: { en: "Student Consultancy", bn: "স্টুডেন্ট কনসালটেন্সি" },
 };
 
 const PackagesSection = () => {
