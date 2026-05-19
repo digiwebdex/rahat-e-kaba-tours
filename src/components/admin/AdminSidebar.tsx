@@ -30,6 +30,7 @@ const financeMenuItems = [
   { title: "Expenses",        url: "/admin/expenses",        icon: FileText,      roles: ["admin", "accountant", "viewer"] },
   { title: "Accounting",      url: "/admin/accounting",      icon: Calculator,    roles: ["admin", "accountant", "viewer"] },
   { title: "Chart of Accounts", url: "/admin/chart-of-accounts", icon: BookOpenCheck, roles: ["admin", "accountant"] },
+  { title: "Agent Payouts",   url: "/admin/agent-payouts",   icon: Wallet,        roles: ["admin", "accountant"] },
   { title: "Reports",         url: "/admin/reports",         icon: BarChart3,     roles: ["admin", "accountant", "viewer"] },
 ];
 
