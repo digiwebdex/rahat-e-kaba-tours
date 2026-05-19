@@ -1963,6 +1963,29 @@ app.post('/api/public/payments/manual', optionalAuth, async (req, res) => {
       [appRow.id, appRow.customer_id, amount, method_code, method.rows[0].wallet_id,
         transaction_ref || null, proof_file_path || null, notes || null]
     );
+
+    // Notify customer that payment submission was received
+    try {
+      const cust = await query(
+        `SELECT full_name, phone FROM customers WHERE id = $1`,
+        [appRow.customer_id],
+      );
+      const trackR = await query(
+        `SELECT tracking_id FROM applications WHERE id = $1`,
+        [appRow.id],
+      );
+      if (cust.rows[0]?.phone) {
+        notifications.notify('payment_submitted', {
+          phone: cust.rows[0].phone,
+          data: {
+            name: cust.rows[0].full_name,
+            tracking: trackR.rows[0]?.tracking_id || '',
+            amount: Number(amount).toLocaleString(),
+          },
+        }).catch(() => {});
+      }
+    } catch {}
+
     res.json({ success: true, payment: r.rows[0] });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
