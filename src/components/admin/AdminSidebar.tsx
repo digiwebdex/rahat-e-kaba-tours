@@ -49,6 +49,7 @@ const financeMenuItems = [
 const toolsMenuItems = [
   
   { title: "Payment Methods", url: "/admin/payment-methods", icon: CreditCard,      roles: ["admin"] },
+  { title: "Packages",        url: "/admin/packages",       icon: Package,         roles: ["admin", "cms"] },
   { title: "Notifications",   url: "/admin/notifications",  icon: Bell,            roles: ["admin"] },
   { title: "CMS",             url: "/admin/cms",            icon: Pencil,          roles: ["admin", "cms"] },
   { title: "SEO",             url: "/admin/seo",            icon: Search,          roles: ["admin"] },
