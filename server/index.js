@@ -722,6 +722,39 @@ app.post('/api/expenses/with-posting', authenticate, requireRole('admin'), async
   }
 });
 
+// List agent commissions for an agent (pending + paid history)
+app.get('/api/agent-commissions/by-agent/:agentId', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const r = await query(
+      `SELECT ac.*, a.tracking_id, a.service_code, c.full_name AS customer_name
+         FROM agent_commissions ac
+         LEFT JOIN applications a ON a.id = ac.application_id
+         LEFT JOIN customers c ON c.id = a.customer_id
+        WHERE ac.agent_id = $1
+        ORDER BY ac.created_at DESC`,
+      [req.params.agentId],
+    );
+    res.json(r.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Pay out selected commissions to an agent
+app.post('/api/agent-commissions/payout', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const result = await accounting.payoutAgentCommissions({
+      agentId: req.body?.agent_id,
+      commissionIds: req.body?.commission_ids || [],
+      walletId: req.body?.wallet_id,
+      notes: req.body?.notes || '',
+      actorId: req.user?.id || null,
+    });
+    res.json({ success: true, ...result });
+  } catch (e) {
+    console.error('POST /api/agent-commissions/payout error:', e.message);
+    res.status(400).json({ error: e.message });
+  }
+});
+
 // ==============================================
 // BACKUP / RESTORE ROUTES
 // =============================================

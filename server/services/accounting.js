@@ -168,9 +168,51 @@ async function postExpenseEntry(expense, actorId = null) {
   });
 }
 
+// Pay out agent commissions: marks commissions paid, posts Dr 2100 / Cr Wallet (1000).
+async function payoutAgentCommissions({ agentId, commissionIds = [], walletId, notes = '', actorId = null }) {
+  if (!agentId || !walletId || !Array.isArray(commissionIds) || commissionIds.length === 0) {
+    throw new Error('agentId, walletId and commissionIds[] required');
+  }
+
+  const r = await query(
+    `SELECT id, amount, status FROM agent_commissions
+      WHERE id = ANY($1) AND agent_id = $2 AND status = 'accrued'`,
+    [commissionIds, agentId],
+  );
+  if (r.rows.length === 0) throw new Error('No payable commissions found');
+
+  const total = r.rows.reduce((s, c) => s + Number(c.amount), 0);
+  if (total <= 0) throw new Error('Total payout amount is zero');
+
+  const agentRow = await query(`SELECT name FROM agents WHERE id = $1`, [agentId]);
+  const agentName = agentRow.rows[0]?.name || 'Agent';
+
+  const entry = await postJournalEntry({
+    ref_type: 'commission_payout',
+    ref_id: agentId,
+    description: `Commission payout — ${agentName}${notes ? ' — ' + notes : ''}`,
+    created_by: actorId,
+    lines: [
+      { account_code: '2100', debit: total, description: 'Settle commission payable' },
+      { account_code: '1000', wallet_id: walletId, credit: total, description: `Payout to ${agentName}` },
+    ],
+  });
+
+  await query(
+    `UPDATE agent_commissions
+        SET status = 'paid', paid_at = now(), payment_id = $1,
+            notes = COALESCE(notes, '') || CASE WHEN $2::text <> '' THEN E'\n' || $2 ELSE '' END
+      WHERE id = ANY($3)`,
+    [entry.id, notes || '', r.rows.map((c) => c.id)],
+  );
+
+  return { entry, total, count: r.rows.length };
+}
+
 module.exports = {
   postJournalEntry,
   confirmPayment,
   postExpenseEntry,
+  payoutAgentCommissions,
   SERVICE_REVENUE_ACCOUNT,
 };
