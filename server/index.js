@@ -10,6 +10,7 @@ const { authenticate, requireRole, optionalAuth } = require('./middleware/auth')
 const { auditMiddleware } = require('./middleware/audit');
 const authRoutes = require('./routes/auth');
 const accounting = require('./services/accounting');
+const notifications = require('./services/notifications');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
