@@ -1502,30 +1502,30 @@ const sslcz = require('./services/sslcommerz');
 
 const getBaseUrl = (req) => process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
 
-// Initiate payment session — works for logged-in user OR guest with tracking_id
+// Initiate online payment session — works for guest (tracking_id) or logged-in customer
 app.post('/api/payments/online/initiate', optionalAuth, async (req, res) => {
   try {
-    const { booking_id, tracking_id, amount, customer } = req.body || {};
+    const { application_id, tracking_id, amount, customer } = req.body || {};
     if (!amount || Number(amount) <= 0) return res.status(400).json({ error: 'Invalid amount' });
 
-    let booking;
-    if (booking_id) {
-      const r = await query('SELECT id, user_id, tracking_id, due_amount FROM bookings WHERE id=$1', [booking_id]);
-      booking = r.rows[0];
+    let app;
+    if (application_id) {
+      const r = await query('SELECT id, customer_id, tracking_id, due_amount FROM applications WHERE id=$1', [application_id]);
+      app = r.rows[0];
     } else if (tracking_id) {
-      const r = await query('SELECT id, user_id, tracking_id, due_amount FROM bookings WHERE tracking_id=$1', [tracking_id]);
-      booking = r.rows[0];
+      const r = await query('SELECT id, customer_id, tracking_id, due_amount FROM applications WHERE tracking_id=$1', [tracking_id]);
+      app = r.rows[0];
     }
-    if (!booking) return res.status(404).json({ error: 'Booking not found' });
-    if (Number(amount) > Number(booking.due_amount || 0) + 0.01) {
-      return res.status(400).json({ error: `Amount exceeds due (৳${booking.due_amount})` });
+    if (!app) return res.status(404).json({ error: 'Application not found' });
+    if (Number(amount) > Number(app.due_amount || 0) + 0.01) {
+      return res.status(400).json({ error: `Amount exceeds due (৳${app.due_amount})` });
     }
 
-    const tran_id = `TT-${booking.tracking_id}-${Date.now()}`;
+    const tran_id = `${app.tracking_id}-${Date.now()}`;
     const sessionRes = await query(
-      `INSERT INTO online_payment_sessions (tran_id, booking_id, user_id, customer_phone, amount)
-       VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-      [tran_id, booking.id, req.user?.id || booking.user_id, customer?.phone || null, amount]
+      `INSERT INTO online_payment_sessions (tran_id, application_id, customer_id, amount)
+       VALUES ($1, $2, $3, $4) RETURNING id`,
+      [tran_id, app.id, app.customer_id, amount]
     );
 
     const baseUrl = getBaseUrl(req);
@@ -1533,7 +1533,7 @@ app.post('/api/payments/online/initiate', optionalAuth, async (req, res) => {
       tran_id,
       amount,
       customer: customer || {},
-      productName: `Hasan Travels Booking ${booking.tracking_id}`,
+      productName: `Al Rawsha Application ${app.tracking_id}`,
       urls: {
         success: `${baseUrl}/api/payments/online/callback/success`,
         fail: `${baseUrl}/api/payments/online/callback/fail`,
