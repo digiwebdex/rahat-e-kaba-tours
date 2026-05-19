@@ -1,5 +1,6 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminCmsEditor from "@/components/AdminCmsEditor";
+import CmsHomeEditor from "@/components/admin/CmsHomeEditor";
 import CmsBlogManager from "@/components/admin/CmsBlogManager";
 import CmsVersionHistory from "@/components/admin/CmsVersionHistory";
 import SectionVisibilityManager from "@/components/admin/SectionVisibilityManager";
@@ -9,14 +10,18 @@ export default function AdminCmsPage() {
   return (
     <div>
       <h2 className="font-heading text-xl font-bold mb-4">Content Management System</h2>
-      <Tabs defaultValue="pages">
+      <Tabs defaultValue="home">
         <TabsList className="mb-4">
+          <TabsTrigger value="home">Homepage</TabsTrigger>
           <TabsTrigger value="pages">Site Content</TabsTrigger>
           <TabsTrigger value="visibility">Section Visibility</TabsTrigger>
           <TabsTrigger value="menu">Menu Settings</TabsTrigger>
           <TabsTrigger value="blog">Blog Posts</TabsTrigger>
           <TabsTrigger value="history">Version History</TabsTrigger>
         </TabsList>
+        <TabsContent value="home">
+          <CmsHomeEditor />
+        </TabsContent>
         <TabsContent value="pages">
           <AdminCmsEditor />
         </TabsContent>
