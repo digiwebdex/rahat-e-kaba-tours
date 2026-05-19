@@ -73,25 +73,20 @@ export default function AdminPackagesPage() {
     const featuresList = parseFeatures(f.features);
     const servicesList = f.services ? f.services.split(",").map(s => s.trim()).filter(Boolean) : [];
     const ratingNum = parseFloat(f.rating);
-    // Persist country inside services jsonb so we don't need a schema change.
-    // We store services as either a list (legacy) or an object { items, country, iso, ... }
-    const country = f.country.trim();
-    const servicesPayload: any =
-      country
-        ? { items: servicesList, country }
-        : servicesList;
+    const country = f.country.trim() || null;
     return {
       name: f.name.trim(), type: f.type, description: f.description.trim() || null,
       price: parseFloat(f.price), duration_days: f.duration_days ? parseInt(f.duration_days) : null,
       image_url: f.image_url || null, start_date: f.start_date || null,
       expiry_date: f.expiry_date || null,
-      services: servicesPayload,
+      services: servicesList,
       features: featuresList,
       is_active: f.status === "active",
       status: f.status,
       show_on_website: f.show_on_website,
       rating: isNaN(ratingNum) ? 4.9 : Math.max(0, Math.min(5, ratingNum)),
       highlight_tag: f.highlight_tag.trim() || null,
+      country,
     };
   };
 
@@ -107,14 +102,7 @@ export default function AdminPackagesPage() {
 
   const openEdit = (p: any) => {
     setEditingId(p.id);
-    const rawSvc = p.services;
-    const svc = Array.isArray(rawSvc)
-      ? rawSvc.join(", ")
-      : Array.isArray(rawSvc?.items)
-        ? rawSvc.items.join(", ")
-        : "";
-    const existingCountry =
-      (rawSvc && !Array.isArray(rawSvc) && typeof rawSvc === "object" ? rawSvc.country : "") || "";
+    const svc = Array.isArray(p.services) ? p.services.join(", ") : "";
     const feat = Array.isArray(p.features) ? p.features.join("\n") : "";
     setForm({
       name: p.name, type: p.type, description: p.description || "", price: String(p.price),
@@ -126,7 +114,7 @@ export default function AdminPackagesPage() {
       show_on_website: p.show_on_website !== false,
       rating: p.rating != null ? String(p.rating) : "4.9",
       highlight_tag: p.highlight_tag || "",
-      country: existingCountry,
+      country: p.country || "",
     });
     setShowForm(true);
   };
