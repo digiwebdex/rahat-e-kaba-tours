@@ -1,220 +1,181 @@
 
-# সম্পূর্ণ সিস্টেম প্ল্যান — Manasik Travel Hub
+# Al Rawsha Recruiting Platform — Full Rebuild Plan
 
-## ১. লক্ষ্য (Goal)
-তিনটি সার্ভিস — **Overseas Work Permit**, **Air Ticket**, **Visa Service** — এর জন্য একটি ইউনিফাইড বুকিং + পেমেন্ট + অ্যাকাউন্টিং সিস্টেম, যা পাবলিক ওয়েবসাইট এবং অ্যাডমিন প্যানেল উভয় দিক থেকে কাজ করবে এবং সব টাকার গতি ক্রেডিট/ডেবিট হিসেবে ওয়ালেট অ্যাকাউন্টে রেকর্ড হবে।
-
----
-
-## ২. পাবলিক ওয়েবসাইটে বুকিং ফ্লো (Guest / Customer)
-
-প্রতিটি সার্ভিসের জন্য আলাদা "Apply / Book Now" ফর্ম, কিন্তু একই শেয়ার্ড কম্পোনেন্ট:
-
-**ধাপ ১ — প্যাকেজ নির্বাচন**
-- `packages` টেবিল থেকে সেই সার্ভিস টাইপের সব active প্যাকেজ ড্রপডাউনে দেখাবে (work_permit / air_ticket / visa)
-- প্যাকেজ সিলেক্ট করলে দাম অটো শো হবে
-
-**ধাপ ২ — পার্সোনাল ডিটেইলস**
-- নাম, ফোন, ইমেইল, ঠিকানা, পাসপোর্ট নম্বর, NID, DOB, ইমার্জেন্সি কন্টাক্ট
-
-**ধাপ ৩ — ডকুমেন্ট আপলোড**
-- পাসপোর্ট, ছবি, NID, শিক্ষাগত সনদ ইত্যাদি (সার্ভিস অনুযায়ী ডায়নামিক লিস্ট)
-- `booking_documents` টেবিলে সেভ
-
-**ধাপ ৪ — পেমেন্ট অপশন (Without / With Payment)**
-- "Pay Later" → বুকিং `pending` স্ট্যাটাসে সেভ হবে, পুরো অ্যামাউন্ট due
-- "Pay Now / Advance" → ইউজার অ্যামাউন্ট লিখবে (full বা partial advance)
-  - পেমেন্ট মেথড ড্রপডাউন → **`company_settings.payment_methods`** থেকে enabled মেথডগুলো (bKash, Nagad, Bank, Cash, Card ইত্যাদি)
-  - SSLCommerz অনলাইন গেটওয়েতে রিডাইরেক্ট (bKash/Nagad/Card)
-  - অফলাইন মেথড সিলেক্ট করলে "Pay later in office" নোট
-
-**ধাপ ৫ — Confirmation**
-- Tracking ID (TT-XXXXX), Invoice PDF ডাউনলোড, "Pay Online" বাটন থাকবে
+Replace the current Hajj/Umrah codebase with a clean, purpose-built worker recruiting system for three services: **Overseas Work Permit**, **Air Ticket**, **Visa**. Built in 5 phases on the existing stack (React/Vite + Node/Express + local Postgres on VPS).
 
 ---
 
-## ৩. অ্যাডমিন প্যানেল — ম্যানুয়াল বুকিং ফ্লো
+## Scope summary (what changes vs. what stays)
 
-প্রতিটি সার্ভিসের পেজে (`/admin/work-permit`, `/admin/tickets`, `/admin/visa`) একটাই কমন "New Booking" ডায়লগ:
+**Wiped (dropped tables + deleted code):**
+- Hajj/Umrah business: `moallems`, `moallem_items`, `moallem_payments`, `moallem_commission_payments`, `hotels`, `hotel_rooms`, `hotel_bookings`, `bookings`, `booking_members`, `booking_documents`, `packages`, `payments`, `expenses`, `refunds`, `cancellation_policies`, `installment_plans`, `supplier_contracts`, `supplier_contract_payments`, `supplier_agents` (old), `supplier_agent_items`, `supplier_agent_payments`, `settlements`, `settlement_items`, `service_payments`, `daily_cashbook`, `accounts` (old), `financial_summary`, `site_content`, `cms_versions`, `blog_posts`, `online_payment_sessions`.
+- All Hajj/Umrah/Moallem/Hotel pages, components, hooks, PDF templates, edge functions.
 
-**ফর্ম ফিল্ডস:**
-1. **Customer Selection** — existing customer search OR new customer create (নাম/ফোন/ঠিকানা/পাসপোর্ট)
-2. **Package** — সব প্যাকেজ ড্রপডাউনে, সিলেক্ট করলে দাম অটো-ফিল
-3. **Quantity / Travelers** — সংখ্যা
-4. **Selling Price / Discount** — এডিটেবল
-5. **Middleman (Optional)** — `supplier_agents` টেবিল থেকে dropdown, commission per person সেট করা যাবে
-6. **Supplier (Optional)** — কোন সাপ্লায়ারের কাছ থেকে সার্ভিস কিনছে, cost price সেট
-7. **Document Upload** — multi-file
-8. **Advance Payment Section:**
-   - Amount input
-   - Payment Method dropdown (configured methods)
-   - **Wallet Account dropdown** (Cash/bKash/Bank account থেকে কোথায় ক্রেডিট হবে)
-   - Transaction ref, receipt upload
-9. **Notes**
-
-**Save করলে:**
-- `bookings` রো তৈরি (total_amount, paid_amount, due_amount, service_type, status='pending')
-- `payments` রো (যদি advance থাকে) → wallet ক্রেডিট
-- `booking_documents` রো
-- কাস্টমার লিস্টে শো
-- সংশ্লিষ্ট সার্ভিস টেবিলে শো (Work Permit / Tickets / Visa)
+**Kept:**
+- Auth: `auth.users`, `user_roles`, `has_role()`, `profiles`, admin login.
+- Infra: `audit_logs`, `notification_logs`, `notification_settings`, `company_settings`, `admin_2fa`, `otp_codes`.
+- `@/lib/api` client, VPS storage at `/server/uploads/`, SSLCommerz service, bcryptjs auth, PM2 deploy flow.
+- Brand: TT- tracking prefix, BDT formatting, Noto Sans/Bengali fonts, A4 PDF architecture.
 
 ---
 
-## ৪. বুকিং টেবিল ম্যানেজমেন্ট (তিনটি সার্ভিস পেজে)
+## New roles (RBAC)
 
-প্রতিটি বুকিং রো-তে অ্যাকশন:
-- ✏️ **Edit** — সব ফিল্ড এডিট
-- 🗑️ **Delete** — soft delete (status='deleted')
-- 🔁 **Status Change** — pending → processing → confirmed → completed / cancelled
-- 💰 **Add Payment** — payment dialog (method, wallet, amount, receipt)
-- 📄 **Documents** — view/add/remove
-- 🧾 **Invoice PDF**
-- 👤 **Middleman Commission** — middleman সিলেক্ট থাকলে commission পেমেন্ট রেকর্ড
-
-ফিল্টার: status, date range, customer, middleman, supplier
+`admin` · `accountant` · `booking_officer` · `cms` · `referral_agent` · `supplier_agent` · `customer`
 
 ---
 
-## ৫. পেমেন্ট ও অ্যাকাউন্টিং ইঞ্জিন (Credit / Debit)
+## Phase 1 — Foundation (schema + admin shell + CMS)
 
-প্রতিটি ট্রানজেকশন `wallet_account_id` এর সাথে লিংকড — যাতে রিপোর্টে দেখা যায় কোন একাউন্টে কত আছে।
-
-| ট্রানজেকশন টাইপ | দিক | যেখানে রেকর্ড |
-|---|---|---|
-| Customer payment (booking) | **Credit** wallet | `payments` |
-| Middleman payment (commission) | **Debit** wallet | `moallem_commission_payments` |
-| Supplier payment | **Debit** wallet | `supplier_agent_payments` |
-| Refund to customer | **Debit** wallet | `refunds` |
-| Office expense | **Debit** wallet | `expenses` |
-| Manual cash entry | Credit/Debit | `daily_cashbook` |
-
-**Wallet Balance Triggers** — ইতিমধ্যে আছে, ভেরিফাই করব যে সব নতুন path-এ ট্রিগার ফায়ার করছে।
-
----
-
-## ৬. মিডলম্যান (Middleman) ফ্লো
-- বুকিং তৈরি করার সময় middleman সিলেক্ট হলে → `bookings.supplier_agent_id` সেট
-- Commission auto-calculate (per person × travelers)
-- "Middleman Profile" পেজে: total commission earned, paid, due
-- "Pay Middleman" বাটন → wallet থেকে debit, receipt upload
-
----
-
-## ৭. সাপ্লায়ার (Supplier) ফ্লো
-- বুকিংয়ে cost price entry → `supplier_due` auto
-- Supplier Contracts পেজে আলাদা contracts
-- "Pay Supplier" → wallet debit, payment record
-
----
-
-## ৮. রিপোর্ট ও ড্যাশবোর্ড
-
-**নতুন/আপডেটেড রিপোর্ট:**
-1. **Wallet Balance Report** — প্রতিটি অ্যাকাউন্টের current balance + transactions log
-2. **Service-wise Revenue** — Work Permit / Air Ticket / Visa breakdown
-3. **Customer Ledger** — per customer paid/due
-4. **Middleman Ledger** — commission earned/paid/due
-5. **Supplier Ledger**
-6. **Daily Cashbook** — সব credit/debit একসাথে
-7. **Profit & Loss** — selling - cost - commission - expense
-
----
-
-## ৯. টেকনিক্যাল সেকশন (Technical Details)
-
-### Database Changes (migration প্রয়োজন)
-- `bookings.service_type` enum check → ('work_permit', 'air_ticket', 'visa', 'umrah', 'hajj', 'other') ✅ আছে
-- নিশ্চিত করা: `payments.wallet_account_id` NOT NULL when status='completed' (validation trigger)
-- নতুন view: `v_wallet_balances` — প্রতিটি wallet এর running balance
-- নতুন view: `v_customer_ledger`, `v_middleman_ledger`, `v_supplier_ledger`
-
-### Frontend — নতুন/রিফ্যাক্টর কম্পোনেন্ট
+**Database (new tables):**
 ```text
-src/components/
-├── booking/
-│   ├── UnifiedBookingDialog.tsx        (NEW — admin manual booking, service-aware)
-│   ├── PackageSelectStep.tsx           (NEW)
-│   ├── CustomerSelectStep.tsx          (reuse CustomerSearchSelect)
-│   ├── MiddlemanSupplierStep.tsx       (NEW)
-│   ├── AdvancePaymentStep.tsx          (NEW — wallet+method+amount)
-│   └── DocumentUploadStep.tsx          (existing)
-├── ApplyDialog.tsx                     (REFACTOR — public form, share steps)
-└── admin/
-    ├── ApplicationsManager.tsx         (EXTEND — Edit/Delete/Status/AddPayment all wired)
-    └── ServicePaymentDialog.tsx        (EXTEND — wallet dropdown mandatory)
+services            (id, code: 'work_permit'|'air_ticket'|'visa', name, is_active)
+service_packages    (id, service_code, country, title, description, base_price, image_url,
+                     details JSONB {duty, food, accommodation, contract_years, salary, …},
+                     status, show_on_website, sort_order)
+customers           (id, user_id NULL, full_name, phone UNIQUE, email, nid, passport_no,
+                     address, dob, status)
+applications        (id, tracking_id 'TT-XXXXXXXX', service_code, package_id, customer_id,
+                     referral_agent_id NULL, supplier_agent_id NULL,
+                     application_data JSONB,  -- per-service fields
+                     total_amount, paid_amount, due_amount,
+                     status: draft|submitted|under_review|approved|rejected|deployed|cancelled,
+                     created_at, updated_at)
+application_documents (id, application_id, doc_type, file_path, file_name, uploaded_by, verified)
+application_status_history (id, application_id, from_status, to_status, note, changed_by, changed_at)
+
+cms_sections        (id, page, section_key, content JSONB, is_visible, sort_order)
+cms_versions        (id, section_id, content JSONB, edited_by, created_at)
+menu_items          (id, label_en, label_bn, href, parent_id, is_visible, sort_order)
+site_settings       (key, value JSONB)  -- logo, contact, social, SEO defaults
 ```
 
-### Pages
-- `AdminWorkPermitPage`, `AdminTicketsPage`, `AdminVisaPage` — একই `ApplicationsManager` ব্যবহার করবে, শুধু `serviceType` prop ভিন্ন
-- `AdminPaymentsPage` — সব service-এর পেমেন্ট unified view
-- `AdminLedgerPage` — wallet-wise + entity-wise ledger
+**Admin shell rebuilt** with new sidebar:
+Dashboard · Applications (Work Permit / Air Ticket / Visa tabs) · Customers · Agents · Payments · Accounting · CMS · Reports · Settings · Users
 
-### Hooks
-- `usePaymentMethods` (existing) — enabled methods
-- `useWalletAccounts` (NEW) — `accounts` table থেকে active wallets
-- `useActivePackagesByService(serviceType)` — filter by type
-
-### Backend (Node/Express + Postgres)
-- `POST /api/bookings` — unified create (handles public + admin)
-- `POST /api/bookings/:id/payments` — add payment, auto wallet credit
-- `PATCH /api/bookings/:id` — edit
-- `PATCH /api/bookings/:id/status` — status change
-- `DELETE /api/bookings/:id` — soft delete
-- `POST /api/middleman/:id/payments` — wallet debit
-- `POST /api/suppliers/:id/payments` — wallet debit
-- সব রুটে `pg_safeupdate` compliant WHERE clauses
-
-### SSLCommerz Integration
-- ইতিমধ্যে আছে — IPN + val_id verification নিশ্চিত
-- Public form submit → online pay button → success → `payments` insert + wallet credit + booking paid_amount update
+**CMS:** every public page section editable from admin — Hero, About, Services, Why Us, Process, Countries, Testimonials, FAQ, Contact, Footer, Menu, Logo, SEO meta. Version history per section. Image upload via `/server/uploads/cms/`.
 
 ---
 
-## ১০. ইমপ্লিমেন্টেশন স্টেপ (পর্যায়ক্রমে)
+## Phase 2 — Booking + Payment (customer-facing + admin manual entry)
 
-**Phase 1 — Foundation**
-1. Database migration: validation triggers, ledger views, wallet enforcement
-2. `useWalletAccounts` hook
-3. `usePaymentMethods` (already done) verify
+**Public booking flow** (`/apply/:service`):
+1. Pick service → country → package
+2. Personal details (auto-fill if logged in / OTP-verified)
+3. Service-specific form:
+   - Work Permit: passport, education, experience, preferred country/position
+   - Air Ticket: from/to, depart/return date, pax, class
+   - Visa: visa type, country, travel date, purpose
+4. Upload documents (passport scan, photo, NID, education certs — per service)
+5. Review → choose payment: **SSLCommerz online** OR **manual proof upload** (bKash/Nagad/bank screenshot)
+6. Submit → TT- tracking ID + email/SMS
 
-**Phase 2 — Unified Booking Dialog (Admin)**
-4. Build `UnifiedBookingDialog` with all 5 steps
-5. Wire into Work Permit / Ticket / Visa pages
-6. Edit / Delete / Status change buttons fully functional
+**Admin manual entry**: same form inside admin "New Application" — creates application + customer in one step, can record cash payment immediately.
 
-**Phase 3 — Public Apply Form Refactor**
-7. `ApplyDialog` uses same step components
-8. Pay-online + Pay-later branches
-9. SSLCommerz return handler → wallet credit
+**Customer dashboard** (`/my`): list applications, see status timeline, upload missing docs, pay due, download invoice.
 
-**Phase 4 — Payment & Wallet**
-10. `ServicePaymentDialog` — mandatory wallet select, all methods
-11. Wallet balance live view in admin sidebar
-12. Add-payment from booking row
-
-**Phase 5 — Middleman & Supplier**
-13. Middleman select in booking form, auto commission calc
-14. Pay Middleman dialog (wallet debit)
-15. Pay Supplier dialog (wallet debit)
-
-**Phase 6 — Reports**
-16. Wallet balance report
-17. Service-wise revenue dashboard widget
-18. Customer / Middleman / Supplier ledger pages
-19. Daily cashbook with all sources unified
-
-**Phase 7 — QA & Deploy**
-20. Test full flow: public order → admin sees pending → add payment → wallet credits → middleman pays → wallet debits → report matches
-21. VPS deploy: `cd /var/www/alrawsha && git pull && npm install && npm run build && pm2 reload all && pm2 save`
+**Payment system:**
+```text
+payment_methods   (id, code, name, type: cash|bkash|nagad|bank|card|gateway,
+                   wallet_account_id, requires_proof, is_active)
+payments          (id, application_id, customer_id, amount, method_id, wallet_account_id,
+                   transaction_ref, proof_file_path, status: pending|verified|rejected,
+                   verified_by, paid_at, notes)
+online_payment_sessions (id, tran_id, application_id, amount, gateway, status, response JSONB)
+```
+SSLCommerz IPN + val_id verification reused from existing service.
 
 ---
 
-## ১১. প্রশ্ন (Confirm করার আগে)
+## Phase 3 — Accounting (double-entry, accurate debit/credit)
 
-1. **Air Ticket** এবং **Visa** এর জন্যও পাবলিক "Apply" ফর্ম চালু করব? (এখন শুধু Work Permit + Student-এ আছে)
-2. পাবলিক ফর্মে কাস্টমার লগইন বাধ্যতামূলক, নাকি গেস্ট বুকিং allowed (OTP দিয়ে phone verify)?
-3. মিডলম্যানদের কি নিজস্ব লগইন দরকার (যাতে নিজে commission দেখতে পারে), নাকি শুধু অ্যাডমিন রেকর্ড রাখবে?
-4. Phase ১-৭ একটানা করব নাকি Phase ১+২ আগে ডেলিভার করে আপনি টেস্ট করার পর বাকিগুলো?
+```text
+chart_of_accounts (id, code, name, type: asset|liability|income|expense|equity, parent_id)
+wallets           (id, name, type: cash|bank|mobile, account_id, balance, is_active)
+journal_entries   (id, entry_date, ref_type, ref_id, description, total_debit, total_credit,
+                   created_by)
+journal_lines     (id, entry_id, account_id, wallet_id NULL, debit, credit, description)
+expenses          (id, date, category, amount, wallet_id, vendor, note, attachment, created_by)
+agent_commissions (id, agent_id, application_id, amount, status: accrued|paid, paid_at,
+                   payment_id NULL)
+supplier_payables (id, supplier_agent_id, application_id, amount_due, amount_paid, status)
+```
 
-আপনার উত্তর পেলে "Implement plan" বাটন চেপে শুরু করব।
+**Automatic journal entries** on triggers:
+- Payment verified → DR wallet, CR service revenue
+- Expense recorded → DR expense, CR wallet
+- Commission accrued → DR commission expense, CR agent payable
+- Commission paid → DR agent payable, CR wallet
+- Supplier payment → DR supplier payable, CR wallet
+- Refund → DR revenue/refund, CR wallet
+
+Wallet balances and dashboard KPIs recalc via triggers on `journal_lines` insert. All reports exclude `status='cancelled'`.
+
+**Dashboard live KPIs:** Total Revenue · Total Expense · Net Profit · Cash in Hand (per wallet) · Receivables · Payables · Commissions Due · Applications by status (per service) · Monthly trend chart.
+
+---
+
+## Phase 4 — Agent panels (two separate)
+
+**Referral Agent panel** (`/agent`):
+- Login (provisioned by admin)
+- Submit new application on behalf of a customer (same booking form, auto-tags `referral_agent_id`)
+- My Applications (status, payment status)
+- My Commissions (accrued, paid, balance)
+- Request withdrawal → admin approves → creates payment entry
+- Commission rule: per-service flat or % configured in admin per agent or per package
+
+**Supplier Agent panel** (`/supplier`):
+- Login
+- Assigned Applications (Work Permit candidates, Visa cases routed by country)
+- Upload demand letter / visa copy / contract per applicant
+- Update fulfillment status (visa-applied, visa-approved, ticket-issued, deployed)
+- Payables to me: see what your company owes them, payment history
+- Download statement PDF
+
+Both panels are read-scoped via RLS-equivalent server-side checks in `@/lib/api`.
+
+---
+
+## Phase 5 — Invoices, reports, notifications, polish
+
+**Invoices** (PDF, A4, reusing pdfCore + signature engine):
+- Customer Invoice (per application) — auto-generated on creation, downloadable, printable, payment schedule, all application_data fields, QR for verification
+- Payment Receipt (per payment)
+- Agent Commission Statement
+- Supplier Statement
+- Expense Voucher
+
+**Reports** (admin, with date filters + CSV/PDF export):
+- Daily Cashbook (all wallet ins/outs)
+- Revenue by Service / by Country / by Agent
+- Outstanding Dues (customer-wise)
+- Agent Commission Report
+- Supplier Payable Report
+- Profit & Loss
+- Trial Balance
+- Application Pipeline Report
+
+**Notifications:** application submitted, document missing, payment received, status changed, commission paid — SMS via existing 880-prefix normalizer + email.
+
+**Final polish:** SEO meta from CMS, sitemap regen, audit log every admin write, 2FA for admin, backup script updated for new tables.
+
+---
+
+## Technical / migration notes
+
+- **Migration strategy**: single timestamped down+up migration. Down drops all old business tables. Up creates new schema. `schema.sql` rewritten to match. Backup restore order updated.
+- **Code deletion**: remove `src/pages/admin/AdminMoallem*`, `AdminHotels*`, `AdminPackagesPage` (replaced), `AdminWorkPermitPage` (replaced), all Hajj components, Moallem/Hotel managers, old PDF templates.
+- **Type regen**: after each phase migration, Supabase types regenerate automatically.
+- **Deploy per phase** on VPS: `git pull && npm run build && pm2 reload all && pm2 save`. Each phase ships independently and is testable end-to-end before next phase starts.
+- **Estimated phases**: P1 ~1 day, P2 ~2 days, P3 ~2 days, P4 ~1.5 days, P5 ~1.5 days.
+
+---
+
+## What I need from you to start Phase 1
+
+1. **Confirm wipe** — I will drop all Hajj/Hotel/Moallem tables and code. Backups exist via your existing backup system, but this is irreversible in the live DB.
+2. **Frontend palette/style direction** — keep current dark/gold Al Rawsha look, or refresh? (If keep, no action needed.)
+3. **Commission default** — flat BDT per application or % of total? (Can be per-agent override either way.)
+
+Approve this plan and I'll start Phase 1 (schema wipe + new tables + admin shell + CMS).
