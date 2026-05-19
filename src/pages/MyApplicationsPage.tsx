@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { apiClient } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, FileText } from "lucide-react";
 import { Helmet } from "react-helmet-async";
+import { downloadApplicationInvoice } from "@/lib/applicationInvoicePdf";
+import { toast } from "sonner";
 
 export default function MyApplicationsPage() {
   const [apps, setApps] = useState<any[]>([]);
@@ -54,9 +56,24 @@ export default function MyApplicationsPage() {
                       {new Date(a.created_at).toLocaleDateString()}
                     </p>
                   </div>
-                  <Button asChild variant="outline" size="sm">
-                    <Link to={`/track?id=${a.tracking_id}`}>View</Link>
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button asChild variant="outline" size="sm">
+                      <Link to={`/track?id=${a.tracking_id}`}>View</Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          await downloadApplicationInvoice(a.tracking_id);
+                        } catch (e: any) {
+                          toast.error(e?.message || "Failed to download");
+                        }
+                      }}
+                    >
+                      <FileText className="h-3.5 w-3.5 mr-1" /> Invoice
+                    </Button>
+                  </div>
                 </Card>
               ))}
             </div>
