@@ -8,6 +8,7 @@ import heroSerbia from "@/assets/alrawsha-serbia.jpg";
 import heroRussia from "@/assets/alrawsha-russia.jpg";
 import heroVietnam from "@/assets/alrawsha-vietnam.jpg";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useCmsHome } from "@/hooks/useCmsHome";
 
 const WHATSAPP = "8801886999465";
 const WA_LINK = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
@@ -17,8 +18,10 @@ const WA_LINK = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
 const HeroSection = () => {
   const { language } = useLanguage();
   const bn = language === "bn";
+  const { sections } = useCmsHome();
+  const cmsHero = sections.hero || null;
 
-  const slides = [
+  const baseSlides = [
     {
       img: heroMain,
       alt: "Al Rawsha International — skilled Bangladeshi workforce abroad",
@@ -98,6 +101,18 @@ const HeroSection = () => {
         : "Factory worker recruitment. Age 25–40, 10-hour shift, accommodation & meals by company. Passport submission ongoing.",
     },
   ];
+
+  const cmsSlide = cmsHero && (cmsHero.title_en || cmsHero.title_bn || cmsHero.image_url)
+    ? [{
+        img: cmsHero.image_url || heroMain,
+        alt: cmsHero.alt || "Al Rawsha International",
+        badge: (bn ? cmsHero.badge_bn : cmsHero.badge_en) || (bn ? "🇧🇩 সরকার অনুমোদিত (আর.এল-২৯০২)" : "🇧🇩 Govt. Approved (RL-2902)"),
+        title: <>{(bn ? cmsHero.title_bn : cmsHero.title_en) || "Al Rawsha International"}</>,
+        desc: (bn ? cmsHero.subtitle_bn : cmsHero.subtitle_en) || "",
+      }]
+    : [];
+
+  const slides = [...cmsSlide, ...baseSlides];
 
   const [index, setIndex] = useState(0);
   useEffect(() => {
