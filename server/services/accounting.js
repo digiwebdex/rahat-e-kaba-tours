@@ -168,6 +168,24 @@ async function postExpenseEntry(expense, actorId = null) {
   });
 }
 
+// Post a refund entry: Dr 5300 Refunds, Cr 1000 Cash/Bank (wallet).
+// Called when an admin approves a refund record.
+async function postRefundEntry(refund, actorId = null) {
+  if (!refund || !refund.wallet_id || !refund.refund_amount) {
+    throw new Error('refund needs wallet_id and refund_amount');
+  }
+  return postJournalEntry({
+    ref_type: 'refund',
+    ref_id: refund.id,
+    description: `Refund — ${refund.reason || 'cancellation'}`,
+    created_by: actorId,
+    lines: [
+      { account_code: '5300', debit: refund.refund_amount, description: 'Refund issued' },
+      { account_code: '1000', wallet_id: refund.wallet_id, credit: refund.refund_amount, description: 'Cash/Bank refund' },
+    ],
+  });
+}
+
 // Pay out agent commissions: marks commissions paid, posts Dr 2100 / Cr Wallet (1000).
 async function payoutAgentCommissions({ agentId, commissionIds = [], walletId, notes = '', actorId = null }) {
   if (!agentId || !walletId || !Array.isArray(commissionIds) || commissionIds.length === 0) {
