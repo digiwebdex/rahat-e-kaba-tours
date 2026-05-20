@@ -80,13 +80,13 @@ async function confirmPayment(paymentId, actorId = null) {
   );
   const payment = p.rows[0];
   if (!payment) throw new Error('Payment not found');
-  if (payment.status === 'paid') return { payment, alreadyPaid: true };
+  if (payment.status === 'verified') return { payment, alreadyPaid: true };
 
   const revenueCode = SERVICE_REVENUE_ACCOUNT[payment.service_code] || '4000';
 
   await query(
-    `UPDATE payments SET status='paid', paid_at=now() WHERE id=$1`,
-    [paymentId],
+    `UPDATE payments SET status='verified', verified_by=$2, verified_at=now(), paid_at=now() WHERE id=$1`,
+    [paymentId, actorId],
   );
 
   const entry = await postJournalEntry({
@@ -149,7 +149,7 @@ async function confirmPayment(paymentId, actorId = null) {
     }
   }
 
-  return { payment: { ...payment, status: 'paid' }, entry, commission };
+  return { payment: { ...payment, status: 'verified' }, entry, commission };
 }
 
 // Post an expense entry: Dr Operating Expenses, Cr Wallet
@@ -164,6 +164,24 @@ async function postExpenseEntry(expense, actorId = null) {
     lines: [
       { account_code: '5000', debit: expense.amount, description: expense.note || expense.category },
       { account_code: '1000', wallet_id: expense.wallet_id, credit: expense.amount },
+    ],
+  });
+}
+
+// Post a refund entry: Dr 5300 Refunds, Cr 1000 Cash/Bank (wallet).
+// Called when an admin approves a refund record.
+async function postRefundEntry(refund, actorId = null) {
+  if (!refund || !refund.wallet_id || !refund.refund_amount) {
+    throw new Error('refund needs wallet_id and refund_amount');
+  }
+  return postJournalEntry({
+    ref_type: 'refund',
+    ref_id: refund.id,
+    description: `Refund — ${refund.reason || 'cancellation'}`,
+    created_by: actorId,
+    lines: [
+      { account_code: '5300', debit: refund.refund_amount, description: 'Refund issued' },
+      { account_code: '1000', wallet_id: refund.wallet_id, credit: refund.refund_amount, description: 'Cash/Bank refund' },
     ],
   });
 }
@@ -214,5 +232,6 @@ module.exports = {
   confirmPayment,
   postExpenseEntry,
   payoutAgentCommissions,
+  postRefundEntry,
   SERVICE_REVENUE_ACCOUNT,
 };
