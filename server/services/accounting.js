@@ -80,13 +80,13 @@ async function confirmPayment(paymentId, actorId = null) {
   );
   const payment = p.rows[0];
   if (!payment) throw new Error('Payment not found');
-  if (payment.status === 'paid') return { payment, alreadyPaid: true };
+  if (payment.status === 'verified') return { payment, alreadyPaid: true };
 
   const revenueCode = SERVICE_REVENUE_ACCOUNT[payment.service_code] || '4000';
 
   await query(
-    `UPDATE payments SET status='paid', paid_at=now() WHERE id=$1`,
-    [paymentId],
+    `UPDATE payments SET status='verified', verified_by=$2, verified_at=now(), paid_at=now() WHERE id=$1`,
+    [paymentId, actorId],
   );
 
   const entry = await postJournalEntry({
@@ -149,7 +149,7 @@ async function confirmPayment(paymentId, actorId = null) {
     }
   }
 
-  return { payment: { ...payment, status: 'paid' }, entry, commission };
+  return { payment: { ...payment, status: 'verified' }, entry, commission };
 }
 
 // Post an expense entry: Dr Operating Expenses, Cr Wallet
@@ -214,5 +214,6 @@ module.exports = {
   confirmPayment,
   postExpenseEntry,
   payoutAgentCommissions,
+  postRefundEntry,
   SERVICE_REVENUE_ACCOUNT,
 };
