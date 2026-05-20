@@ -558,6 +558,9 @@ app.use('/api/journal-lines', createCrudRoutes('journal_lines', { adminOnly: tru
 app.use('/api/expenses', createCrudRoutes('expenses', { adminOnly: true, orderBy: 'expense_date DESC' }));
 app.use('/api/agent-commissions', createCrudRoutes('agent_commissions', { adminOnly: true }));
 app.use('/api/supplier-payables', createCrudRoutes('supplier_payables', { adminOnly: true }));
+app.use('/api/cancellation-policies', createCrudRoutes('cancellation_policies', { adminOnly: true, orderBy: 'refund_value DESC' }));
+app.use('/api/refunds', createCrudRoutes('refunds', { adminOnly: true, orderBy: 'created_at DESC' }));
+app.use('/api/refund-status-history', createCrudRoutes('refund_status_history', { adminOnly: true, orderBy: 'changed_at DESC' }));
 app.use('/api/supplier-settlements', createCrudRoutes('supplier_settlements', { adminOnly: true }));
 app.use('/api/profiles', createCrudRoutes('profiles', { adminOnly: true }));
 app.use('/api/notification-logs', createCrudRoutes('notification_logs', { adminOnly: true }));
