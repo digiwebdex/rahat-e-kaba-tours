@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { supabase } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { toast } from "sonner";
 import { useIsViewer, useCanModifyFinancials } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -8,26 +8,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent } from "@/components/ui/card";
 import {
   RefreshCw, Plus, Search, RotateCcw, CheckCircle, XCircle,
-  AlertTriangle, DollarSign, TrendingDown, FileText
+  FileText,
 } from "lucide-react";
 import { format } from "date-fns";
 import { formatBDT } from "@/lib/utils";
 
 const inputClass = "w-full bg-secondary border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40";
 
-const REFUND_METHODS = [
-  { value: "cash", label: "Cash" },
-  { value: "bkash", label: "bKash" },
-  { value: "nagad", label: "Nagad" },
-  { value: "bank", label: "Bank Transfer" },
-  { value: "bank_transfer", label: "Bank Transfer" },
-];
-
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
-  approved: "bg-blue-100 text-blue-800",
-  processed: "bg-emerald-100 text-emerald-800",
+  approved: "bg-emerald-100 text-emerald-800",
   rejected: "bg-red-100 text-red-800",
+  cancelled: "bg-muted text-muted-foreground",
 };
 
 export default function AdminRefundsPage() {
@@ -35,8 +27,9 @@ export default function AdminRefundsPage() {
   const canModify = useCanModifyFinancials();
   const [refunds, setRefunds] = useState<any[]>([]);
   const [policies, setPolicies] = useState<any[]>([]);
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [walletAccounts, setWalletAccounts] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<Record<string, any>>({});
+  const [wallets, setWallets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -44,14 +37,13 @@ export default function AdminRefundsPage() {
   // Modals
   const [showAddRefund, setShowAddRefund] = useState(false);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
-  const [selectedBookingId, setSelectedBookingId] = useState("");
+  const [selectedAppId, setSelectedAppId] = useState("");
   const [selectedPolicyId, setSelectedPolicyId] = useState("");
   const [refundForm, setRefundForm] = useState({
     refund_amount: 0,
     deduction_amount: 0,
     original_amount: 0,
-    refund_method: "cash",
-    wallet_account_id: "",
+    wallet_id: "",
     reason: "",
   });
 
@@ -63,30 +55,39 @@ export default function AdminRefundsPage() {
 
   const fetchAll = async () => {
     setLoading(true);
-    const [refRes, polRes, bkRes, walRes] = await Promise.all([
-      supabase.from("refunds").select("*, bookings(tracking_id, guest_name, total_amount, paid_amount, status, packages(name)), cancellation_policies(name)").order("created_at", { ascending: false }),
-      supabase.from("cancellation_policies").select("*").eq("is_active", true).order("name", { ascending: true }),
-      supabase.from("bookings").select("id, tracking_id, guest_name, total_amount, paid_amount, status, packages(name)").order("created_at", { ascending: false }),
-      supabase.from("accounts").select("*").eq("type", "asset").order("name", { ascending: true }),
-    ]);
-    setRefunds(refRes.data || []);
-    setPolicies(polRes.data || []);
-    setBookings((bkRes.data || []).filter((b: any) => b.status !== "cancelled"));
-    setWalletAccounts(walRes.data || []);
-    setLoading(false);
+    try {
+      const [ref, pol, apps, custs, wal] = await Promise.all([
+        apiClient.get("/refunds"),
+        apiClient.get("/cancellation_policies"),
+        apiClient.get("/applications"),
+        apiClient.get("/customers"),
+        apiClient.get("/wallets"),
+      ]);
+      const custMap: Record<string, any> = {};
+      (custs || []).forEach((c: any) => { custMap[c.id] = c; });
+      setCustomers(custMap);
+      setApplications((apps || []).filter((a: any) => a.status !== "cancelled" && Number(a.paid_amount || 0) > 0));
+      setRefunds(ref || []);
+      setPolicies((pol || []).filter((p: any) => p.is_active !== false));
+      setWallets((wal || []).filter((w: any) => w.is_active !== false));
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to load refunds");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchAll(); }, []);
 
-  // When booking changes, update original amount
+  // When application changes, update original amount
   useEffect(() => {
-    if (!selectedBookingId) return;
-    const bk = bookings.find((b: any) => b.id === selectedBookingId);
-    if (bk) {
-      const paid = Number(bk.paid_amount || 0);
+    if (!selectedAppId) return;
+    const a = applications.find((x: any) => x.id === selectedAppId);
+    if (a) {
+      const paid = Number(a.paid_amount || 0);
       setRefundForm(prev => ({ ...prev, original_amount: paid, refund_amount: paid, deduction_amount: 0 }));
     }
-  }, [selectedBookingId, bookings]);
+  }, [selectedAppId, applications]);
 
   // When policy changes, recalculate
   useEffect(() => {
@@ -107,51 +108,66 @@ export default function AdminRefundsPage() {
   }, [selectedPolicyId, policies, refundForm.original_amount]);
 
   const handleCreateRefund = async () => {
-    if (!selectedBookingId) { toast.error("Please select a booking"); return; }
+    if (!selectedAppId) { toast.error("Please select an application"); return; }
     if (refundForm.refund_amount <= 0) { toast.error("Refund amount must be greater than 0"); return; }
-
-    const { error } = await supabase.from("refunds").insert({
-      booking_id: selectedBookingId,
-      policy_id: selectedPolicyId || null,
-      original_amount: refundForm.original_amount,
-      refund_amount: refundForm.refund_amount,
-      deduction_amount: refundForm.deduction_amount,
-      refund_method: refundForm.refund_method,
-      wallet_account_id: refundForm.wallet_account_id || null,
-      reason: refundForm.reason,
-      status: "pending",
-    });
-
-    if (error) { toast.error(error.message); return; }
-    toast.success("Refund request created");
-    setShowAddRefund(false);
-    resetForm();
-    fetchAll();
+    try {
+      await apiClient.post("/refunds", {
+        application_id: selectedAppId,
+        policy_id: selectedPolicyId || null,
+        refund_amount: refundForm.refund_amount,
+        wallet_id: refundForm.wallet_id || null,
+        reason: refundForm.reason,
+      });
+      toast.success("Refund request created");
+      setShowAddRefund(false);
+      resetForm();
+      fetchAll();
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to create refund");
+    }
   };
 
-  const handleUpdateStatus = async (id: string, newStatus: string) => {
-    const { error } = await supabase.from("refunds").update({
-      status: newStatus,
-      ...(newStatus === "processed" ? { processed_at: new Date().toISOString() } : {}),
-    }).eq("id", id);
-    if (error) { toast.error(error.message); return; }
-    toast.success(`Refund ${newStatus === "processed" ? "processed" : newStatus === "approved" ? "approved" : "rejected"}`);
-    fetchAll();
+  const handleApprove = async (r: any) => {
+    if (!r.wallet_id) {
+      const w = prompt("Select wallet ID to pay refund from:\n" + wallets.map(x => `${x.name}: ${x.id}`).join("\n"));
+      if (!w) return;
+      try {
+        await apiClient.post(`/refunds/${r.id}/approve`, { wallet_id: w });
+        toast.success("Refund approved and posted to ledger");
+        fetchAll();
+      } catch (e: any) { toast.error(e?.message || "Failed to approve"); }
+      return;
+    }
+    try {
+      await apiClient.post(`/refunds/${r.id}/approve`, {});
+      toast.success("Refund approved and posted to ledger");
+      fetchAll();
+    } catch (e: any) { toast.error(e?.message || "Failed to approve"); }
+  };
+
+  const handleReject = async (r: any) => {
+    const reason = prompt("Rejection reason:") || "";
+    try {
+      await apiClient.post(`/refunds/${r.id}/reject`, { reason });
+      toast.success("Refund rejected");
+      fetchAll();
+    } catch (e: any) { toast.error(e?.message || "Failed to reject"); }
   };
 
   const handleSavePolicy = async () => {
     if (!policyForm.name) { toast.error("Please enter a name"); return; }
-    const { error } = await supabase.from("cancellation_policies").insert(policyForm);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Policy created");
-    setPolicyForm({ name: "", description: "", refund_type: "percentage", refund_value: 0, min_days_before_departure: 0, is_default: false });
-    fetchAll();
+    try {
+      await apiClient.post("/cancellation_policies", { ...policyForm, is_active: true });
+      toast.success("Policy created");
+      setPolicyForm({ name: "", description: "", refund_type: "percentage", refund_value: 0, min_days_before_departure: 0, is_default: false });
+      fetchAll();
+    } catch (e: any) { toast.error(e?.message || "Failed to save policy"); }
   };
 
   const resetForm = () => {
-    setSelectedBookingId("");
+    setSelectedAppId("");
     setSelectedPolicyId("");
-    setRefundForm({ refund_amount: 0, deduction_amount: 0, original_amount: 0, refund_method: "cash", wallet_account_id: "", reason: "" });
+    setRefundForm({ refund_amount: 0, deduction_amount: 0, original_amount: 0, wallet_id: "", reason: "" });
   };
 
   const filteredRefunds = useMemo(() => {
@@ -159,20 +175,26 @@ export default function AdminRefundsPage() {
     if (filterStatus !== "all") list = list.filter((r: any) => r.status === filterStatus);
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      list = list.filter((r: any) =>
-        r.bookings?.tracking_id?.toLowerCase().includes(q) ||
-        r.bookings?.guest_name?.toLowerCase().includes(q) ||
-        r.reason?.toLowerCase().includes(q)
-      );
+      const appMap: Record<string, any> = {};
+      applications.forEach(a => { appMap[a.id] = a; });
+      list = list.filter((r: any) => {
+        const app = appMap[r.application_id];
+        const cust = customers[r.customer_id];
+        return (
+          app?.tracking_id?.toLowerCase().includes(q) ||
+          cust?.full_name?.toLowerCase().includes(q) ||
+          r.reason?.toLowerCase().includes(q)
+        );
+      });
     }
     return list;
-  }, [refunds, filterStatus, searchQuery]);
+  }, [refunds, filterStatus, searchQuery, applications, customers]);
 
   const stats = useMemo(() => ({
     total: refunds.length,
     pending: refunds.filter((r: any) => r.status === "pending").length,
-    processed: refunds.filter((r: any) => r.status === "processed").length,
-    totalRefunded: refunds.filter((r: any) => r.status === "processed").reduce((s: number, r: any) => s + Number(r.refund_amount), 0),
+    approved: refunds.filter((r: any) => r.status === "approved").length,
+    totalRefunded: refunds.filter((r: any) => r.status === "approved").reduce((s: number, r: any) => s + Number(r.refund_amount), 0),
   }), [refunds]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><RefreshCw className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
@@ -208,8 +230,8 @@ export default function AdminRefundsPage() {
           <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs text-muted-foreground">Processed</p>
-          <p className="text-2xl font-bold text-emerald-600">{stats.processed}</p>
+          <p className="text-xs text-muted-foreground">Approved</p>
+          <p className="text-2xl font-bold text-emerald-600">{stats.approved}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs text-muted-foreground">Total Refunded</p>
@@ -227,8 +249,8 @@ export default function AdminRefundsPage() {
           <option value="all">All statuses</option>
           <option value="pending">Pending</option>
           <option value="approved">Approved</option>
-          <option value="processed">Processed</option>
-          <option value="rejected">Cancel</option>
+          <option value="rejected">Rejected</option>
+          <option value="cancelled">Cancelled</option>
         </select>
       </div>
 
@@ -242,7 +264,7 @@ export default function AdminRefundsPage() {
               <th className="text-right px-4 py-3 font-medium text-muted-foreground">Original Amount</th>
               <th className="text-right px-4 py-3 font-medium text-muted-foreground">Deduction</th>
               <th className="text-right px-4 py-3 font-medium text-muted-foreground">Refund</th>
-              <th className="text-center px-4 py-3 font-medium text-muted-foreground">Method</th>
+              <th className="text-center px-4 py-3 font-medium text-muted-foreground">Wallet</th>
               <th className="text-center px-4 py-3 font-medium text-muted-foreground">Status</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Date</th>
               {!isViewer && <th className="text-center px-4 py-3 font-medium text-muted-foreground">Action</th>}
@@ -251,41 +273,41 @@ export default function AdminRefundsPage() {
           <tbody>
             {filteredRefunds.length === 0 ? (
               <tr><td colSpan={9} className="text-center py-8 text-muted-foreground">No refunds found</td></tr>
-            ) : filteredRefunds.map((r: any) => (
-              <tr key={r.id} className="border-t border-border hover:bg-muted/30">
-                <td className="px-4 py-3 font-mono text-xs">{r.bookings?.tracking_id || "—"}</td>
-                <td className="px-4 py-3">{r.bookings?.guest_name || "—"}</td>
-                <td className="px-4 py-3 text-right">{formatBDT(r.original_amount)}</td>
-                <td className="px-4 py-3 text-right text-destructive">{formatBDT(r.deduction_amount)}</td>
-                <td className="px-4 py-3 text-right font-semibold">{formatBDT(r.refund_amount)}</td>
-                <td className="px-4 py-3 text-center capitalize">{r.refund_method}</td>
-                <td className="px-4 py-3 text-center">
-                  <Badge className={STATUS_COLORS[r.status] || ""}>{r.status}</Badge>
-                </td>
-                <td className="px-4 py-3 text-xs">{format(new Date(r.created_at), "dd/MM/yyyy")}</td>
-                {!isViewer && (
+            ) : filteredRefunds.map((r: any) => {
+              const app = applications.find(a => a.id === r.application_id) || {};
+              const cust = customers[r.customer_id] || {};
+              const wallet = wallets.find(w => w.id === r.wallet_id);
+              return (
+                <tr key={r.id} className="border-t border-border hover:bg-muted/30">
+                  <td className="px-4 py-3 font-mono text-xs">{app.tracking_id || "—"}</td>
+                  <td className="px-4 py-3">{cust.full_name || "—"}</td>
+                  <td className="px-4 py-3 text-right">{formatBDT(r.original_amount)}</td>
+                  <td className="px-4 py-3 text-right text-destructive">{formatBDT(r.deduction_amount)}</td>
+                  <td className="px-4 py-3 text-right font-semibold">{formatBDT(r.refund_amount)}</td>
+                  <td className="px-4 py-3 text-center text-xs">{wallet?.name || "—"}</td>
                   <td className="px-4 py-3 text-center">
-                    <div className="flex gap-1 justify-center">
-                      {r.status === "pending" && canModify && (
-                        <>
-                          <Button size="sm" variant="ghost" className="text-emerald-600 h-7 px-2" onClick={() => handleUpdateStatus(r.id, "approved")}>
-                            <CheckCircle className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="text-destructive h-7 px-2" onClick={() => handleUpdateStatus(r.id, "rejected")}>
-                            <XCircle className="h-3.5 w-3.5" />
-                          </Button>
-                        </>
-                      )}
-                      {r.status === "approved" && canModify && (
-                        <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => handleUpdateStatus(r.id, "processed")}>
-                          <DollarSign className="h-3.5 w-3.5 mr-1" /> Process
-                        </Button>
-                      )}
-                    </div>
+                    <Badge className={STATUS_COLORS[r.status] || ""}>{r.status}</Badge>
                   </td>
-                )}
-              </tr>
-            ))}
+                  <td className="px-4 py-3 text-xs">{format(new Date(r.created_at), "dd/MM/yyyy")}</td>
+                  {!isViewer && (
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex gap-1 justify-center">
+                        {r.status === "pending" && canModify && (
+                          <>
+                            <Button size="sm" variant="ghost" className="text-emerald-600 h-7 px-2" onClick={() => handleApprove(r)}>
+                              <CheckCircle className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button size="sm" variant="ghost" className="text-destructive h-7 px-2" onClick={() => handleReject(r)}>
+                              <XCircle className="h-3.5 w-3.5" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -296,12 +318,17 @@ export default function AdminRefundsPage() {
           <DialogHeader><DialogTitle>New Refund Request</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Select Booking *</label>
-              <select className={inputClass} value={selectedBookingId} onChange={e => setSelectedBookingId(e.target.value)}>
-                <option value="">-- Select booking --</option>
-                {bookings.map((b: any) => (
-                  <option key={b.id} value={b.id}>{b.tracking_id} — {b.guest_name} ({formatBDT(b.paid_amount)} paid)</option>
-                ))}
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Select Application *</label>
+              <select className={inputClass} value={selectedAppId} onChange={e => setSelectedAppId(e.target.value)}>
+                <option value="">-- Select application --</option>
+                {applications.map((a: any) => {
+                  const cust = customers[a.customer_id];
+                  return (
+                    <option key={a.id} value={a.id}>
+                      {a.tracking_id} — {cust?.full_name || "Unknown"} ({formatBDT(a.paid_amount)} paid)
+                    </option>
+                  );
+                })}
               </select>
             </div>
 
@@ -338,18 +365,13 @@ export default function AdminRefundsPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Refund Method</label>
-                <select className={inputClass} value={refundForm.refund_method} onChange={e => setRefundForm(prev => ({ ...prev, refund_method: e.target.value }))}>
-                  {REFUND_METHODS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Pay From Wallet *</label>
+                <select className={inputClass} value={refundForm.wallet_id} onChange={e => setRefundForm(prev => ({ ...prev, wallet_id: e.target.value }))}>
+                  <option value="">-- Select wallet --</option>
+                  {wallets.map((w: any) => <option key={w.id} value={w.id}>{w.name} ({formatBDT(w.balance)})</option>)}
                 </select>
               </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Wallet Account</label>
-                <select className={inputClass} value={refundForm.wallet_account_id} onChange={e => setRefundForm(prev => ({ ...prev, wallet_account_id: e.target.value }))}>
-                  <option value="">-- Select --</option>
-                  {walletAccounts.map((w: any) => <option key={w.id} value={w.id}>{w.name} ({formatBDT(w.balance)})</option>)}
-                </select>
-              </div>
+              <div />
             </div>
 
             <div>
