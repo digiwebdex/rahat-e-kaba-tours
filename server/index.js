@@ -558,6 +558,9 @@ app.use('/api/journal-lines', createCrudRoutes('journal_lines', { adminOnly: tru
 app.use('/api/expenses', createCrudRoutes('expenses', { adminOnly: true, orderBy: 'expense_date DESC' }));
 app.use('/api/agent-commissions', createCrudRoutes('agent_commissions', { adminOnly: true }));
 app.use('/api/supplier-payables', createCrudRoutes('supplier_payables', { adminOnly: true }));
+app.use('/api/cancellation-policies', createCrudRoutes('cancellation_policies', { adminOnly: true, orderBy: 'refund_value DESC' }));
+app.use('/api/refunds', createCrudRoutes('refunds', { adminOnly: true, orderBy: 'created_at DESC' }));
+app.use('/api/refund-status-history', createCrudRoutes('refund_status_history', { adminOnly: true, orderBy: 'changed_at DESC' }));
 app.use('/api/supplier-settlements', createCrudRoutes('supplier_settlements', { adminOnly: true }));
 app.use('/api/profiles', createCrudRoutes('profiles', { adminOnly: true }));
 app.use('/api/notification-logs', createCrudRoutes('notification_logs', { adminOnly: true }));
@@ -700,6 +703,171 @@ app.post('/api/accounting/journal', authenticate, requireRole('admin'), async (r
     res.json({ success: true, entry });
   } catch (e) {
     res.status(400).json({ error: e.message });
+  }
+});
+
+// =============================================
+// REFUNDS (Phase 2)
+// =============================================
+
+// Compute refund amount from a policy + paid amount
+function computeRefundAmount({ refund_type, refund_value }, paid) {
+  const v = Number(refund_value || 0);
+  const p = Number(paid || 0);
+  if (refund_type === 'flat') return Math.min(v, p);
+  // percentage: refund_value is the % returned to customer
+  return Math.max(0, Math.min(p, +(p * (v / 100)).toFixed(2)));
+}
+
+// Create a refund request (status = pending). Snapshots paid_amount.
+app.post('/api/refunds', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const {
+      application_id,
+      policy_id = null,
+      refund_amount: explicitAmount,
+      method_code = null,
+      wallet_id = null,
+      reason = null,
+    } = req.body || {};
+    if (!application_id) return res.status(400).json({ error: 'application_id required' });
+
+    const appRes = await query(
+      `SELECT id, customer_id, paid_amount, total_amount, status, tracking_id
+         FROM applications WHERE id = $1`,
+      [application_id],
+    );
+    const app = appRes.rows[0];
+    if (!app) return res.status(404).json({ error: 'Application not found' });
+    if (Number(app.paid_amount || 0) <= 0) {
+      return res.status(400).json({ error: 'No payment to refund' });
+    }
+
+    let policy = null;
+    if (policy_id) {
+      const pol = await query(`SELECT * FROM cancellation_policies WHERE id = $1`, [policy_id]);
+      policy = pol.rows[0] || null;
+    }
+
+    const original = Number(app.paid_amount || 0);
+    const computed = explicitAmount != null
+      ? Math.min(Number(explicitAmount), original)
+      : policy
+        ? computeRefundAmount(policy, original)
+        : original;
+    const deduction = +(original - computed).toFixed(2);
+
+    const r = await query(
+      `INSERT INTO refunds
+         (application_id, customer_id, policy_id, original_amount,
+          deduction_amount, refund_amount, method_code, wallet_id, reason,
+          status, requested_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending',$10)
+       RETURNING *`,
+      [
+        application_id, app.customer_id, policy_id, original,
+        deduction, computed, method_code, wallet_id, reason, req.user.id,
+      ],
+    );
+    const refund = r.rows[0];
+
+    await query(
+      `INSERT INTO refund_status_history (refund_id, to_status, note, changed_by)
+       VALUES ($1,'pending',$2,$3)`,
+      [refund.id, reason || 'Refund requested', req.user.id],
+    );
+
+    res.json({ success: true, refund });
+  } catch (e) {
+    console.error('POST /api/refunds error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Approve refund: post ledger entry, mark application cancelled if full refund.
+app.post('/api/refunds/:id/approve', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const { wallet_id, method_code, note } = req.body || {};
+    const r = await query(`SELECT * FROM refunds WHERE id = $1`, [req.params.id]);
+    const refund = r.rows[0];
+    if (!refund) return res.status(404).json({ error: 'Refund not found' });
+    if (refund.status !== 'pending') {
+      return res.status(400).json({ error: `Cannot approve a ${refund.status} refund` });
+    }
+
+    const finalWallet = wallet_id || refund.wallet_id;
+    if (!finalWallet) return res.status(400).json({ error: 'wallet_id required to approve refund' });
+
+    const entry = await accounting.postRefundEntry(
+      { ...refund, wallet_id: finalWallet },
+      req.user.id,
+    );
+
+    const upd = await query(
+      `UPDATE refunds
+          SET status='approved', approved_by=$2, approved_at=now(),
+              wallet_id=$3, method_code=COALESCE($4, method_code),
+              journal_entry_id=$5
+        WHERE id=$1
+        RETURNING *`,
+      [refund.id, req.user.id, finalWallet, method_code || null, entry.id],
+    );
+
+    await query(
+      `INSERT INTO refund_status_history (refund_id, from_status, to_status, note, changed_by)
+       VALUES ($1,'pending','approved',$2,$3)`,
+      [refund.id, note || null, req.user.id],
+    );
+
+    // If refund covers everything paid, mark application cancelled
+    const app = await query(
+      `SELECT id, paid_amount FROM applications WHERE id = $1`,
+      [refund.application_id],
+    );
+    if (app.rows[0] && Number(refund.refund_amount) >= Number(app.rows[0].paid_amount || 0)) {
+      await query(
+        `UPDATE applications SET status='cancelled', updated_at=now() WHERE id = $1`,
+        [refund.application_id],
+      );
+      await query(
+        `INSERT INTO application_status_history (application_id, to_status, note, changed_by)
+         VALUES ($1,'cancelled',$2,$3)`,
+        [refund.application_id, `Full refund approved (${refund.refund_amount})`, req.user.id],
+      );
+    }
+
+    res.json({ success: true, refund: upd.rows[0], entry });
+  } catch (e) {
+    console.error('POST /api/refunds/:id/approve error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Reject refund
+app.post('/api/refunds/:id/reject', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const { reason } = req.body || {};
+    const r = await query(`SELECT status FROM refunds WHERE id = $1`, [req.params.id]);
+    if (!r.rows[0]) return res.status(404).json({ error: 'Refund not found' });
+    if (r.rows[0].status !== 'pending') {
+      return res.status(400).json({ error: `Cannot reject a ${r.rows[0].status} refund` });
+    }
+    const upd = await query(
+      `UPDATE refunds
+          SET status='rejected', rejected_by=$2, rejected_at=now(), rejection_reason=$3
+        WHERE id=$1
+        RETURNING *`,
+      [req.params.id, req.user.id, reason || null],
+    );
+    await query(
+      `INSERT INTO refund_status_history (refund_id, from_status, to_status, note, changed_by)
+       VALUES ($1,'pending','rejected',$2,$3)`,
+      [req.params.id, reason || null, req.user.id],
+    );
+    res.json({ success: true, refund: upd.rows[0] });
+  } catch (e) {
+    console.error('POST /api/refunds/:id/reject error:', e.message);
+    res.status(500).json({ error: e.message });
   }
 });
 
